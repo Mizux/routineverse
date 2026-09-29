@@ -730,17 +730,17 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
       std::string io_str;
-      if (act.input_item_1 >= 0) {
+      if (is_valid_item(act.input_item_1)) {
         io_str += std::format("{}x{}", act.input_qty_1,
-                              item_info[act.input_item_1].name);
+                              get_item_info(act.input_item_1).name);
       }
-      if (act.input_item_2 >= 0) {
+      if (is_valid_item(act.input_item_2)) {
         io_str += std::format("+{}x{}", act.input_qty_2,
-                              item_info[act.input_item_2].name);
+                              get_item_info(act.input_item_2).name);
       }
-      if (act.product_item >= 0) {
+      if (is_valid_item(act.product_item)) {
         if (!io_str.empty()) io_str += "->";
-        io_str += std::format("{}", item_info[act.product_item].name);
+        io_str += std::format("{}", get_item_info(act.product_item).name);
       } else if (io_str.empty()) {
         io_str = "XP+Cell+Cr";
       }
@@ -872,7 +872,7 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
   for (int i = start_idx;
        i < static_cast<int>(_gameState.bank.size()) && row < y + h - 1; ++i) {
     const auto& slot = _gameState.bank[i];
-    const auto& info = item_info[slot.item_id];
+    const auto& info = get_item_info(slot.item_id);
     bool is_sel = (i == _bankCursor);
 
     short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN) : CP_DEFAULT;
@@ -908,13 +908,15 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
   int row = y + 1;
 
-  int w_id = _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
-  std::string w_str = (w_id >= 0) ? item_info[w_id].name : "Unarmed";
+  ItemId w_id = _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
+  std::string w_str =
+      is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
   std::string food_str =
-      (_gameState.equipped_food_item >= 0 && _gameState.equipped_food_qty > 0)
+      (is_valid_item(_gameState.equipped_food_item) &&
+       _gameState.equipped_food_qty > 0)
           ? std::format("{}x {} (+{}HP)", _gameState.equipped_food_qty,
-                        item_info[_gameState.equipped_food_item].name,
-                        item_info[_gameState.equipped_food_item].heal_amount)
+                        get_item_info(_gameState.equipped_food_item).name,
+                        get_item_info(_gameState.equipped_food_item).heal_amount)
           : "None";
 
   auto print_line = [&](short cp, const std::string& s) {
@@ -1092,7 +1094,7 @@ void TuiApp::actionEatFood() { _gameState.eat_food(); }
 void TuiApp::actionEquipSelected() {
   if (_gameState.bank.empty()) return;
   clampCursors();
-  int item_id = _gameState.bank[_bankCursor].item_id;
+  ItemId item_id = _gameState.bank[_bankCursor].item_id;
   _gameState.equip_item(item_id);
   clampCursors();
 }
@@ -1100,7 +1102,7 @@ void TuiApp::actionEquipSelected() {
 void TuiApp::actionSellSelected() {
   if (_gameState.bank.empty()) return;
   clampCursors();
-  int item_id = _gameState.bank[_bankCursor].item_id;
+  ItemId item_id = _gameState.bank[_bankCursor].item_id;
   int have = _gameState.item_qty(item_id);
   if (have <= 0) return;
 
@@ -1110,7 +1112,7 @@ void TuiApp::actionSellSelected() {
     return;
   }
 
-  const auto& info = item_info[item_id];
+  const auto& info = get_item_info(item_id);
   int qty = showInputSpinModal(
       "Liquidate Vault Item",
       std::format("Liquidating {} ({} Cr each)\nYou have {} in your Cyber-Vault.",
@@ -1258,10 +1260,10 @@ void TuiApp::showEquipmentDialog() {
 
     for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
       auto slot = static_cast<EquipSlot>(i);
-      int id = _gameState.equipped_items[i];
+      ItemId id = _gameState.equipped_items[i];
       std::string desc = "Empty";
-      if (id >= 0 && id < ITEM_COUNT) {
-        const auto& info = item_info[id];
+      if (is_valid_item(id)) {
+        const auto& info = get_item_info(id);
         desc = std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
                            info.attack_bonus, info.strength_bonus,
                            info.defence_bonus, info.damage_reduction);
@@ -1314,8 +1316,8 @@ void TuiApp::showBestiaryDialog() {
     oss << std::format("   Salvage: {}-{} Cr", mon.credits_min,
                        mon.credits_max);
     for (const auto& d : mon.drops) {
-      if (d.item_id >= 0) {
-        oss << std::format(", {} ({}%)", item_info[d.item_id].name,
+      if (is_valid_item(d.item_id)) {
+        oss << std::format(", {} ({}%)", get_item_info(d.item_id).name,
                            d.chance_pct);
       }
     }

@@ -37,13 +37,13 @@ void window_main_button_eat_clicked_cb(MainWindow& window) {
 }
 
 void window_main_button_equip_clicked_cb(MainWindow& window) {
-  int item_id = window.selectedBankItemId();
-  if (item_id < 0) {
+  ItemId item_id = window.selectedBankItemId();
+  if (!is_valid_item(item_id)) {
     QMessageBox::information(
         &window, "Equip Item",
         "Please select cyberware, a weapon, or a stim from the Cyber-Vault first.");
   } else {
-    const auto& info = item_info[item_id];
+    const auto& info = get_item_info(item_id);
     if (info.equip_slot == EquipSlot::None && info.heal_amount <= 0) {
       QMessageBox::information(
           &window, "Equip Item",
@@ -58,8 +58,8 @@ void window_main_button_equip_clicked_cb(MainWindow& window) {
 
 void window_main_button_sell_clicked_cb(MainWindow& window) {
   auto& gs = window.gameState();
-  int item_id = window.selectedBankItemId();
-  if (item_id < 0) {
+  ItemId item_id = window.selectedBankItemId();
+  if (!is_valid_item(item_id)) {
     QMessageBox::information(
         &window, "Liquidate Item",
         "Please select an item in the Cyber-Vault to sell.");
@@ -68,7 +68,7 @@ void window_main_button_sell_clicked_cb(MainWindow& window) {
   int have = gs.item_qty(item_id);
   if (have <= 0) return;
 
-  const auto& info = item_info[item_id];
+  const auto& info = get_item_info(item_id);
   if (have == 1) {
     gs.sell_item(item_id, 1);
     window.updateAllUi();

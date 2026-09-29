@@ -609,11 +609,11 @@ int MainWindow::selectedMonsterId() const {
   return item->data(0, Qt::UserRole).toInt();
 }
 
-int MainWindow::selectedBankItemId() const {
-  if (!_treeview_bank) return -1;
+ItemId MainWindow::selectedBankItemId() const {
+  if (!_treeview_bank) return ItemId::None;
   auto* item = _treeview_bank->currentItem();
-  if (!item) return -1;
-  return item->data(0, Qt::UserRole).toInt();
+  if (!item) return ItemId::None;
+  return static_cast<ItemId>(item->data(0, Qt::UserRole).toInt());
 }
 
 void MainWindow::updateLiveProgressOnly() {
@@ -697,13 +697,14 @@ void MainWindow::updateAllUi() {
             .arg(_gameState.reactor_tier + 1));
   }
   if (_label_equipped_weapon) {
-    int w_id = _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
+    ItemId w_id =
+        _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
     _label_equipped_weapon->setText(
-        w_id >= 0 ? QString("%1 (Max Hit: %2)")
-                        .arg(item_info[w_id].name)
-                        .arg(_gameState.player_max_hit())
-                  : QString("Unarmed (Max Hit: %1)")
-                        .arg(_gameState.player_max_hit()));
+        is_valid_item(w_id) ? QString("%1 (Max Hit: %2)")
+                                  .arg(get_item_info(w_id).name)
+                                  .arg(_gameState.player_max_hit())
+                            : QString("Unarmed (Max Hit: %1)")
+                                  .arg(_gameState.player_max_hit()));
   }
   if (_label_equipped_armor) {
     _label_equipped_armor->setText(
@@ -713,8 +714,9 @@ void MainWindow::updateAllUi() {
             .arg(_gameState.auto_stim_tier));
   }
   if (_label_equipped_food) {
-    if (_gameState.equipped_food_item >= 0 && _gameState.equipped_food_qty > 0) {
-      const auto& fi = item_info[_gameState.equipped_food_item];
+    if (is_valid_item(_gameState.equipped_food_item) &&
+        _gameState.equipped_food_qty > 0) {
+      const auto& fi = get_item_info(_gameState.equipped_food_item);
       _label_equipped_food->setText(QString("%1x %2 (+%3 HP)")
                                         .arg(_gameState.equipped_food_qty)
                                         .arg(fi.name)
@@ -825,21 +827,21 @@ void MainWindow::_fillTreeviewActions() {
     }
 
     QString io_str;
-    if (act.input_item_1 >= 0) {
+    if (is_valid_item(act.input_item_1)) {
       io_str += QString("%1x %2")
                     .arg(act.input_qty_1)
-                    .arg(item_info[act.input_item_1].name);
+                    .arg(get_item_info(act.input_item_1).name);
     }
-    if (act.input_item_2 >= 0) {
+    if (is_valid_item(act.input_item_2)) {
       io_str += QString(" + %1x %2")
                     .arg(act.input_qty_2)
-                    .arg(item_info[act.input_item_2].name);
+                    .arg(get_item_info(act.input_item_2).name);
     }
-    if (act.product_item >= 0) {
+    if (is_valid_item(act.product_item)) {
       if (!io_str.isEmpty()) io_str += " -> ";
       io_str += QString("%1x %2")
                     .arg(act.product_qty)
-                    .arg(item_info[act.product_item].name);
+                    .arg(get_item_info(act.product_item).name);
     } else if (io_str.isEmpty()) {
       io_str = "XP + Carbon Cell + Cr";
     }
@@ -913,14 +915,14 @@ void MainWindow::_fillTreeviewMonsters() {
 
 void MainWindow::_fillTreeviewBank() {
   if (!_treeview_bank) return;
-  int prev_item_id = selectedBankItemId();
+  ItemId prev_item_id = selectedBankItemId();
   _treeview_bank->clear();
 
   QTreeWidgetItem* to_select = nullptr;
   for (const auto& slot : _gameState.bank) {
-    if (slot.item_id < 0 || slot.item_id >= ITEM_COUNT || slot.qty <= 0)
+    if (!is_valid_item(slot.item_id) || slot.qty <= 0)
       continue;
-    const auto& info = item_info[slot.item_id];
+    const auto& info = get_item_info(slot.item_id);
     auto* item = new QTreeWidgetItem(_treeview_bank);
 
     QString extra = QString::fromStdString(
@@ -937,7 +939,7 @@ void MainWindow::_fillTreeviewBank() {
     item->setText(1, QString::fromStdString(item_category_name(info.category)));
     item->setText(2, QString::number(slot.qty));
     item->setText(3, extra);
-    item->setData(0, Qt::UserRole, slot.item_id);
+    item->setData(0, Qt::UserRole, static_cast<int>(slot.item_id));
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
 
     if (slot.item_id == prev_item_id) {
@@ -1251,9 +1253,9 @@ void WindowEquipment::_setupWidget() {
 
 void WindowEquipment::updateEquipmentUi() {
   for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-    int id = _gameState.equipped_items[i];
-    if (id >= 0 && id < ITEM_COUNT) {
-      const auto& info = item_info[id];
+    ItemId id = _gameState.equipped_items[i];
+    if (is_valid_item(id)) {
+      const auto& info = get_item_info(id);
       _slot_labels[i]->setText(
           QString("%1 (+%2 Atk, +%3 Str, +%4 Def, %5% DR)")
               .arg(info.name)
@@ -1268,8 +1270,9 @@ void WindowEquipment::updateEquipmentUi() {
     }
   }
 
-  if (_gameState.equipped_food_item >= 0 && _gameState.equipped_food_qty > 0) {
-    const auto& fi = item_info[_gameState.equipped_food_item];
+  if (is_valid_item(_gameState.equipped_food_item) &&
+      _gameState.equipped_food_qty > 0) {
+    const auto& fi = get_item_info(_gameState.equipped_food_item);
     _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
                              .arg(_gameState.equipped_food_qty)
                              .arg(fi.name)
@@ -1337,9 +1340,9 @@ void WindowBestiary::_setupWidget() {
     QString drops_str =
         QString("%1-%2 Cr").arg(mon.credits_min).arg(mon.credits_max);
     for (const auto& d : mon.drops) {
-      if (d.item_id >= 0) {
+      if (is_valid_item(d.item_id)) {
         drops_str += QString(", %1 (%2%)")
-                         .arg(item_info[d.item_id].name)
+                         .arg(get_item_info(d.item_id).name)
                          .arg(d.chance_pct);
       }
     }

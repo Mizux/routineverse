@@ -63,8 +63,120 @@ enum class ActiveActivityType : int {
   Combat = 2,
 };
 
+enum class ItemId : int {
+  None = -1,
+
+  // Scrap & Tech Nodes (0..8)
+  CopperWireScrap = 0,
+  PlasteelShards = 1,
+  CarbonNanotubes = 2,
+  OpticFiberBundle = 3,
+  PositronicRelays = 4,
+  CryoCellCore = 5,
+  PlasmaConduit = 6,
+  QuantumNode = 7,
+  AiMainframeCore = 8,
+
+  // Raw Synth-Biota (9..16)
+  RawKrillBiomass = 9,
+  RawNeonEel = 10,
+  RawSynthCarp = 11,
+  RawChromeSalmon = 12,
+  RawCyberLobster = 13,
+  RawPlasmaRay = 14,
+  RawApexShark = 15,
+  RawLeviathanCell = 16,
+
+  // Synthesized Stims / Rations & Toxic Slag (17..26)
+  KrillRation = 17,
+  NeonEelSkewer = 18,
+  SynthCarpPack = 19,
+  ChromeSalmonStim = 20,
+  CyberLobsterMeal = 21,
+  PlasmaRayInfusion = 22,
+  ApexSharkBooster = 23,
+  LeviathanNanomed = 24,
+  SynthProteinBar = 25,
+  ToxicSlag = 26,
+
+  // Deep-Mined Ores & Cells (27..36)
+  CopperOre = 27,
+  SiliconOre = 28,
+  TitaniumOre = 29,
+  CarbonCell = 30,
+  SilverOre = 31,
+  GoldOre = 32,
+  CobaltOre = 33,
+  TungstenOre = 34,
+  NeutroniumOre = 35,
+  ChronoOre = 36,
+
+  // Refined Alloys & Conductors (37..45)
+  ScrapAlloy = 37,
+  TitaniumAlloy = 38,
+  DurasteelAlloy = 39,
+  SilverConductor = 40,
+  GoldSuperconductor = 41,
+  CobaltAlloy = 42,
+  TungstenAlloy = 43,
+  NeutroniumAlloy = 44,
+  ChronoAlloy = 45,
+
+  // Data Crystals (46..50)
+  AmberDatachip = 46,
+  SapphireCortex = 47,
+  RubyLaserCore = 48,
+  EmeraldCryptokey = 49,
+  QuantumDiamond = 50,
+
+  // Weapons - Mono-Blades (51..57)
+  ScrapBlade = 51,
+  TitaniumBlade = 52,
+  DurasteelBlade = 53,
+  CobaltBlade = 54,
+  TungstenBlade = 55,
+  NeutroniumBlade = 56,
+  ChronoBlade = 57,
+
+  // Visors (58..64)
+  ScrapVisor = 58,
+  TitaniumVisor = 59,
+  DurasteelVisor = 60,
+  CobaltVisor = 61,
+  TungstenVisor = 62,
+  NeutroniumVisor = 63,
+  ChronoVisor = 64,
+
+  // Exo-Suits (65..71)
+  ScrapExoSuit = 65,
+  TitaniumExoSuit = 66,
+  DurasteelExoSuit = 67,
+  CobaltExoSuit = 68,
+  TungstenExoSuit = 69,
+  NeutroniumExoSuit = 70,
+  ChronoExoSuit = 71,
+
+  // Holo-Shields (72..78)
+  ScrapShield = 72,
+  TitaniumShield = 73,
+  DurasteelShield = 74,
+  CobaltShield = 75,
+  TungstenShield = 76,
+  NeutroniumShield = 77,
+  ChronoShield = 78,
+
+  // Enemy Salvage Loot (79..83)
+  ServoParts = 79,
+  HeavyChassis = 80,
+  ApexCyberCore = 81,
+  Microchip = 82,
+  SynthWeaveHide = 83,
+};
+
+inline constexpr int ITEM_COUNT = 84;
+
 struct ItemInfo {
-  int id;
+  ItemId id;
   const char* name;
   ItemCategory category;
   int price;
@@ -84,16 +196,16 @@ struct SkillAction {
   int req_level;
   int base_interval_ms;
   int xp;
-  int product_item;
+  ItemId product_item;
   int product_qty;
-  int input_item_1;
+  ItemId input_item_1;
   int input_qty_1;
-  int input_item_2;
+  ItemId input_item_2;
   int input_qty_2;
 };
 
 struct MonsterDrop {
-  int item_id;
+  ItemId item_id;
   int chance_pct;  // 1..100
   int min_qty;
   int max_qty;
@@ -127,119 +239,8 @@ struct ShopUpgradeInfo {
 };
 
 struct BankSlot {
-  int item_id = -1;
+  ItemId item_id = ItemId::None;
   int qty = 0;
-};
-
-// Item ID constants
-enum ItemId : int {
-  // Scrap & Tech Nodes (0..8)
-  ITEM_COPPER_WIRE_SCRAP = 0,
-  ITEM_PLASTEEL_SHARDS = 1,
-  ITEM_CARBON_NANOTUBES = 2,
-  ITEM_OPTIC_FIBER_BUNDLE = 3,
-  ITEM_POSITRONIC_RELAYS = 4,
-  ITEM_CRYO_CELL_CORE = 5,
-  ITEM_PLASMA_CONDUIT = 6,
-  ITEM_QUANTUM_NODE = 7,
-  ITEM_AI_MAINFRAME_CORE = 8,
-
-  // Raw Synth-Biota (9..16)
-  ITEM_RAW_KRILL_BIOMASS = 9,
-  ITEM_RAW_NEON_EEL = 10,
-  ITEM_RAW_SYNTH_CARP = 11,
-  ITEM_RAW_CHROME_SALMON = 12,
-  ITEM_RAW_CYBER_LOBSTER = 13,
-  ITEM_RAW_PLASMA_RAY = 14,
-  ITEM_RAW_APEX_SHARK = 15,
-  ITEM_RAW_LEVIATHAN_CELL = 16,
-
-  // Synthesized Stims / Rations & Toxic Slag (17..26)
-  ITEM_KRILL_RATION = 17,
-  ITEM_NEON_EEL_SKEWER = 18,
-  ITEM_SYNTH_CARP_PACK = 19,
-  ITEM_CHROME_SALMON_STIM = 20,
-  ITEM_CYBER_LOBSTER_MEAL = 21,
-  ITEM_PLASMA_RAY_INFUSION = 22,
-  ITEM_APEX_SHARK_BOOSTER = 23,
-  ITEM_LEVIATHAN_NANOMED = 24,
-  ITEM_SYNTH_PROTEIN_BAR = 25,
-  ITEM_TOXIC_SLAG = 26,
-
-  // Deep-Mined Ores & Cells (27..36)
-  ITEM_COPPER_ORE = 27,
-  ITEM_SILICON_ORE = 28,
-  ITEM_TITANIUM_ORE = 29,
-  ITEM_CARBON_CELL = 30,
-  ITEM_SILVER_ORE = 31,
-  ITEM_GOLD_ORE = 32,
-  ITEM_COBALT_ORE = 33,
-  ITEM_TUNGSTEN_ORE = 34,
-  ITEM_NEUTRONIUM_ORE = 35,
-  ITEM_CHRONO_ORE = 36,
-
-  // Refined Alloys & Conductors (37..45)
-  ITEM_SCRAP_ALLOY = 37,
-  ITEM_TITANIUM_ALLOY = 38,
-  ITEM_DURASTEEL_ALLOY = 39,
-  ITEM_SILVER_CONDUCTOR = 40,
-  ITEM_GOLD_SUPERCONDUCTOR = 41,
-  ITEM_COBALT_ALLOY = 42,
-  ITEM_TUNGSTEN_ALLOY = 43,
-  ITEM_NEUTRONIUM_ALLOY = 44,
-  ITEM_CHRONO_ALLOY = 45,
-
-  // Data Crystals (46..50)
-  ITEM_AMBER_DATACHIP = 46,
-  ITEM_SAPPHIRE_CORTEX = 47,
-  ITEM_RUBY_LASER_CORE = 48,
-  ITEM_EMERALD_CRYPTOKEY = 49,
-  ITEM_QUANTUM_DIAMOND = 50,
-
-  // Weapons - Mono-Blades (51..57)
-  ITEM_SCRAP_BLADE = 51,
-  ITEM_TITANIUM_BLADE = 52,
-  ITEM_DURASTEEL_BLADE = 53,
-  ITEM_COBALT_BLADE = 54,
-  ITEM_TUNGSTEN_BLADE = 55,
-  ITEM_NEUTRONIUM_BLADE = 56,
-  ITEM_CHRONO_BLADE = 57,
-
-  // Visors (58..64)
-  ITEM_SCRAP_VISOR = 58,
-  ITEM_TITANIUM_VISOR = 59,
-  ITEM_DURASTEEL_VISOR = 60,
-  ITEM_COBALT_VISOR = 61,
-  ITEM_TUNGSTEN_VISOR = 62,
-  ITEM_NEUTRONIUM_VISOR = 63,
-  ITEM_CHRONO_VISOR = 64,
-
-  // Exo-Suits (65..71)
-  ITEM_SCRAP_EXOSUIT = 65,
-  ITEM_TITANIUM_EXOSUIT = 66,
-  ITEM_DURASTEEL_EXOSUIT = 67,
-  ITEM_COBALT_EXOSUIT = 68,
-  ITEM_TUNGSTEN_EXOSUIT = 69,
-  ITEM_NEUTRONIUM_EXOSUIT = 70,
-  ITEM_CHRONO_EXOSUIT = 71,
-
-  // Holo-Shields (72..78)
-  ITEM_SCRAP_SHIELD = 72,
-  ITEM_TITANIUM_SHIELD = 73,
-  ITEM_DURASTEEL_SHIELD = 74,
-  ITEM_COBALT_SHIELD = 75,
-  ITEM_TUNGSTEN_SHIELD = 76,
-  ITEM_NEUTRONIUM_SHIELD = 77,
-  ITEM_CHRONO_SHIELD = 78,
-
-  // Enemy Salvage Loot (79..83)
-  ITEM_SERVO_PARTS = 79,
-  ITEM_HEAVY_CHASSIS = 80,
-  ITEM_APEX_CYBER_CORE = 81,
-  ITEM_MICROCHIP = 82,
-  ITEM_SYNTH_WEAVE_HIDE = 83,
-
-  ITEM_COUNT = 84
 };
 
 inline constexpr int MONSTER_COUNT = 12;
@@ -254,6 +255,15 @@ extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
 extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
+
+inline constexpr bool is_valid_item(ItemId id) {
+  int idx = static_cast<int>(id);
+  return idx >= 0 && idx < ITEM_COUNT;
+}
+
+inline const ItemInfo& get_item_info(ItemId id) {
+  return item_info[static_cast<int>(id)];
+}
 
 // Utility & Formatting functions
 std::string skill_name(SkillType skill);
@@ -286,19 +296,19 @@ class GameState {
   void stop_activity();
 
   // Inventory / Bank management
-  int item_qty(int item_id) const;
+  int item_qty(ItemId item_id) const;
   int used_bank_slots() const;
   long long total_bank_value() const;
-  bool can_store_item(int item_id) const;
-  bool add_item(int item_id, int qty, bool log_drop = false);
-  bool remove_item(int item_id, int qty);
-  bool sell_item(int item_id, int qty);
+  bool can_store_item(ItemId item_id) const;
+  bool add_item(ItemId item_id, int qty, bool log_drop = false);
+  bool remove_item(ItemId item_id, int qty);
+  bool sell_item(ItemId item_id, int qty);
   long long sell_all_non_equipped();
 
   // Equipment & Stims
-  bool equip_item(int item_id);
+  bool equip_item(ItemId item_id);
   bool unequip_slot(EquipSlot slot);
-  bool equip_food(int item_id);
+  bool equip_food(ItemId item_id);
   bool eat_food();
   void check_auto_eat();
 
@@ -355,8 +365,9 @@ class GameState {
   int bank_capacity = 24;
   std::vector<BankSlot> bank;
 
-  std::array<int, EQUIP_SLOT_COUNT> equipped_items{-1, -1, -1, -1};
-  int equipped_food_item = -1;
+  std::array<ItemId, EQUIP_SLOT_COUNT> equipped_items{
+      ItemId::None, ItemId::None, ItemId::None, ItemId::None};
+  ItemId equipped_food_item = ItemId::None;
   int equipped_food_qty = 0;
 
   // Cyber-Shop upgrade tiers

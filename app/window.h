@@ -94,7 +94,7 @@ class MainWindow : public QWidget {
 
   int selectedActionId() const;
   int selectedMonsterId() const;
-  int selectedBankItemId() const;
+  ItemId selectedBankItemId() const;
 
   QTabWidget* modeTabs() const { return _tabs_mode; }
   HistoryChartView* statusChartView() const { return _drawingarea_status; }
