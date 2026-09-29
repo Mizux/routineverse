@@ -12,22 +12,24 @@ inline constexpr int MAX_SKILL_LEVEL = 99;
 enum class SkillType : int {
   Salvaging = 0,
   BioHarvest = 1,
-  Overclock = 2,
+  Recycling = 2,
   SynthCook = 3,
   DeepMining = 4,
-  CyberFab = 5,
-  Attack = 6,
-  Strength = 7,
-  Defence = 8,
-  Hitpoints = 9,
-  Bounty = 10,
+  Smithing = 5,
+  CyberFab = 6,
+  Attack = 7,
+  Strength = 8,
+  Defence = 9,
+  Hitpoints = 10,
+  Bounty = 11,
 };
 
-inline constexpr int SKILL_COUNT = 11;
-inline constexpr int NON_COMBAT_SKILL_COUNT = 6;
+inline constexpr int SKILL_COUNT = 12;
+inline constexpr int NON_COMBAT_SKILL_COUNT = 7;
 
 enum class ItemCategory : int {
   Scrap = 0,
+  RawMaterial,
   RawBiota,
   StimFood,
   ToxicWaste,
@@ -77,103 +79,114 @@ enum class ItemId : int {
   QuantumNode = 7,
   AiMainframeCore = 8,
 
-  // Raw Synth-Biota (9..16)
-  RawKrillBiomass = 9,
-  RawNeonEel = 10,
-  RawSynthCarp = 11,
-  RawChromeSalmon = 12,
-  RawCyberLobster = 13,
-  RawPlasmaRay = 14,
-  RawApexShark = 15,
-  RawLeviathanCell = 16,
+  // Recycled Basic / Raw Materials (9..17)
+  CopperFilament = 9,
+  PlasteelPolymer = 10,
+  CarbonFiberWeave = 11,
+  OpticSilicaGlass = 12,
+  PositronicWafer = 13,
+  CryoCoolantGel = 14,
+  PlasmaCoil = 15,
+  QuantumLattice = 16,
+  NeuralMatrix = 17,
 
-  // Synthesized Stims / Rations & Toxic Slag (17..26)
-  KrillRation = 17,
-  NeonEelSkewer = 18,
-  SynthCarpPack = 19,
-  ChromeSalmonStim = 20,
-  CyberLobsterMeal = 21,
-  PlasmaRayInfusion = 22,
-  ApexSharkBooster = 23,
-  LeviathanNanomed = 24,
-  SynthProteinBar = 25,
-  ToxicSlag = 26,
+  // Raw Synth-Biota (18..25)
+  RawKrillBiomass = 18,
+  RawNeonEel = 19,
+  RawSynthCarp = 20,
+  RawChromeSalmon = 21,
+  RawCyberLobster = 22,
+  RawPlasmaRay = 23,
+  RawApexShark = 24,
+  RawLeviathanCell = 25,
 
-  // Deep-Mined Ores & Cells (27..36)
-  CopperOre = 27,
-  SiliconOre = 28,
-  TitaniumOre = 29,
-  CarbonCell = 30,
-  SilverOre = 31,
-  GoldOre = 32,
-  CobaltOre = 33,
-  TungstenOre = 34,
-  NeutroniumOre = 35,
-  ChronoOre = 36,
+  // Synthesized Stims / Rations & Toxic Slag (26..35)
+  KrillRation = 26,
+  NeonEelSkewer = 27,
+  SynthCarpPack = 28,
+  ChromeSalmonStim = 29,
+  CyberLobsterMeal = 30,
+  PlasmaRayInfusion = 31,
+  ApexSharkBooster = 32,
+  LeviathanNanomed = 33,
+  SynthProteinBar = 34,
+  ToxicSlag = 35,
 
-  // Refined Alloys & Conductors (37..45)
-  ScrapAlloy = 37,
-  TitaniumAlloy = 38,
-  DurasteelAlloy = 39,
-  SilverConductor = 40,
-  GoldSuperconductor = 41,
-  CobaltAlloy = 42,
-  TungstenAlloy = 43,
-  NeutroniumAlloy = 44,
-  ChronoAlloy = 45,
+  // Deep-Mined Ores & Cells (36..45)
+  CopperOre = 36,
+  SiliconOre = 37,
+  TitaniumOre = 38,
+  CarbonCell = 39,
+  SilverOre = 40,
+  GoldOre = 41,
+  CobaltOre = 42,
+  TungstenOre = 43,
+  NeutroniumOre = 44,
+  ChronoOre = 45,
 
-  // Data Crystals (46..50)
-  AmberDatachip = 46,
-  SapphireCortex = 47,
-  RubyLaserCore = 48,
-  EmeraldCryptokey = 49,
-  QuantumDiamond = 50,
+  // Refined Alloys & Conductors (46..54)
+  ScrapAlloy = 46,
+  TitaniumAlloy = 47,
+  DurasteelAlloy = 48,
+  SilverConductor = 49,
+  GoldSuperconductor = 50,
+  CobaltAlloy = 51,
+  TungstenAlloy = 52,
+  NeutroniumAlloy = 53,
+  ChronoAlloy = 54,
 
-  // Weapons - Mono-Blades (51..57)
-  ScrapBlade = 51,
-  TitaniumBlade = 52,
-  DurasteelBlade = 53,
-  CobaltBlade = 54,
-  TungstenBlade = 55,
-  NeutroniumBlade = 56,
-  ChronoBlade = 57,
+  // Data Crystals (55..59)
+  AmberDatachip = 55,
+  SapphireCortex = 56,
+  RubyLaserCore = 57,
+  EmeraldCryptokey = 58,
+  QuantumDiamond = 59,
 
-  // Visors (58..64)
-  ScrapVisor = 58,
-  TitaniumVisor = 59,
-  DurasteelVisor = 60,
-  CobaltVisor = 61,
-  TungstenVisor = 62,
-  NeutroniumVisor = 63,
-  ChronoVisor = 64,
+  // Weapons - Mono-Blades (60..66)
+  ScrapBlade = 60,
+  TitaniumBlade = 61,
+  DurasteelBlade = 62,
+  CobaltBlade = 63,
+  TungstenBlade = 64,
+  NeutroniumBlade = 65,
+  ChronoBlade = 66,
 
-  // Exo-Suits (65..71)
-  ScrapExoSuit = 65,
-  TitaniumExoSuit = 66,
-  DurasteelExoSuit = 67,
-  CobaltExoSuit = 68,
-  TungstenExoSuit = 69,
-  NeutroniumExoSuit = 70,
-  ChronoExoSuit = 71,
+  // Visors (67..73)
+  ScrapVisor = 67,
+  TitaniumVisor = 68,
+  DurasteelVisor = 69,
+  CobaltVisor = 70,
+  TungstenVisor = 71,
+  NeutroniumVisor = 72,
+  ChronoVisor = 73,
 
-  // Holo-Shields (72..78)
-  ScrapShield = 72,
-  TitaniumShield = 73,
-  DurasteelShield = 74,
-  CobaltShield = 75,
-  TungstenShield = 76,
-  NeutroniumShield = 77,
-  ChronoShield = 78,
+  // Exo-Suits (74..80)
+  ScrapExoSuit = 74,
+  TitaniumExoSuit = 75,
+  DurasteelExoSuit = 76,
+  CobaltExoSuit = 77,
+  TungstenExoSuit = 78,
+  NeutroniumExoSuit = 79,
+  ChronoExoSuit = 80,
 
-  // Enemy Salvage Loot (79..83)
-  ServoParts = 79,
-  HeavyChassis = 80,
-  ApexCyberCore = 81,
-  Microchip = 82,
-  SynthWeaveHide = 83,
+  // Holo-Shields (81..87)
+  ScrapShield = 81,
+  TitaniumShield = 82,
+  DurasteelShield = 83,
+  CobaltShield = 84,
+  TungstenShield = 85,
+  NeutroniumShield = 86,
+  ChronoShield = 87,
+
+  // Enemy Salvage Loot (88..92)
+  ServoParts = 88,
+  HeavyChassis = 89,
+  ApexCyberCore = 90,
+  Microchip = 91,
+  SynthWeaveHide = 92,
 };
 
-inline constexpr int ITEM_COUNT = 84;
+inline constexpr int ITEM_COUNT = 93;
 
 struct ItemInfo {
   ItemId id;
