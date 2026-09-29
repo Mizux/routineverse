@@ -90,7 +90,7 @@ enum class ItemId : int {
   QuantumLattice = 16,
   NeuralMatrix = 17,
 
-  // Raw Synth-Biota (18..25)
+  // Raw Synth-Biota (18..26)
   RawKrillBiomass = 18,
   RawNeonEel = 19,
   RawSynthCarp = 20,
@@ -99,94 +99,102 @@ enum class ItemId : int {
   RawPlasmaRay = 23,
   RawApexShark = 24,
   RawLeviathanCell = 25,
+  RawCyberKraken = 26,
 
-  // Synthesized Stims / Rations & Toxic Slag (26..35)
-  KrillRation = 26,
-  NeonEelSkewer = 27,
-  SynthCarpPack = 28,
-  ChromeSalmonStim = 29,
-  CyberLobsterMeal = 30,
-  PlasmaRayInfusion = 31,
-  ApexSharkBooster = 32,
-  LeviathanNanomed = 33,
-  SynthProteinBar = 34,
-  ToxicSlag = 35,
+  // Synthesized Stims / Rations & Toxic Slag (27..37)
+  KrillRation = 27,
+  NeonEelSkewer = 28,
+  SynthCarpPack = 29,
+  ChromeSalmonStim = 30,
+  CyberLobsterMeal = 31,
+  PlasmaRayInfusion = 32,
+  ApexSharkBooster = 33,
+  LeviathanNanomed = 34,
+  KrakenBioElixir = 35,
+  SynthProteinBar = 36,
+  ToxicSlag = 37,
 
-  // Deep-Mined Ores & Cells (36..45)
-  CopperOre = 36,
-  SiliconOre = 37,
-  TitaniumOre = 38,
-  CarbonCell = 39,
-  SilverOre = 40,
-  GoldOre = 41,
-  CobaltOre = 42,
-  TungstenOre = 43,
-  NeutroniumOre = 44,
-  ChronoOre = 45,
+  // Deep-Mined Ores & Cells (38..48)
+  CopperOre = 38,
+  SiliconOre = 39,
+  TitaniumOre = 40,
+  CarbonCell = 41,
+  SilverOre = 42,
+  GoldOre = 43,
+  CobaltOre = 44,
+  TungstenOre = 45,
+  NeutroniumOre = 46,
+  ChronoOre = 47,
+  QuantumOre = 48,
 
-  // Refined Alloys & Conductors (46..54)
-  ScrapAlloy = 46,
-  TitaniumAlloy = 47,
-  DurasteelAlloy = 48,
-  SilverConductor = 49,
-  GoldSuperconductor = 50,
-  CobaltAlloy = 51,
-  TungstenAlloy = 52,
-  NeutroniumAlloy = 53,
-  ChronoAlloy = 54,
+  // Refined Alloys & Conductors (49..58)
+  ScrapAlloy = 49,
+  TitaniumAlloy = 50,
+  DurasteelAlloy = 51,
+  SilverConductor = 52,
+  GoldSuperconductor = 53,
+  CobaltAlloy = 54,
+  TungstenAlloy = 55,
+  NeutroniumAlloy = 56,
+  ChronoAlloy = 57,
+  QuantumAlloy = 58,
 
-  // Data Crystals (55..59)
-  AmberDatachip = 55,
-  SapphireCortex = 56,
-  RubyLaserCore = 57,
-  EmeraldCryptokey = 58,
-  QuantumDiamond = 59,
+  // Data Crystals (59..63)
+  AmberDatachip = 59,
+  SapphireCortex = 60,
+  RubyLaserCore = 61,
+  EmeraldCryptokey = 62,
+  QuantumDiamond = 63,
 
-  // Weapons - Mono-Blades (60..66)
-  ScrapBlade = 60,
-  TitaniumBlade = 61,
-  DurasteelBlade = 62,
-  CobaltBlade = 63,
-  TungstenBlade = 64,
-  NeutroniumBlade = 65,
-  ChronoBlade = 66,
+  // Weapons - Mono-Blades (64..71)
+  ScrapBlade = 64,
+  TitaniumBlade = 65,
+  DurasteelBlade = 66,
+  CobaltBlade = 67,
+  TungstenBlade = 68,
+  NeutroniumBlade = 69,
+  ChronoBlade = 70,
+  QuantumBlade = 71,
 
-  // Visors (67..73)
-  ScrapVisor = 67,
-  TitaniumVisor = 68,
-  DurasteelVisor = 69,
-  CobaltVisor = 70,
-  TungstenVisor = 71,
-  NeutroniumVisor = 72,
-  ChronoVisor = 73,
+  // Visors (72..79)
+  ScrapVisor = 72,
+  TitaniumVisor = 73,
+  DurasteelVisor = 74,
+  CobaltVisor = 75,
+  TungstenVisor = 76,
+  NeutroniumVisor = 77,
+  ChronoVisor = 78,
+  QuantumVisor = 79,
 
-  // Exo-Suits (74..80)
-  ScrapExoSuit = 74,
-  TitaniumExoSuit = 75,
-  DurasteelExoSuit = 76,
-  CobaltExoSuit = 77,
-  TungstenExoSuit = 78,
-  NeutroniumExoSuit = 79,
-  ChronoExoSuit = 80,
+  // Exo-Suits (80..87)
+  ScrapExoSuit = 80,
+  TitaniumExoSuit = 81,
+  DurasteelExoSuit = 82,
+  CobaltExoSuit = 83,
+  TungstenExoSuit = 84,
+  NeutroniumExoSuit = 85,
+  ChronoExoSuit = 86,
+  QuantumExoSuit = 87,
 
-  // Holo-Shields (81..87)
-  ScrapShield = 81,
-  TitaniumShield = 82,
-  DurasteelShield = 83,
-  CobaltShield = 84,
-  TungstenShield = 85,
-  NeutroniumShield = 86,
-  ChronoShield = 87,
+  // Holo-Shields (88..95)
+  ScrapShield = 88,
+  TitaniumShield = 89,
+  DurasteelShield = 90,
+  CobaltShield = 91,
+  TungstenShield = 92,
+  NeutroniumShield = 93,
+  ChronoShield = 94,
+  QuantumShield = 95,
 
-  // Enemy Salvage Loot (88..92)
-  ServoParts = 88,
-  HeavyChassis = 89,
-  ApexCyberCore = 90,
-  Microchip = 91,
-  SynthWeaveHide = 92,
+  // Enemy Salvage Loot (96..100)
+  ServoParts = 96,
+  HeavyChassis = 97,
+  ApexCyberCore = 98,
+  Microchip = 99,
+  SynthWeaveHide = 100,
 };
 
-inline constexpr int ITEM_COUNT = 93;
+inline constexpr int ITEM_COUNT = 101;
 
 struct ItemInfo {
   ItemId id;
