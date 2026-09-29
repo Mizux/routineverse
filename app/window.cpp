@@ -102,13 +102,13 @@ void HistoryChartView::_setupChart() {
 
   _series_data = new QLineSeries();
   _series_data->setPen(
-      QPen(QColor(255, 204, 0), _compact ? 1.5 : 2.0, Qt::SolidLine));
+      QPen(QColor(0, 229, 255), _compact ? 1.5 : 2.0, Qt::SolidLine));
 
   _series_points = new QScatterSeries();
   _series_points->setMarkerShape(QScatterSeries::MarkerShapeCircle);
   _series_points->setMarkerSize(_compact ? 3.5 : 5.0);
-  _series_points->setColor(QColor(255, 204, 0));
-  _series_points->setBorderColor(QColor(255, 204, 0));
+  _series_points->setColor(QColor(0, 229, 255));
+  _series_points->setBorderColor(QColor(0, 229, 255));
 
   _chart->addSeries(_series_data);
   _chart->addSeries(_series_points);
@@ -127,10 +127,10 @@ void HistoryChartView::_setupChart() {
 
 QString HistoryChartView::itemName(int item_idx) {
   switch (item_idx) {
-    case ITEM_GP:
-      return "Gold (GP)";
+    case ITEM_CREDITS:
+      return "Credits (Cr)";
     case ITEM_BANK_VALUE:
-      return "Bank Value (GP)";
+      return "Vault Value (Cr)";
     case ITEM_TOTAL_LEVEL:
       return "Total Skill Level";
     case ITEM_TOTAL_XP:
@@ -143,7 +143,7 @@ QString HistoryChartView::itemName(int item_idx) {
         return QString::fromStdString(
             skill_name(static_cast<SkillType>(s_idx)) + " XP");
       }
-      return "Gold (GP)";
+      return "Credits (Cr)";
     }
   }
 }
@@ -163,9 +163,9 @@ void HistoryChartView::updateChart(const GameState& gameState) {
   _chart->setTitle(itemName(_item_idx));
 
   std::vector<double> values;
-  if (_item_idx == ITEM_GP) {
-    for (long long v : gameState.gp_history) values.push_back(v);
-    values.push_back(gameState.gp);
+  if (_item_idx == ITEM_CREDITS) {
+    for (long long v : gameState.credits_history) values.push_back(v);
+    values.push_back(gameState.credits);
   } else if (_item_idx == ITEM_BANK_VALUE) {
     for (long long v : gameState.bank_value_history) values.push_back(v);
     values.push_back(gameState.total_bank_value());
@@ -258,7 +258,7 @@ void MainWindow::_setupWidget() {
 
   // Top Activity Banner + Progress Bar + Event Log
   QGroupBox* frame_info =
-      new QGroupBox("Active Task & Adventure Log", this);
+      new QGroupBox("Active Protocol & Cyber-Log", this);
   QVBoxLayout* vbox_info = new QVBoxLayout(frame_info);
   vbox_info->setContentsMargins(6, 6, 6, 6);
   vbox_info->setSpacing(4);
@@ -293,7 +293,7 @@ void MainWindow::_setupWidget() {
   vbox_left->setSpacing(6);
   hbox_down->addLayout(vbox_left, 3);
 
-  QGroupBox* frame_skills = new QGroupBox("Skills Overview (Click to Select)", this);
+  QGroupBox* frame_skills = new QGroupBox("Neural Skills (Click to Select)", this);
   QVBoxLayout* vbox_skills = new QVBoxLayout(frame_skills);
   vbox_skills->setContentsMargins(5, 5, 5, 5);
   _treeview_skills = new QTreeWidget(frame_skills);
@@ -323,9 +323,9 @@ void MainWindow::_setupWidget() {
   _treeview_actions->setUniformRowHeights(true);
   _treeview_actions->setColumnCount(6);
   _treeview_actions->setHeaderLabels(
-      {"Lv", "Action / Recipe", "Time", "XP", "Mastery", "Inputs -> Output"});
+      {"Lv", "Protocol / Schematic", "Cycle", "XP", "Mastery", "Inputs -> Output"});
   _treeview_actions->setColumnWidth(0, 38);
-  _treeview_actions->setColumnWidth(1, 165);
+  _treeview_actions->setColumnWidth(1, 175);
   _treeview_actions->setColumnWidth(2, 55);
   _treeview_actions->setColumnWidth(3, 50);
   _treeview_actions->setColumnWidth(4, 65);
@@ -334,36 +334,36 @@ void MainWindow::_setupWidget() {
   connect(_treeview_actions, &QTreeWidget::itemDoubleClicked, this,
           &MainWindow::onActionDoubleClicked);
   vbox_tab_skills->addWidget(_treeview_actions);
-  _tabs_mode->addTab(tab_skills, "Skill Actions && Recipes");
+  _tabs_mode->addTab(tab_skills, "Tech Protocols && Schematics");
 
-  // Tab 1: Combat & Slayer
+  // Tab 1: Combat & Bounty
   QWidget* tab_combat = new QWidget(_tabs_mode);
   QVBoxLayout* vbox_tab_combat = new QVBoxLayout(tab_combat);
   vbox_tab_combat->setContentsMargins(4, 4, 4, 4);
   vbox_tab_combat->setSpacing(4);
 
   QHBoxLayout* hbox_combat_top = new QHBoxLayout();
-  hbox_combat_top->addWidget(new QLabel("Style:", tab_combat));
+  hbox_combat_top->addWidget(new QLabel("Mode:", tab_combat));
   _combo_attack_style = new QComboBox(tab_combat);
-  _combo_attack_style->addItem("Accurate (Trains Attack)");
-  _combo_attack_style->addItem("Aggressive (Trains Strength)");
-  _combo_attack_style->addItem("Defensive (Trains Defence)");
+  _combo_attack_style->addItem("Precision (Trains Attack)");
+  _combo_attack_style->addItem("Overdrive (Trains Strength)");
+  _combo_attack_style->addItem("Evasive (Trains Defence)");
   connect(_combo_attack_style,
           QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           &MainWindow::onAttackStyleChanged);
   hbox_combat_top->addWidget(_combo_attack_style);
 
-  _label_slayer_task = new QLabel(tab_combat);
-  hbox_combat_top->addWidget(_label_slayer_task, 1);
+  _label_bounty_task = new QLabel(tab_combat);
+  hbox_combat_top->addWidget(_label_bounty_task, 1);
 
-  _button_slayer_task = new QPushButton("New Slayer Task", tab_combat);
-  connect(_button_slayer_task, &QPushButton::clicked, this,
-          &MainWindow::slotNewSlayerTask);
-  hbox_combat_top->addWidget(_button_slayer_task);
+  _button_bounty_task = new QPushButton("New Bounty Contract", tab_combat);
+  connect(_button_bounty_task, &QPushButton::clicked, this,
+          &MainWindow::slotNewBountyContract);
+  hbox_combat_top->addWidget(_button_bounty_task);
   vbox_tab_combat->addLayout(hbox_combat_top);
 
   QHBoxLayout* hbox_mon_hp = new QHBoxLayout();
-  hbox_mon_hp->addWidget(new QLabel("Target Monster HP:", tab_combat));
+  hbox_mon_hp->addWidget(new QLabel("Hostile Integrity:", tab_combat));
   _progressbar_monster_hp = new QProgressBar(tab_combat);
   _progressbar_monster_hp->setRange(0, 100);
   _progressbar_monster_hp->setValue(100);
@@ -375,7 +375,7 @@ void MainWindow::_setupWidget() {
   _treeview_monsters->setUniformRowHeights(true);
   _treeview_monsters->setColumnCount(7);
   _treeview_monsters->setHeaderLabels(
-      {"Lv", "Monster", "Area", "HP", "Max Hit", "Slayer", "Kills"});
+      {"Lv", "Hostile Target", "Sector", "HP", "Max Hit", "Bounty", "Kills"});
   _treeview_monsters->setColumnWidth(0, 38);
   _treeview_monsters->setColumnWidth(1, 165);
   _treeview_monsters->setColumnWidth(2, 120);
@@ -386,27 +386,27 @@ void MainWindow::_setupWidget() {
   connect(_treeview_monsters, &QTreeWidget::itemDoubleClicked, this,
           &MainWindow::onMonsterDoubleClicked);
   vbox_tab_combat->addWidget(_treeview_monsters);
-  _tabs_mode->addTab(tab_combat, "Combat && Slayer");
+  _tabs_mode->addTab(tab_combat, "Combat && Bounty");
 
   // Middle Column: Action / Places / Time / Game Controls
   QVBoxLayout* vbox_middle = new QVBoxLayout();
   vbox_middle->setSpacing(5);
   hbox_down->addLayout(vbox_middle);
 
-  QGroupBox* frame_action = new QGroupBox("Actions", this);
+  QGroupBox* frame_action = new QGroupBox("Commands", this);
   QVBoxLayout* box_action = new QVBoxLayout(frame_action);
   box_action->setContentsMargins(5, 5, 5, 5);
   box_action->setSpacing(3);
 
-  _button_start = new QPushButton("&Start / Fight", frame_action);
+  _button_start = new QPushButton("&Execute / Engage", frame_action);
   connect(_button_start, &QPushButton::clicked, this, &MainWindow::slotStart);
   box_action->addWidget(_button_start);
 
-  _button_stop = new QPushButton("S&top Activity", frame_action);
+  _button_stop = new QPushButton("S&top Protocol", frame_action);
   connect(_button_stop, &QPushButton::clicked, this, &MainWindow::slotStop);
   box_action->addWidget(_button_stop);
 
-  _button_eat = new QPushButton("&Eat Food", frame_action);
+  _button_eat = new QPushButton("&Use Stim / Ration", frame_action);
   connect(_button_eat, &QPushButton::clicked, this, &MainWindow::slotEat);
   box_action->addWidget(_button_eat);
 
@@ -418,27 +418,27 @@ void MainWindow::_setupWidget() {
   connect(_button_sell, &QPushButton::clicked, this, &MainWindow::slotSell);
   box_action->addWidget(_button_sell);
 
-  _button_sell_all = new QPushButton("Sell &All Bank", frame_action);
+  _button_sell_all = new QPushButton("Sell &All Vault", frame_action);
   connect(_button_sell_all, &QPushButton::clicked, this,
           &MainWindow::slotSellAll);
   box_action->addWidget(_button_sell_all);
   vbox_middle->addWidget(frame_action);
 
-  QGroupBox* frame_places = new QGroupBox("Town & Info", this);
+  QGroupBox* frame_places = new QGroupBox("Neo-Sector & Info", this);
   QVBoxLayout* box_places = new QVBoxLayout(frame_places);
   box_places->setContentsMargins(5, 5, 5, 5);
   box_places->setSpacing(3);
 
-  _button_shop = new QPushButton("&Shop && Upgrades...", frame_places);
+  _button_shop = new QPushButton("&Cyber-Shop && Tools...", frame_places);
   connect(_button_shop, &QPushButton::clicked, this, &MainWindow::slotShop);
   box_places->addWidget(_button_shop);
 
-  _button_equipment = new QPushButton("Gear && &Stats...", frame_places);
+  _button_equipment = new QPushButton("Cyberware && &Stats...", frame_places);
   connect(_button_equipment, &QPushButton::clicked, this,
           &MainWindow::slotEquipment);
   box_places->addWidget(_button_equipment);
 
-  _button_bestiary = new QPushButton("&Bestiary && Drops...", frame_places);
+  _button_bestiary = new QPushButton("&Hostiles && Drops...", frame_places);
   connect(_button_bestiary, &QPushButton::clicked, this,
           &MainWindow::slotBestiary);
   box_places->addWidget(_button_bestiary);
@@ -449,7 +449,7 @@ void MainWindow::_setupWidget() {
   box_places->addWidget(_button_history);
   vbox_middle->addWidget(frame_places);
 
-  QGroupBox* frame_time = new QGroupBox("Idle Time & Save", this);
+  QGroupBox* frame_time = new QGroupBox("Time & Neural Save", this);
   QVBoxLayout* box_time = new QVBoxLayout(frame_time);
   box_time->setContentsMargins(5, 5, 5, 5);
   box_time->setSpacing(3);
@@ -464,16 +464,16 @@ void MainWindow::_setupWidget() {
           &MainWindow::slotFastForward10m);
   box_time->addWidget(_button_ff10m);
 
-  _button_save = new QPushButton("Sa&ve Game", frame_time);
+  _button_save = new QPushButton("Sa&ve State", frame_time);
   connect(_button_save, &QPushButton::clicked, this, &MainWindow::slotSave);
   box_time->addWidget(_button_save);
 
-  _button_load = new QPushButton("&Load Game", frame_time);
+  _button_load = new QPushButton("&Load State", frame_time);
   connect(_button_load, &QPushButton::clicked, this, &MainWindow::slotLoad);
   box_time->addWidget(_button_load);
   vbox_middle->addWidget(frame_time);
 
-  QGroupBox* frame_game = new QGroupBox("Game", this);
+  QGroupBox* frame_game = new QGroupBox("System", this);
   QVBoxLayout* box_game = new QVBoxLayout(frame_game);
   box_game->setContentsMargins(5, 5, 5, 5);
   box_game->setSpacing(3);
@@ -505,30 +505,30 @@ void MainWindow::_setupWidget() {
   vbox_middle->addWidget(frame_game);
   vbox_middle->addStretch();
 
-  // Right Column: Bank Inventory + Player Status & History Chart
+  // Right Column: Cyber-Vault Inventory + Player Status & History Chart
   QVBoxLayout* vbox_right = new QVBoxLayout();
   vbox_right->setSpacing(5);
   hbox_down->addLayout(vbox_right, 2);
 
-  _group_bank = new QGroupBox("Bank Inventory", this);
+  _group_bank = new QGroupBox("Cyber-Vault Inventory", this);
   QVBoxLayout* vbox_bank = new QVBoxLayout(_group_bank);
   vbox_bank->setContentsMargins(5, 5, 5, 5);
   _treeview_bank = new QTreeWidget(_group_bank);
   _treeview_bank->setRootIsDecorated(false);
   _treeview_bank->setUniformRowHeights(true);
   _treeview_bank->setColumnCount(4);
-  _treeview_bank->setHeaderLabels({"Item", "Type", "Qty", "Value / Info"});
-  _treeview_bank->setColumnWidth(0, 130);
-  _treeview_bank->setColumnWidth(1, 65);
-  _treeview_bank->setColumnWidth(2, 50);
+  _treeview_bank->setHeaderLabels({"Item", "Category", "Qty", "Value / Specs"});
+  _treeview_bank->setColumnWidth(0, 145);
+  _treeview_bank->setColumnWidth(1, 70);
+  _treeview_bank->setColumnWidth(2, 45);
   _treeview_bank->setColumnWidth(3, 110);
-  _treeview_bank->setMinimumSize(365, 200);
+  _treeview_bank->setMinimumSize(375, 200);
   connect(_treeview_bank, &QTreeWidget::itemDoubleClicked, this,
           &MainWindow::onBankDoubleClicked);
   vbox_bank->addWidget(_treeview_bank);
   vbox_right->addWidget(_group_bank, 1);
 
-  QGroupBox* frame_status = new QGroupBox("Player Status", this);
+  QGroupBox* frame_status = new QGroupBox("Operative Status", this);
   QVBoxLayout* vbox_status = new QVBoxLayout(frame_status);
   vbox_status->setContentsMargins(5, 5, 5, 5);
   vbox_status->setSpacing(4);
@@ -537,19 +537,19 @@ void MainWindow::_setupWidget() {
   grid_info->setHorizontalSpacing(10);
   grid_info->setVerticalSpacing(3);
 
-  grid_info->addWidget(new QLabel("Gold:", frame_status), 0, 0);
-  _label_gp = new QLabel(frame_status);
-  grid_info->addWidget(_label_gp, 0, 1);
+  grid_info->addWidget(new QLabel("Credits:", frame_status), 0, 0);
+  _label_credits = new QLabel(frame_status);
+  grid_info->addWidget(_label_credits, 0, 1);
 
-  grid_info->addWidget(new QLabel("Slayer Coins:", frame_status), 1, 0);
-  _label_slayer_coins = new QLabel(frame_status);
-  grid_info->addWidget(_label_slayer_coins, 1, 1);
+  grid_info->addWidget(new QLabel("Bounty Tokens:", frame_status), 1, 0);
+  _label_bounty_tokens = new QLabel(frame_status);
+  grid_info->addWidget(_label_bounty_tokens, 1, 1);
 
   grid_info->addWidget(new QLabel("Combat / Total Lv:", frame_status), 2, 0);
   _label_combat_lvl = new QLabel(frame_status);
   grid_info->addWidget(_label_combat_lvl, 2, 1);
 
-  grid_info->addWidget(new QLabel("Tools:", frame_status), 3, 0);
+  grid_info->addWidget(new QLabel("Cyber-Tools:", frame_status), 3, 0);
   _label_tools = new QLabel(frame_status);
   grid_info->addWidget(_label_tools, 3, 1);
 
@@ -561,7 +561,7 @@ void MainWindow::_setupWidget() {
   _label_equipped_armor = new QLabel(frame_status);
   grid_info->addWidget(_label_equipped_armor, 5, 1);
 
-  grid_info->addWidget(new QLabel("Equipped Food:", frame_status), 6, 0);
+  grid_info->addWidget(new QLabel("Loaded Stim:", frame_status), 6, 0);
   _label_equipped_food = new QLabel(frame_status);
   grid_info->addWidget(_label_equipped_food, 6, 1);
 
@@ -637,10 +637,10 @@ void MainWindow::updateLiveProgressOnly() {
       int pct =
           (plr_int > 0) ? (_gameState.player_attack_timer_ms * 100) / plr_int : 0;
       _progressbar_action->setValue(std::clamp(pct, 0, 100));
-      _progressbar_action->setFormat(QString("Attack Swing: %1%").arg(pct));
+      _progressbar_action->setFormat(QString("Weapon Cycle: %1%").arg(pct));
     } else {
       _progressbar_action->setValue(0);
-      _progressbar_action->setFormat("Idle");
+      _progressbar_action->setFormat("Standby");
     }
   }
 
@@ -673,12 +673,13 @@ void MainWindow::updateLiveProgressOnly() {
 void MainWindow::updateAllUi() {
   updateLiveProgressOnly();
 
-  if (_label_gp) {
-    _label_gp->setText(QString::fromStdString(money_string(_gameState.gp)));
+  if (_label_credits) {
+    _label_credits->setText(
+        QString::fromStdString(money_string(_gameState.credits)));
   }
-  if (_label_slayer_coins) {
-    _label_slayer_coins->setText(QString::fromStdString(
-        number_string(_gameState.slayer_coins) + " SC"));
+  if (_label_bounty_tokens) {
+    _label_bounty_tokens->setText(QString::fromStdString(
+        number_string(_gameState.bounty_tokens) + " BT"));
   }
   if (_label_combat_lvl) {
     _label_combat_lvl->setText(
@@ -689,11 +690,11 @@ void MainWindow::updateAllUi() {
   }
   if (_label_tools) {
     _label_tools->setText(
-        QString("Axe T%1 | Rod T%2 | Pick T%3 | Fire T%4")
-            .arg(_gameState.axe_tier + 1)
-            .arg(_gameState.rod_tier + 1)
-            .arg(_gameState.pickaxe_tier + 1)
-            .arg(_gameState.fire_tier + 1));
+        QString("Cut T%1 | Bio T%2 | Drill T%3 | Core T%4")
+            .arg(_gameState.cutter_tier + 1)
+            .arg(_gameState.harvester_tier + 1)
+            .arg(_gameState.drill_tier + 1)
+            .arg(_gameState.reactor_tier + 1));
   }
   if (_label_equipped_weapon) {
     int w_id = _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
@@ -706,10 +707,10 @@ void MainWindow::updateAllUi() {
   }
   if (_label_equipped_armor) {
     _label_equipped_armor->setText(
-        QString("DR: %1% | Evasion: %2 | Auto-Eat: T%3")
+        QString("DR: %1% | Evasion: %2 | Auto-Stim: Mk %3")
             .arg(_gameState.player_damage_reduction())
             .arg(_gameState.player_evasion())
-            .arg(_gameState.auto_eat_tier));
+            .arg(_gameState.auto_stim_tier));
   }
   if (_label_equipped_food) {
     if (_gameState.equipped_food_item >= 0 && _gameState.equipped_food_qty > 0) {
@@ -722,16 +723,16 @@ void MainWindow::updateAllUi() {
       _label_equipped_food->setText("None");
     }
   }
-  if (_label_slayer_task) {
-    const auto& mon = monster_info[_gameState.slayer_task_monster_id];
-    _label_slayer_task->setText(
-        QString("Slayer Task: %1x %2")
-            .arg(_gameState.slayer_task_remaining)
+  if (_label_bounty_task) {
+    const auto& mon = monster_info[_gameState.bounty_target_id];
+    _label_bounty_task->setText(
+        QString("Bounty: %1x %2")
+            .arg(_gameState.bounty_remaining)
             .arg(mon.name));
   }
   if (_group_bank) {
     _group_bank->setTitle(
-        QString("Bank (%1/%2 slots — Value: %3)")
+        QString("Cyber-Vault (%1/%2 slots — Value: %3)")
             .arg(_gameState.used_bank_slots())
             .arg(_gameState.bank_capacity)
             .arg(QString::fromStdString(
@@ -805,7 +806,7 @@ void MainWindow::_fillTreeviewActions() {
 
   SkillType sk = _selected_skill;
   if (static_cast<int>(sk) >= NON_COMBAT_SKILL_COUNT) {
-    sk = SkillType::Woodcutting;
+    sk = SkillType::Salvaging;
   }
 
   auto act_ids = actions_for_skill(sk);
@@ -840,7 +841,7 @@ void MainWindow::_fillTreeviewActions() {
                     .arg(act.product_qty)
                     .arg(item_info[act.product_item].name);
     } else if (io_str.isEmpty()) {
-      io_str = "XP & Bonfire";
+      io_str = "XP + Carbon Cell + Cr";
     }
 
     item->setText(0, QString::number(act.req_level));
@@ -884,7 +885,7 @@ void MainWindow::_fillTreeviewMonsters() {
     if (_gameState.active_type == ActiveActivityType::Combat &&
         _gameState.active_monster_id == i) {
       m_name = "⚔ " + m_name;
-    } else if (_gameState.slayer_task_monster_id == i) {
+    } else if (_gameState.bounty_target_id == i) {
       m_name = "★ " + m_name;
     }
 
@@ -893,7 +894,7 @@ void MainWindow::_fillTreeviewMonsters() {
     item->setText(2, QString::fromUtf8(mon.zone_name));
     item->setText(3, QString::number(mon.max_hp));
     item->setText(4, QString::number(mon.max_hit));
-    item->setText(5, QString("Lv %1").arg(mon.slayer_req));
+    item->setText(5, QString("Lv %1").arg(mon.bounty_req));
     item->setText(6, QString::number(_gameState.monster_kills[i]));
     item->setData(0, Qt::UserRole, i);
 
@@ -1005,8 +1006,8 @@ void MainWindow::onStatusZoomRequested(int item_idx) {
   dlg.exec();
 }
 
-void MainWindow::slotNewSlayerTask() {
-  _gameState.assign_new_slayer_task();
+void MainWindow::slotNewBountyContract() {
+  _gameState.assign_new_bounty_contract();
   updateAllUi();
 }
 
@@ -1052,59 +1053,61 @@ WindowShop::WindowShop(GameState& gameState, QWidget* parent)
 }
 
 void WindowShop::_setupWidget() {
-  setWindowTitle("General Shop & Upgrades");
-  setMinimumWidth(560);
+  setWindowTitle("Cyber-Shop & Tool Upgrades");
+  setMinimumWidth(580);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);
-  _label_gp = new QLabel(this);
-  QFont f = _label_gp->font();
+  _label_credits = new QLabel(this);
+  QFont f = _label_credits->font();
   f.setBold(true);
-  _label_gp->setFont(f);
-  vbox->addWidget(_label_gp);
+  _label_credits->setFont(f);
+  vbox->addWidget(_label_credits);
 
   QGridLayout* grid = new QGridLayout();
   grid->setHorizontalSpacing(12);
   grid->setVerticalSpacing(8);
 
-  _label_axe = new QLabel(this);
-  _btn_axe = new QPushButton("Upgrade Axe", this);
-  connect(_btn_axe, &QPushButton::clicked, this, &WindowShop::onBuyAxe);
-  grid->addWidget(new QLabel("<b>Woodcutting Axe:</b>", this), 0, 0);
-  grid->addWidget(_label_axe, 0, 1);
-  grid->addWidget(_btn_axe, 0, 2);
+  _label_cutter = new QLabel(this);
+  _btn_cutter = new QPushButton("Upgrade Cutter", this);
+  connect(_btn_cutter, &QPushButton::clicked, this, &WindowShop::onBuyCutter);
+  grid->addWidget(new QLabel("<b>Salvaging Cutter:</b>", this), 0, 0);
+  grid->addWidget(_label_cutter, 0, 1);
+  grid->addWidget(_btn_cutter, 0, 2);
 
-  _label_rod = new QLabel(this);
-  _btn_rod = new QPushButton("Upgrade Rod", this);
-  connect(_btn_rod, &QPushButton::clicked, this, &WindowShop::onBuyRod);
-  grid->addWidget(new QLabel("<b>Fishing Rod:</b>", this), 1, 0);
-  grid->addWidget(_label_rod, 1, 1);
-  grid->addWidget(_btn_rod, 1, 2);
+  _label_harvester = new QLabel(this);
+  _btn_harvester = new QPushButton("Upgrade Harvester", this);
+  connect(_btn_harvester, &QPushButton::clicked, this,
+          &WindowShop::onBuyHarvester);
+  grid->addWidget(new QLabel("<b>Bio-Harvester:</b>", this), 1, 0);
+  grid->addWidget(_label_harvester, 1, 1);
+  grid->addWidget(_btn_harvester, 1, 2);
 
-  _label_pickaxe = new QLabel(this);
-  _btn_pickaxe = new QPushButton("Upgrade Pickaxe", this);
-  connect(_btn_pickaxe, &QPushButton::clicked, this, &WindowShop::onBuyPickaxe);
-  grid->addWidget(new QLabel("<b>Mining Pickaxe:</b>", this), 2, 0);
-  grid->addWidget(_label_pickaxe, 2, 1);
-  grid->addWidget(_btn_pickaxe, 2, 2);
+  _label_drill = new QLabel(this);
+  _btn_drill = new QPushButton("Upgrade Drill", this);
+  connect(_btn_drill, &QPushButton::clicked, this, &WindowShop::onBuyDrill);
+  grid->addWidget(new QLabel("<b>Mining Drill:</b>", this), 2, 0);
+  grid->addWidget(_label_drill, 2, 1);
+  grid->addWidget(_btn_drill, 2, 2);
 
-  _label_fire = new QLabel(this);
-  _btn_fire = new QPushButton("Upgrade Fire", this);
-  connect(_btn_fire, &QPushButton::clicked, this, &WindowShop::onBuyFire);
-  grid->addWidget(new QLabel("<b>Cooking Fire:</b>", this), 3, 0);
-  grid->addWidget(_label_fire, 3, 1);
-  grid->addWidget(_btn_fire, 3, 2);
+  _label_reactor = new QLabel(this);
+  _btn_reactor = new QPushButton("Upgrade Reactor", this);
+  connect(_btn_reactor, &QPushButton::clicked, this, &WindowShop::onBuyReactor);
+  grid->addWidget(new QLabel("<b>Synth-Reactor:</b>", this), 3, 0);
+  grid->addWidget(_label_reactor, 3, 1);
+  grid->addWidget(_btn_reactor, 3, 2);
 
-  _label_autoeat = new QLabel(this);
-  _btn_autoeat = new QPushButton("Upgrade Auto-Eat", this);
-  connect(_btn_autoeat, &QPushButton::clicked, this, &WindowShop::onBuyAutoEat);
-  grid->addWidget(new QLabel("<b>Auto-Eat:</b>", this), 4, 0);
-  grid->addWidget(_label_autoeat, 4, 1);
-  grid->addWidget(_btn_autoeat, 4, 2);
+  _label_autostim = new QLabel(this);
+  _btn_autostim = new QPushButton("Upgrade Auto-Stim", this);
+  connect(_btn_autostim, &QPushButton::clicked, this,
+          &WindowShop::onBuyAutoStim);
+  grid->addWidget(new QLabel("<b>Auto-Stim:</b>", this), 4, 0);
+  grid->addWidget(_label_autostim, 4, 1);
+  grid->addWidget(_btn_autostim, 4, 2);
 
   _label_bank = new QLabel(this);
   _btn_bank = new QPushButton("Buy +4 Slots", this);
   connect(_btn_bank, &QPushButton::clicked, this, &WindowShop::onBuyBankSlot);
-  grid->addWidget(new QLabel("<b>Bank Space:</b>", this), 5, 0);
+  grid->addWidget(new QLabel("<b>Vault Space:</b>", this), 5, 0);
   grid->addWidget(_label_bank, 5, 1);
   grid->addWidget(_btn_bank, 5, 2);
 
@@ -1116,8 +1119,9 @@ void WindowShop::_setupWidget() {
 }
 
 void WindowShop::updateShopUi() {
-  _label_gp->setText(QString("Available Gold: %1")
-                         .arg(QString::fromStdString(money_string(_gameState.gp))));
+  _label_credits->setText(
+      QString("Available Credits: %1")
+          .arg(QString::fromStdString(money_string(_gameState.credits))));
 
   auto format_tool = [](const auto& arr, int tier) {
     const auto& cur = arr[tier];
@@ -1125,63 +1129,65 @@ void WindowShop::updateShopUi() {
       return QString("%1 (MAX TIER)").arg(cur.name);
     }
     const auto& nxt = arr[tier + 1];
-    return QString("%1 -> Next: %2 (Lv %3, %4 GP)")
+    return QString("%1 -> Next: %2 (Lv %3, %4 Cr)")
         .arg(cur.name)
         .arg(nxt.name)
         .arg(nxt.req_skill_level)
-        .arg(nxt.cost_gp);
+        .arg(nxt.cost_credits);
   };
 
-  _label_axe->setText(format_tool(axe_upgrades, _gameState.axe_tier));
-  _btn_axe->setEnabled(_gameState.axe_tier + 1 < TOOL_TIER_COUNT);
+  _label_cutter->setText(format_tool(cutter_upgrades, _gameState.cutter_tier));
+  _btn_cutter->setEnabled(_gameState.cutter_tier + 1 < TOOL_TIER_COUNT);
 
-  _label_rod->setText(format_tool(rod_upgrades, _gameState.rod_tier));
-  _btn_rod->setEnabled(_gameState.rod_tier + 1 < TOOL_TIER_COUNT);
+  _label_harvester->setText(
+      format_tool(harvester_upgrades, _gameState.harvester_tier));
+  _btn_harvester->setEnabled(_gameState.harvester_tier + 1 < TOOL_TIER_COUNT);
 
-  _label_pickaxe->setText(
-      format_tool(pickaxe_upgrades, _gameState.pickaxe_tier));
-  _btn_pickaxe->setEnabled(_gameState.pickaxe_tier + 1 < TOOL_TIER_COUNT);
+  _label_drill->setText(format_tool(drill_upgrades, _gameState.drill_tier));
+  _btn_drill->setEnabled(_gameState.drill_tier + 1 < TOOL_TIER_COUNT);
 
-  _label_fire->setText(format_tool(fire_upgrades, _gameState.fire_tier));
-  _btn_fire->setEnabled(_gameState.fire_tier + 1 < TOOL_TIER_COUNT);
+  _label_reactor->setText(
+      format_tool(reactor_upgrades, _gameState.reactor_tier));
+  _btn_reactor->setEnabled(_gameState.reactor_tier + 1 < TOOL_TIER_COUNT);
 
-  _label_autoeat->setText(
-      format_tool(auto_eat_upgrades, _gameState.auto_eat_tier));
-  _btn_autoeat->setEnabled(_gameState.auto_eat_tier + 1 < AUTO_EAT_TIER_COUNT);
+  _label_autostim->setText(
+      format_tool(auto_stim_upgrades, _gameState.auto_stim_tier));
+  _btn_autostim->setEnabled(_gameState.auto_stim_tier + 1 <
+                            AUTO_STIM_TIER_COUNT);
 
   _label_bank->setText(
       QString("%1 Slots -> +4 Slots for %2")
           .arg(_gameState.bank_capacity)
           .arg(QString::fromStdString(
-              money_string(_gameState.next_bank_slot_cost()))));
+               money_string(_gameState.next_bank_slot_cost()))));
 }
 
-void WindowShop::onBuyAxe() {
-  _gameState.buy_axe_upgrade();
+void WindowShop::onBuyCutter() {
+  _gameState.buy_cutter_upgrade();
   updateShopUi();
   emit stateChanged();
 }
 
-void WindowShop::onBuyRod() {
-  _gameState.buy_rod_upgrade();
+void WindowShop::onBuyHarvester() {
+  _gameState.buy_harvester_upgrade();
   updateShopUi();
   emit stateChanged();
 }
 
-void WindowShop::onBuyPickaxe() {
-  _gameState.buy_pickaxe_upgrade();
+void WindowShop::onBuyDrill() {
+  _gameState.buy_drill_upgrade();
   updateShopUi();
   emit stateChanged();
 }
 
-void WindowShop::onBuyFire() {
-  _gameState.buy_fire_upgrade();
+void WindowShop::onBuyReactor() {
+  _gameState.buy_reactor_upgrade();
   updateShopUi();
   emit stateChanged();
 }
 
-void WindowShop::onBuyAutoEat() {
-  _gameState.buy_auto_eat_upgrade();
+void WindowShop::onBuyAutoStim() {
+  _gameState.buy_auto_stim_upgrade();
   updateShopUi();
   emit stateChanged();
 }
@@ -1203,11 +1209,11 @@ WindowEquipment::WindowEquipment(GameState& gameState, QWidget* parent)
 }
 
 void WindowEquipment::_setupWidget() {
-  setWindowTitle("Equipment & Combat Stats");
+  setWindowTitle("Cyberware Loadout & Combat Stats");
   setMinimumWidth(460);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);
-  QGroupBox* grp_gear = new QGroupBox("Equipped Gear", this);
+  QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
   for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
@@ -1226,13 +1232,13 @@ void WindowEquipment::_setupWidget() {
     grid->addWidget(_slot_buttons[i], i, 2);
   }
 
-  grid->addWidget(new QLabel("<b>Food Slot:</b>", grp_gear), EQUIP_SLOT_COUNT,
-                  0);
+  grid->addWidget(new QLabel("<b>Stim-Injector:</b>", grp_gear),
+                  EQUIP_SLOT_COUNT, 0);
   _label_food = new QLabel(grp_gear);
   grid->addWidget(_label_food, EQUIP_SLOT_COUNT, 1, 1, 2);
   vbox->addWidget(grp_gear);
 
-  QGroupBox* grp_stats = new QGroupBox("Effective Combat Stats", this);
+  QGroupBox* grp_stats = new QGroupBox("Effective Combat Telemetry", this);
   QVBoxLayout* vbox_stats = new QVBoxLayout(grp_stats);
   _label_stats = new QLabel(grp_stats);
   vbox_stats->addWidget(_label_stats);
@@ -1264,7 +1270,7 @@ void WindowEquipment::updateEquipmentUi() {
 
   if (_gameState.equipped_food_item >= 0 && _gameState.equipped_food_qty > 0) {
     const auto& fi = item_info[_gameState.equipped_food_item];
-    _label_food->setText(QString("%1x %2 (Heals +%3 HP)")
+    _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
                              .arg(_gameState.equipped_food_qty)
                              .arg(fi.name)
                              .arg(fi.heal_amount));
@@ -1275,13 +1281,13 @@ void WindowEquipment::updateEquipmentUi() {
   std::string st = std::format(
       "Combat Level: {}\n"
       "Hitpoints: {} / {} HP\n"
-      "Attack Style: {}\n"
-      "Attack Interval: {:.2f}s\n"
+      "Combat Mode: {}\n"
+      "Weapon Cycle: {:.2f}s\n"
       "Max Hit: {}\n"
       "Accuracy Rating: {}\n"
       "Evasion Rating: {}\n"
       "Damage Reduction: {}%\n"
-      "Auto-Eat Threshold: {} HP",
+      "Auto-Stim Threshold: {} HP",
       _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp(),
       attack_style_name(_gameState.attack_style),
       _gameState.player_attack_interval_ms() / 1000.0,
@@ -1307,8 +1313,8 @@ WindowBestiary::WindowBestiary(const GameState& gameState, QWidget* parent)
 }
 
 void WindowBestiary::_setupWidget() {
-  setWindowTitle("Monster Bestiary & Drop Tables");
-  resize(760, 420);
+  setWindowTitle("Hostile Database & Salvage Tables");
+  resize(780, 420);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);
   QTreeWidget* tree = new QTreeWidget(this);
@@ -1316,10 +1322,10 @@ void WindowBestiary::_setupWidget() {
   tree->setUniformRowHeights(true);
   tree->setColumnCount(7);
   tree->setHeaderLabels(
-      {"Lv", "Monster", "Area", "HP / MaxHit", "Hit% vs You", "Kills", "Drops & Loot Table"});
+      {"Lv", "Hostile Target", "Sector", "HP / MaxHit", "Hit% vs You", "Kills", "Credits & Salvage Table"});
   tree->setColumnWidth(0, 40);
-  tree->setColumnWidth(1, 165);
-  tree->setColumnWidth(2, 120);
+  tree->setColumnWidth(1, 175);
+  tree->setColumnWidth(2, 125);
   tree->setColumnWidth(3, 85);
   tree->setColumnWidth(4, 90);
   tree->setColumnWidth(5, 55);
@@ -1328,7 +1334,8 @@ void WindowBestiary::_setupWidget() {
     const auto& mon = monster_info[i];
     auto* item = new QTreeWidgetItem(tree);
 
-    QString drops_str = QString("%1-%2 GP").arg(mon.gp_min).arg(mon.gp_max);
+    QString drops_str =
+        QString("%1-%2 Cr").arg(mon.credits_min).arg(mon.credits_max);
     for (const auto& d : mon.drops) {
       if (d.item_id >= 0) {
         drops_str += QString(", %1 (%2%)")
@@ -1341,7 +1348,7 @@ void WindowBestiary::_setupWidget() {
     item->setText(1, QString::fromUtf8(mon.name));
     item->setText(2, QString::fromUtf8(mon.zone_name));
     item->setText(3, QString("%1 HP / %2").arg(mon.max_hp).arg(mon.max_hit));
-    item->setText(4, QString("You %1% / Mon %2%")
+    item->setText(4, QString("You %1% / Foe %2%")
                          .arg(_gameState.player_hit_chance_pct(i))
                          .arg(_gameState.monster_hit_chance_pct(i)));
     item->setText(5, QString::number(_gameState.monster_kills[i]));
@@ -1366,7 +1373,7 @@ WindowHistory::WindowHistory(const GameState& gameState, int initial_item,
 }
 
 void WindowHistory::_setupWidget(int initial_item) {
-  setWindowTitle("Routineverse Progression History");
+  setWindowTitle("Routineverse Telemetry History");
   resize(680, 440);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);

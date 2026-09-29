@@ -51,8 +51,8 @@ void init_btop_colors() {
   init_pair(CP_SELECTED, COLOR_BLACK, COLOR_CYAN);
   init_pair(CP_HEADER_BAR, COLOR_WHITE, COLOR_BLUE);
   init_pair(CP_DIM, COLOR_BLUE, -1);
-  init_pair(CP_GRAPH_LINE, COLOR_YELLOW, -1);
-  init_pair(CP_GRAPH_REF, COLOR_CYAN, -1);
+  init_pair(CP_GRAPH_LINE, COLOR_CYAN, -1);
+  init_pair(CP_GRAPH_REF, COLOR_MAGENTA, -1);
 }
 
 void draw_btop_box(int y, int x, int h, int w, const std::string& title,
@@ -194,10 +194,10 @@ TuiApp::~TuiApp() = default;
 
 std::string TuiApp::itemName(int item_idx) {
   switch (item_idx) {
-    case ITEM_GP:
-      return "Gold (GP)";
+    case ITEM_CREDITS:
+      return "Credits (Cr)";
     case ITEM_BANK_VALUE:
-      return "Bank Value (GP)";
+      return "Vault Value (Cr)";
     case ITEM_TOTAL_LEVEL:
       return "Total Skill Level";
     case ITEM_TOTAL_XP:
@@ -209,7 +209,7 @@ std::string TuiApp::itemName(int item_idx) {
       if (s_idx >= 0 && s_idx < SKILL_COUNT) {
         return skill_name(static_cast<SkillType>(s_idx)) + " XP";
       }
-      return "Gold (GP)";
+      return "Credits (Cr)";
     }
   }
 }
@@ -274,8 +274,8 @@ int TuiApp::run() {
     switch (ch) {
       case 'q':
       case 'Q':
-        if (showConfirmModal("Quit Routineverse",
-                             "Are you sure you want to exit Routineverse?")) {
+        if (showConfirmModal("Disconnect Routineverse",
+                             "Are you sure you want to jack out of Routineverse?")) {
           _running = false;
         }
         last_tick = std::chrono::steady_clock::now();
@@ -374,7 +374,7 @@ int TuiApp::run() {
           _skillCursor = static_cast<int>(SkillType::Attack);
         } else if (!_forceCombatView &&
                    _skillCursor >= NON_COMBAT_SKILL_COUNT) {
-          _skillCursor = static_cast<int>(SkillType::Woodcutting);
+          _skillCursor = static_cast<int>(SkillType::Salvaging);
         }
         _focus = FocusPane::Actions;
         clampCursors();
@@ -413,7 +413,7 @@ int TuiApp::run() {
 
       case 't':
       case 'T':
-        actionNewSlayerTask();
+        actionNewBountyContract();
         break;
 
       case 'u':
@@ -615,16 +615,17 @@ void TuiApp::drawDashboard() {
 void TuiApp::drawTopBar(int cols) {
   attron(COLOR_PAIR(CP_HEADER_BAR) | A_BOLD);
   for (int c = 0; c < cols; ++c) mvaddch(0, c, ' ');
-  mvprintw(0, 1, " Routineverse %s ", std::string(kProgramVersion).c_str());
+  mvprintw(0, 1, " Routineverse %s [NEO-SECTOR] ",
+           std::string(kProgramVersion).c_str());
 
   std::string right_stats = std::format(
-      "GP: {} │ SC: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
-      number_string(_gameState.gp), number_string(_gameState.slayer_coins),
-      _gameState.combat_level(), _gameState.total_skill_level(),
-      SKILL_COUNT * MAX_SKILL_LEVEL, _gameState.player_hp,
-      _gameState.max_hp());
+      "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
+      number_string(_gameState.credits),
+      number_string(_gameState.bounty_tokens), _gameState.combat_level(),
+      _gameState.total_skill_level(), SKILL_COUNT * MAX_SKILL_LEVEL,
+      _gameState.player_hp, _gameState.max_hp());
 
-  int rx = std::max(18, cols - static_cast<int>(right_stats.size()) - 1);
+  int rx = std::max(30, cols - static_cast<int>(right_stats.size()) - 1);
   mvaddstr(0, rx, right_stats.c_str());
   attroff(COLOR_PAIR(CP_HEADER_BAR) | A_BOLD);
 }
@@ -643,7 +644,7 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   for (int i = 0; i < SKILL_COUNT && row < y + h - 1; ++i) {
     if (i == NON_COMBAT_SKILL_COUNT && row < y + h - 2) {
       attron(COLOR_PAIR(CP_DIM));
-      mvaddstr(row++, x + 2, "── Combat Skills ──");
+      mvaddstr(row++, x + 2, "── Combat & Bounty ─");
       attroff(COLOR_PAIR(CP_DIM));
     }
     if (row >= y + h - 1) break;
@@ -682,8 +683,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
   if (!isCombatView()) {
     auto sk = static_cast<SkillType>(
         std::clamp(_skillCursor, 0, NON_COMBAT_SKILL_COUNT - 1));
-    std::string title = skill_name(sk) + " Actions";
-    draw_btop_box(y, x, h, w, title, "[Enter]Train [x]Stop", active);
+    std::string title = skill_name(sk) + " Protocols";
+    draw_btop_box(y, x, h, w, title, "[Enter]Execute [x]Stop", active);
 
     int row = y + 1;
     // Active task banner + progress bar
@@ -708,8 +709,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-18s %-5s %-4s %-4s %s", "Lv", "Action",
-             "Time", "XP", "Mst", "Recipe / Product");
+    mvprintw(row++, x + 2, "%-3s %-18s %-5s %-4s %-4s %s", "Lv", "Protocol",
+             "Cycle", "XP", "Mst", "Schematic / Output");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     auto act_ids = actions_for_skill(sk);
@@ -741,7 +742,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
         if (!io_str.empty()) io_str += "->";
         io_str += std::format("{}", item_info[act.product_item].name);
       } else if (io_str.empty()) {
-        io_str = "XP+Coal";
+        io_str = "XP+Cell+Cr";
       }
 
       double eff_s = _gameState.action_effective_interval_ms(id) / 1000.0;
@@ -760,11 +761,11 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       row++;
     }
   } else {
-    draw_btop_box(y, x, h, w, "Combat & Slayer Arena",
-                  "[Enter]Fight [y]Style [t]Task", active);
+    draw_btop_box(y, x, h, w, "Combat & Bounty Arena",
+                  "[Enter]Engage [y]Mode [t]Bounty", active);
 
     int row = y + 1;
-    // Player vs Monster live HUD
+    // Player vs Hostile live HUD
     double plr_hp_r = static_cast<double>(_gameState.player_hp) /
                       std::max(1, _gameState.max_hp());
     attron(COLOR_PAIR(CP_GREEN) | A_BOLD);
@@ -793,10 +794,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
-        "Style: {} │ Slayer Task: {}x {}",
+        "Mode: {} │ Bounty: {}x {}",
         attack_style_name(_gameState.attack_style),
-        _gameState.slayer_task_remaining,
-        monster_info[_gameState.slayer_task_monster_id].name);
+        _gameState.bounty_remaining,
+        monster_info[_gameState.bounty_target_id].name);
     if (static_cast<int>(style_task.size()) > inner_w) {
       style_task = style_task.substr(0, inner_w);
     }
@@ -805,7 +806,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
     mvprintw(row++, x + 2, "%-3s %-18s %-13s %-5s %-4s %-4s %-5s", "Lv",
-             "Monster", "Zone", "HP", "Max", "Sly", "Kills");
+             "Hostile", "Sector", "HP", "Max", "Bnt", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     for (int i = 0; i < MONSTER_COUNT && row < y + h - 1; ++i) {
@@ -814,7 +815,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       bool is_fighting =
           (_gameState.active_type == ActiveActivityType::Combat &&
            _gameState.active_monster_id == i);
-      bool is_task = (i == _gameState.slayer_task_monster_id);
+      bool is_task = (i == _gameState.bounty_target_id);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
                         : (is_fighting ? CP_RED
@@ -830,7 +831,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
       std::string line = std::format(
           "{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level,
-          mname, zname, mon.max_hp, mon.max_hit, mon.slayer_req,
+          mname, zname, mon.max_hp, mon.max_hit, mon.bounty_req,
           _gameState.monster_kills[i]);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
@@ -844,7 +845,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
 void TuiApp::drawBankPane(int y, int x, int h, int w) {
   bool active = (_focus == FocusPane::Bank);
-  std::string title = std::format("Bank ({}/{})", _gameState.used_bank_slots(),
+  std::string title = std::format("Vault ({}/{})", _gameState.used_bank_slots(),
                                   _gameState.bank_capacity);
   draw_btop_box(y, x, h, w, title, "[e]Equip [s]Sell", active);
 
@@ -852,12 +853,12 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
   int row = y + 1;
 
   attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-  mvprintw(row++, x + 2, "%-16s %5s %s", "Item", "Qty", "Value / Bonus");
+  mvprintw(row++, x + 2, "%-16s %5s %s", "Item", "Qty", "Value / Specs");
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   if (_gameState.bank.empty()) {
     attron(COLOR_PAIR(CP_DIM));
-    mvaddstr(row, x + 2, "(Bank is empty)");
+    mvaddstr(row, x + 2, "(Cyber-Vault is empty)");
     attroff(COLOR_PAIR(CP_DIM));
     return;
   }
@@ -903,7 +904,7 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
 }
 
 void TuiApp::drawStatusPane(int y, int x, int h, int w) {
-  draw_btop_box(y, x, h, w, "Gear & Upgrades", "[u]Shop [i]Gear");
+  draw_btop_box(y, x, h, w, "Cyberware & Tools", "[u]Shop [i]Gear");
   int inner_w = w - 4;
   int row = y + 1;
 
@@ -927,18 +928,19 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
 
   print_line(CP_CYAN, std::format("Weapon: {} (MaxHit {})", w_str,
                                   _gameState.player_max_hit()));
-  print_line(CP_GREEN, std::format("Food [f]: {}", food_str));
+  print_line(CP_GREEN, std::format("Stim [f]: {}", food_str));
   print_line(CP_YELLOW,
-             std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoEat: T{}",
+             std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoStim: Mk{}",
                          _gameState.player_accuracy(),
                          _gameState.player_evasion(),
                          _gameState.player_damage_reduction(),
-                         _gameState.auto_eat_tier));
+                         _gameState.auto_stim_tier));
   print_line(CP_DEFAULT,
-             std::format("Tools: Axe T{} Rod T{} Pick T{} Fire T{}",
-                         _gameState.axe_tier + 1, _gameState.rod_tier + 1,
-                         _gameState.pickaxe_tier + 1,
-                         _gameState.fire_tier + 1));
+             std::format("Tools: Cut T{} Bio T{} Drl T{} Core T{}",
+                         _gameState.cutter_tier + 1,
+                         _gameState.harvester_tier + 1,
+                         _gameState.drill_tier + 1,
+                         _gameState.reactor_tier + 1));
 }
 
 void TuiApp::drawGraphPane(int y, int x, int h, int w) {
@@ -954,9 +956,9 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
   if (h <= 0 || w <= 2) return;
 
   std::vector<double> values;
-  if (item_idx == ITEM_GP) {
-    for (long long v : _gameState.gp_history) values.push_back(v);
-    values.push_back(_gameState.gp);
+  if (item_idx == ITEM_CREDITS) {
+    for (long long v : _gameState.credits_history) values.push_back(v);
+    values.push_back(_gameState.credits);
   } else if (item_idx == ITEM_BANK_VALUE) {
     for (long long v : _gameState.bank_value_history) values.push_back(v);
     values.push_back(_gameState.total_bank_value());
@@ -1038,7 +1040,8 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
 }
 
 void TuiApp::drawLogPane(int y, int x, int h, int w) {
-  draw_btop_box(y, x, h, w, "Adventure & Loot Log", "[+]/[]]Fast-Forward +1m/+10m");
+  draw_btop_box(y, x, h, w, "Cyber-Log & Telemetry",
+                "[+]/[]]Fast-Forward +1m/+10m");
   int inner_w = w - 4;
   int max_lines = std::max(1, h - 2);
   int total = static_cast<int>(_gameState.game_log.size());
@@ -1060,8 +1063,8 @@ void TuiApp::drawBottomKeyBar(int y, int cols) {
   attron(COLOR_PAIR(CP_HEADER_BAR));
   for (int c = 0; c < cols; ++c) mvaddch(y, c, ' ');
   std::string bar =
-      " [Tab]Pane [Enter]Start/Fight [x]Stop [f]Eat [e]Equip [s/S]Sell [u]Shop "
-      "[i]Gear [b]Bestiary [+]/[]]FF [w/o]Save/Load [?]Help [q]Quit";
+      " [Tab]Pane [Enter]Run/Engage [x]Stop [f]Stim [e]Equip [s/S]Sell [u]Shop "
+      "[i]Gear [b]Hostiles [+]/[]]FF [w/o]Save/Load [?]Help [q]Quit";
   if (static_cast<int>(bar.size()) > cols) bar = bar.substr(0, cols);
   mvaddstr(y, 0, bar.c_str());
   attroff(COLOR_PAIR(CP_HEADER_BAR));
@@ -1109,8 +1112,8 @@ void TuiApp::actionSellSelected() {
 
   const auto& info = item_info[item_id];
   int qty = showInputSpinModal(
-      "Sell Bank Item",
-      std::format("Selling {} ({} GP each)\nYou have {} in your Bank.",
+      "Liquidate Vault Item",
+      std::format("Liquidating {} ({} Cr each)\nYou have {} in your Cyber-Vault.",
                   info.name, info.price, have),
       "Quantity to sell:", 1, have, have, info.price);
   if (qty > 0) {
@@ -1122,8 +1125,8 @@ void TuiApp::actionSellSelected() {
 void TuiApp::actionSellAllBank() {
   if (_gameState.bank.empty()) return;
   if (showConfirmModal(
-          "Sell All Bank Items",
-          std::format("Sell all {} item stacks in Bank for {}?",
+          "Liquidate All Vault Items",
+          std::format("Liquidate all {} item stacks in Cyber-Vault for {}?",
                       _gameState.bank.size(),
                       money_string(_gameState.total_bank_value())))) {
     _gameState.sell_all_non_equipped();
@@ -1134,15 +1137,17 @@ void TuiApp::actionSellAllBank() {
 void TuiApp::actionCycleAttackStyle() {
   int next = (static_cast<int>(_gameState.attack_style) + 1) % 3;
   _gameState.attack_style = static_cast<AttackStyle>(next);
-  _gameState.add_log(std::format("Switched combat style to {}.",
+  _gameState.add_log(std::format("Switched combat mode to {}.",
                                  attack_style_name(_gameState.attack_style)));
 }
 
-void TuiApp::actionNewSlayerTask() { _gameState.assign_new_slayer_task(); }
+void TuiApp::actionNewBountyContract() {
+  _gameState.assign_new_bounty_contract();
+}
 
 void TuiApp::actionFastForward(int seconds) {
   _gameState.add_log(
-      std::format("Fast-forwarding {}m of idle progression...", seconds / 60));
+      std::format("Fast-forwarding {}m of neural simulation...", seconds / 60));
   _gameState.fast_forward_seconds(seconds);
   clampCursors();
 }
@@ -1150,7 +1155,7 @@ void TuiApp::actionFastForward(int seconds) {
 void TuiApp::actionSaveGame() {
   std::string path = GameState::default_save_path();
   if (_gameState.save_to_file(path)) {
-    _gameState.add_log(std::format("Game saved to {}.", path));
+    _gameState.add_log(std::format("Neural state saved to {}.", path));
   }
 }
 
@@ -1161,8 +1166,8 @@ void TuiApp::actionLoadGame() {
 }
 
 void TuiApp::actionNewGame() {
-  if (showConfirmModal("New Game",
-                       "Reset your character and start a fresh New Game?")) {
+  if (showConfirmModal("New Operative",
+                       "Wipe your neural profile and start a fresh New Game?")) {
     _gameState.new_game();
     clampCursors();
   }
@@ -1174,17 +1179,17 @@ void TuiApp::showShopDialog() {
   while (true) {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    int w = std::min(72, cols - 4);
+    int w = std::min(74, cols - 4);
     int h = 15;
     int y = (rows - h) / 2;
     int x = (cols - w) / 2;
 
-    draw_btop_box(y, x, h, w, "General Shop & Upgrades",
+    draw_btop_box(y, x, h, w, "Cyber-Shop & Tool Upgrades",
                   "[Enter]Buy [Esc]Close", true, CP_YELLOW);
 
     attron(COLOR_PAIR(CP_GREEN) | A_BOLD);
-    mvprintw(y + 1, x + 3, "Available Gold: %s",
-             money_string(_gameState.gp).c_str());
+    mvprintw(y + 1, x + 3, "Available Credits: %s",
+             money_string(_gameState.credits).c_str());
     attroff(COLOR_PAIR(CP_GREEN) | A_BOLD);
 
     auto fmt_upg = [](const char* label, const auto& arr, int tier) {
@@ -1192,18 +1197,18 @@ void TuiApp::showShopDialog() {
         return std::format("{:<14}: {} (MAX TIER)", label, arr[tier].name);
       }
       const auto& nxt = arr[tier + 1];
-      return std::format("{:<14}: {} -> {} (Lv {}, {} GP)", label,
+      return std::format("{:<14}: {} -> {} (Lv {}, {} Cr)", label,
                          arr[tier].name, nxt.name, nxt.req_skill_level,
-                         nxt.cost_gp);
+                         nxt.cost_credits);
     };
 
     std::array<std::string, 6> items = {
-        fmt_upg("Woodcutting", axe_upgrades, _gameState.axe_tier),
-        fmt_upg("Fishing Rod", rod_upgrades, _gameState.rod_tier),
-        fmt_upg("Mining Pick", pickaxe_upgrades, _gameState.pickaxe_tier),
-        fmt_upg("Cooking Fire", fire_upgrades, _gameState.fire_tier),
-        fmt_upg("Auto-Eat", auto_eat_upgrades, _gameState.auto_eat_tier),
-        std::format("{:<14}: {} Slots -> +4 Slots ({})", "Bank Space",
+        fmt_upg("Salvage Cutter", cutter_upgrades, _gameState.cutter_tier),
+        fmt_upg("Bio-Harvester", harvester_upgrades, _gameState.harvester_tier),
+        fmt_upg("Mining Drill", drill_upgrades, _gameState.drill_tier),
+        fmt_upg("Synth-Reactor", reactor_upgrades, _gameState.reactor_tier),
+        fmt_upg("Auto-Stim", auto_stim_upgrades, _gameState.auto_stim_tier),
+        std::format("{:<14}: {} Slots -> +4 Slots ({})", "Vault Space",
                     _gameState.bank_capacity,
                     money_string(_gameState.next_bank_slot_cost())),
     };
@@ -1226,11 +1231,11 @@ void TuiApp::showShopDialog() {
     if (ch == KEY_UP || ch == 'k') cursor = (cursor + 5) % 6;
     if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % 6;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
-      if (cursor == 0) _gameState.buy_axe_upgrade();
-      if (cursor == 1) _gameState.buy_rod_upgrade();
-      if (cursor == 2) _gameState.buy_pickaxe_upgrade();
-      if (cursor == 3) _gameState.buy_fire_upgrade();
-      if (cursor == 4) _gameState.buy_auto_eat_upgrade();
+      if (cursor == 0) _gameState.buy_cutter_upgrade();
+      if (cursor == 1) _gameState.buy_harvester_upgrade();
+      if (cursor == 2) _gameState.buy_drill_upgrade();
+      if (cursor == 3) _gameState.buy_reactor_upgrade();
+      if (cursor == 4) _gameState.buy_auto_stim_upgrade();
       if (cursor == 5) _gameState.buy_bank_slot();
     }
   }
@@ -1248,7 +1253,7 @@ void TuiApp::showEquipmentDialog() {
     int y = (rows - h) / 2;
     int x = (cols - w) / 2;
 
-    draw_btop_box(y, x, h, w, "Equipment & Combat Stats",
+    draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
     for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
@@ -1265,7 +1270,7 @@ void TuiApp::showEquipmentDialog() {
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
              (sel ? A_BOLD : A_NORMAL));
       for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + i, x + 3 + c, ' ');
-      mvprintw(y + 2 + i, x + 3, "%-10s: %s", equip_slot_name(slot).c_str(),
+      mvprintw(y + 2 + i, x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
                desc.c_str());
       attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
               (sel ? A_BOLD : A_NORMAL));
@@ -1275,13 +1280,13 @@ void TuiApp::showEquipmentDialog() {
     mvprintw(y + 7, x + 3, "Combat Level: %d   │   HP: %d / %d",
              _gameState.combat_level(), _gameState.player_hp,
              _gameState.max_hp());
-    mvprintw(y + 8, x + 3, "Attack Style: %s",
+    mvprintw(y + 8, x + 3, "Combat Mode: %s",
              attack_style_name(_gameState.attack_style).c_str());
     mvprintw(y + 9, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
              _gameState.player_max_hit(), _gameState.player_accuracy(),
              _gameState.player_evasion());
     mvprintw(y + 10, x + 3,
-             "Damage Reduction: %d%%   │   Auto-Eat Threshold: %d HP",
+             "Damage Reduction: %d%%   │   Auto-Stim Threshold: %d HP",
              _gameState.player_damage_reduction(),
              _gameState.auto_eat_threshold_hp());
     attroff(COLOR_PAIR(CP_YELLOW));
@@ -1306,7 +1311,8 @@ void TuiApp::showBestiaryDialog() {
     oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
                        mon.combat_level, mon.name, mon.zone_name, mon.max_hp,
                        mon.max_hit, _gameState.monster_kills[i]);
-    oss << std::format("   Drops: {}-{} GP", mon.gp_min, mon.gp_max);
+    oss << std::format("   Salvage: {}-{} Cr", mon.credits_min,
+                       mon.credits_max);
     for (const auto& d : mon.drops) {
       if (d.item_id >= 0) {
         oss << std::format(", {} ({}%)", item_info[d.item_id].name,
@@ -1315,7 +1321,7 @@ void TuiApp::showBestiaryDialog() {
     }
     oss << "\n";
   }
-  showMessageModal("Monster Bestiary & Drop Tables", oss.str(), CP_CYAN);
+  showMessageModal("Hostile Database & Salvage Tables", oss.str(), CP_CYAN);
 }
 
 void TuiApp::showHistoryDialog(int initial_item) {
@@ -1326,7 +1332,7 @@ void TuiApp::showHistoryDialog(int initial_item) {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
     std::string title =
-        std::format("Progression History — {} ({}/{})", itemName(item_idx),
+        std::format("Telemetry History — {} ({}/{})", itemName(item_idx),
                     item_idx + 1, TOTAL_ITEMS);
     draw_btop_box(0, 0, rows, cols, title, "[Left/Right]Metric [Esc]Close",
                   true, CP_CYAN);
@@ -1347,7 +1353,7 @@ void TuiApp::showHistoryDialog(int initial_item) {
 
 void TuiApp::showAboutDialog() {
   std::string msg = std::format(
-      "{}\n{}\n\nInspired by Idle RPG\nAuthor: "
+      "{}\n{}\n\nCyberpunk Idle RPG\nAuthor: "
       "{}\nVersion: {}",
       kProgramName, kProgramDescription, kProgramAuthorName, kProgramVersion);
   showMessageModal("About Routineverse", msg, CP_CYAN);
@@ -1355,16 +1361,17 @@ void TuiApp::showAboutDialog() {
 
 void TuiApp::showDocsDialog() {
   showMessageModal(
-      "Routineverse Documentation",
-      "Welcome to Routineverse (Simplified Idle RPG)!\n\n"
-      "• Gathering Skills: Train Woodcutting, Fishing, and Mining to gather "
-      "raw resources and rare gems.\n"
-      "• Artisan Skills: Train Firemaking, Cooking, and Smithing to burn logs, "
-      "cook healing food, smelt bars, and forge Bronze through Dragon gear.\n"
-      "• Combat & Slayer: Equip weapons, armor, and food from your Bank. "
-      "Fight monsters and complete Slayer tasks for Slayer Coins!\n"
-      "• Shop Upgrades: Press [u] to upgrade tools, unlock Auto-Eat, and "
-      "expand Bank slots.",
+      "Routineverse Cyber-Guide",
+      "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
+      "• Extraction Protocols: Train Salvaging, Bio-Harvest, and Deep-Mining to "
+      "gather scrap, synth-biota, ores, and rare Data Crystals.\n"
+      "• Synthesis & Fabrication: Train Overclock, Synth-Cook, and Cyber-Fab to "
+      "overclock tech scrap, synthesize healing stims, refine alloys, and "
+      "fabricate Scrap through Chrono-tier cyber-gear.\n"
+      "• Combat & Bounty: Equip weapons, cyber-armor, and stims from your Vault. "
+      "Neutralize hostiles and complete Bounty contracts for Bounty Tokens!\n"
+      "• Cyber-Shop Upgrades: Press [u] to upgrade tools, unlock Auto-Stim, and "
+      "expand Cyber-Vault capacity.",
       CP_GREEN);
 }
 
@@ -1374,46 +1381,46 @@ void TuiApp::showMilestonesDialog() {
   std::string text = std::format(
       "Combat Level: {}   |   Total Skill Level: {} / {}\n"
       "Total Skill XP: {}\n"
-      "Current Gold: {}   |   Total Gold Earned: {}\n"
-      "Bank Value: {} ({} / {} slots)\n"
-      "Slayer Coins: {}   |   Slayer Tasks Completed: {}\n"
-      "Items Gathered/Crafted: {}\n"
-      "Monsters Defeated: {}   |   Deaths: {}\n"
-      "Malcs (Volcanic Boss) Kills: {}\n"
-      "Simulated Playtime: {}m {}s",
+      "Current Credits: {}   |   Total Credits Earned: {}\n"
+      "Cyber-Vault Value: {} ({} / {} slots)\n"
+      "Bounty Tokens: {}   |   Bounty Contracts Completed: {}\n"
+      "Items Salvaged/Fabricated: {}\n"
+      "Hostiles Neutralized: {}   |   Flatlines: {}\n"
+      "NEXUS-9 (Mainframe Boss) Kills: {}\n"
+      "Simulated Uptime: {}m {}s",
       _gameState.combat_level(), _gameState.total_skill_level(),
       SKILL_COUNT * MAX_SKILL_LEVEL, number_string(_gameState.total_skill_xp()),
-      money_string(_gameState.gp), money_string(_gameState.total_gp_earned),
+      money_string(_gameState.credits),
+      money_string(_gameState.total_credits_earned),
       money_string(_gameState.total_bank_value()),
       _gameState.used_bank_slots(), _gameState.bank_capacity,
-      number_string(_gameState.slayer_coins),
-      _gameState.slayer_tasks_completed,
+      number_string(_gameState.bounty_tokens), _gameState.bounties_completed,
       number_string(_gameState.total_items_gathered),
       number_string(_gameState.total_monsters_killed), _gameState.player_deaths,
       _gameState.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
-  showMessageModal("Character Statistics & Milestones", text, CP_YELLOW);
+  showMessageModal("Operative Telemetry & Milestones", text, CP_YELLOW);
 }
 
 void TuiApp::showHelpDialog() {
   showMessageModal(
       "Keyboard & Mouse Shortcuts",
-      "[Tab / Shift+Tab] : Cycle focus pane (Skills / Actions / Bank)\n"
+      "[Tab / Shift+Tab] : Cycle focus pane (Skills / Protocols / Vault)\n"
       "[Up / Down / j/k] : Navigate list in active pane\n"
-      "[Enter / Space]   : Start Skill Action / Fight Monster / Equip Item\n"
-      "[c]               : Toggle between Skill Actions and Combat Arena\n"
-      "[x]               : Stop current activity\n"
-      "[f]               : Eat equipped food (+HP)\n"
-      "[e]               : Equip selected Bank item or food\n"
-      "[s / S]           : Sell selected Bank item / Sell All Bank items\n"
-      "[y]               : Cycle Combat Attack Style (Accurate/Aggressive/Defensive)\n"
-      "[t]               : Request new Slayer Task\n"
-      "[u]               : Open Shop & Tool Upgrades\n"
-      "[i]               : Open Equipment & Combat Stats\n"
-      "[b]               : Open Monster Bestiary & Drops\n"
+      "[Enter / Space]   : Execute Protocol / Engage Hostile / Equip Item\n"
+      "[c]               : Toggle between Tech Protocols and Combat Arena\n"
+      "[x]               : Stop current protocol\n"
+      "[f]               : Inject loaded Stim / Ration (+HP)\n"
+      "[e]               : Equip selected Vault item or stim\n"
+      "[s / S]           : Sell selected Vault item / Sell All Vault items\n"
+      "[y]               : Cycle Combat Mode (Precision/Overdrive/Evasive)\n"
+      "[t]               : Request new Bounty Contract\n"
+      "[u]               : Open Cyber-Shop & Tool Upgrades\n"
+      "[i]               : Open Cyberware Loadout & Combat Stats\n"
+      "[b]               : Open Hostile Database & Drops\n"
       "[g / G]           : Cycle Chart Metric / Open Fullscreen Chart\n"
       "[+ / ]]           : Fast-Forward +1m / +10m\n"
-      "[w / o]           : Save Game / Load Game\n"
-      "[q]               : Quit Routineverse",
+      "[w / o]           : Save State / Load State\n"
+      "[q]               : Disconnect from Routineverse",
       CP_CYAN);
 }
 

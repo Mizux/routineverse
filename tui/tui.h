@@ -7,7 +7,7 @@
 
 class TuiApp {
  public:
-  static constexpr int ITEM_GP = 0;
+  static constexpr int ITEM_CREDITS = 0;
   static constexpr int ITEM_BANK_VALUE = 1;
   static constexpr int ITEM_TOTAL_LEVEL = 2;
   static constexpr int ITEM_TOTAL_XP = 3;
@@ -49,7 +49,7 @@ class TuiApp {
   void actionSellSelected();
   void actionSellAllBank();
   void actionCycleAttackStyle();
-  void actionNewSlayerTask();
+  void actionNewBountyContract();
   void actionFastForward(int seconds);
   void actionSaveGame();
   void actionLoadGame();
@@ -82,7 +82,7 @@ class TuiApp {
   int _actionCursor = 0;
   int _monsterCursor = 0;
   int _bankCursor = 0;
-  int _chartItemIdx = ITEM_GP;
+  int _chartItemIdx = ITEM_CREDITS;
   bool _forceCombatView = false;
   bool _running = true;
 };

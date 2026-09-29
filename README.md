@@ -22,9 +22,9 @@ It is featuring both a **Qt6 GUI** and a **btop-inspired ncurses TUI**.
 
 ## Project Structure
 
-- `libroutineverse/`: Shared C++20 Idle simulation engine (`GameState`), skills, recipes, items, combat & Slayer engine, shop upgrades, save/load, and progression history.
-- `app/`: Qt6 Widgets + QtCharts graphical application with interactive skill/combat views, progress bars, equipment & bank manager, shop dialog, monster bestiary, and history charts.
-- `tui/`: Terminal User Interface built with wide-character `ncursesw`, featuring btop-style boxes, live action progress bars, Braille progression charts, and full keyboard/mouse navigation.
+- `libroutineverse/`: Shared C++20 Idle simulation engine (`GameState`), cyberpunk skills & protocols, schematics, cyberware & items, combat & Bounty engine, Cyber-Shop tool upgrades, save/load, and telemetry progression history.
+- `app/`: Qt6 Widgets + QtCharts graphical application with interactive protocol/combat views, progress bars, cyberware & Cyber-Vault manager, Cyber-Shop dialog, hostile database, and telemetry history charts.
+- `tui/`: Terminal User Interface built with wide-character `ncursesw`, featuring btop-style boxes, live protocol progress bars, Braille telemetry charts, and full keyboard/mouse navigation.
 
 ## Prerequisites
 

@@ -31,7 +31,7 @@ class HistoryChartView : public QChartView {
   Q_OBJECT
 
  public:
-  static constexpr int ITEM_GP = 0;
+  static constexpr int ITEM_CREDITS = 0;
   static constexpr int ITEM_BANK_VALUE = 1;
   static constexpr int ITEM_TOTAL_LEVEL = 2;
   static constexpr int ITEM_TOTAL_XP = 3;
@@ -63,7 +63,7 @@ class HistoryChartView : public QChartView {
   void _setupChart();
 
   bool _compact = true;
-  int _item_idx = ITEM_GP;
+  int _item_idx = ITEM_CREDITS;
 
   QChart* _chart = nullptr;
   QValueAxis* _axis_x = nullptr;
@@ -118,7 +118,7 @@ class MainWindow : public QWidget {
   void slotDocs();
   void slotHighscores();
   void slotNewGame();
-  void slotNewSlayerTask();
+  void slotNewBountyContract();
 
   void onTickTimer();
   void onSkillSelectionChanged();
@@ -136,7 +136,7 @@ class MainWindow : public QWidget {
   void _fillTreeviewBank();
 
   GameState _gameState;
-  SkillType _selected_skill = SkillType::Woodcutting;
+  SkillType _selected_skill = SkillType::Salvaging;
 
   QTimer* _tick_timer = nullptr;
   QTextEdit* _textview_information = nullptr;
@@ -150,8 +150,8 @@ class MainWindow : public QWidget {
   QTreeWidget* _treeview_bank = nullptr;
 
   QComboBox* _combo_attack_style = nullptr;
-  QLabel* _label_slayer_task = nullptr;
-  QPushButton* _button_slayer_task = nullptr;
+  QLabel* _label_bounty_task = nullptr;
+  QPushButton* _button_bounty_task = nullptr;
   QProgressBar* _progressbar_monster_hp = nullptr;
 
   QPushButton* _button_start = nullptr;
@@ -175,8 +175,8 @@ class MainWindow : public QWidget {
   QPushButton* _button_newgame = nullptr;
 
   QGroupBox* _group_bank = nullptr;
-  QLabel* _label_gp = nullptr;
-  QLabel* _label_slayer_coins = nullptr;
+  QLabel* _label_credits = nullptr;
+  QLabel* _label_bounty_tokens = nullptr;
   QLabel* _label_combat_lvl = nullptr;
   QLabel* _label_total_lvl = nullptr;
   QLabel* _label_tools = nullptr;
@@ -204,30 +204,30 @@ class WindowShop : public QDialog {
   void stateChanged();
 
  private slots:
-  void onBuyAxe();
-  void onBuyRod();
-  void onBuyPickaxe();
-  void onBuyFire();
-  void onBuyAutoEat();
+  void onBuyCutter();
+  void onBuyHarvester();
+  void onBuyDrill();
+  void onBuyReactor();
+  void onBuyAutoStim();
   void onBuyBankSlot();
 
  private:
   void _setupWidget();
 
   GameState& _gameState;
-  QLabel* _label_gp = nullptr;
-  QLabel* _label_axe = nullptr;
-  QLabel* _label_rod = nullptr;
-  QLabel* _label_pickaxe = nullptr;
-  QLabel* _label_fire = nullptr;
-  QLabel* _label_autoeat = nullptr;
+  QLabel* _label_credits = nullptr;
+  QLabel* _label_cutter = nullptr;
+  QLabel* _label_harvester = nullptr;
+  QLabel* _label_drill = nullptr;
+  QLabel* _label_reactor = nullptr;
+  QLabel* _label_autostim = nullptr;
   QLabel* _label_bank = nullptr;
 
-  QPushButton* _btn_axe = nullptr;
-  QPushButton* _btn_rod = nullptr;
-  QPushButton* _btn_pickaxe = nullptr;
-  QPushButton* _btn_fire = nullptr;
-  QPushButton* _btn_autoeat = nullptr;
+  QPushButton* _btn_cutter = nullptr;
+  QPushButton* _btn_harvester = nullptr;
+  QPushButton* _btn_drill = nullptr;
+  QPushButton* _btn_reactor = nullptr;
+  QPushButton* _btn_autostim = nullptr;
   QPushButton* _btn_bank = nullptr;
 };
 

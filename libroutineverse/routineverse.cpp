@@ -22,7 +22,7 @@ int rand_int(int min_v, int max_v) {
   return dist(rng());
 }
 
-// Standard OSRS / Melvor Idle XP table for levels 1..99
+// Standard XP table for levels 1..99
 const std::array<int, MAX_SKILL_LEVEL + 1>& xp_table() {
   static const auto table = []() {
     std::array<int, MAX_SKILL_LEVEL + 1> t{};
@@ -41,219 +41,219 @@ const std::array<int, MAX_SKILL_LEVEL + 1>& xp_table() {
 }  // namespace
 
 const std::array<ItemInfo, ITEM_COUNT> item_info = {{
-    // Logs (0..8)
-    {ITEM_NORMAL_LOGS, "Normal Logs", ItemCategory::Logs, 2, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_OAK_LOGS, "Oak Logs", ItemCategory::Logs, 5, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_WILLOW_LOGS, "Willow Logs", ItemCategory::Logs, 10, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_TEAK_LOGS, "Teak Logs", ItemCategory::Logs, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_MAPLE_LOGS, "Maple Logs", ItemCategory::Logs, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_MAHOGANY_LOGS, "Mahogany Logs", ItemCategory::Logs, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_YEW_LOGS, "Yew Logs", ItemCategory::Logs, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_MAGIC_LOGS, "Magic Logs", ItemCategory::Logs, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_REDWOOD_LOGS, "Redwood Logs", ItemCategory::Logs, 200, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Scrap & Tech Nodes (0..8)
+    {ITEM_COPPER_WIRE_SCRAP, "Copper Wire Scrap", ItemCategory::Scrap, 2, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_PLASTEEL_SHARDS, "Plasteel Shards", ItemCategory::Scrap, 5, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CARBON_NANOTUBES, "Carbon Nanotubes", ItemCategory::Scrap, 10, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_OPTIC_FIBER_BUNDLE, "Optic Fiber Bundle", ItemCategory::Scrap, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_POSITRONIC_RELAYS, "Positronic Relays", ItemCategory::Scrap, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CRYO_CELL_CORE, "Cryo-Cell Core", ItemCategory::Scrap, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_PLASMA_CONDUIT, "Plasma Conduit", ItemCategory::Scrap, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_QUANTUM_NODE, "Quantum Node", ItemCategory::Scrap, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_AI_MAINFRAME_CORE, "AI Mainframe Core", ItemCategory::Scrap, 200, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Raw Fish (9..16)
-    {ITEM_RAW_SHRIMP, "Raw Shrimp", ItemCategory::RawFish, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_SARDINE, "Raw Sardine", ItemCategory::RawFish, 6, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_TROUT, "Raw Trout", ItemCategory::RawFish, 14, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_SALMON, "Raw Salmon", ItemCategory::RawFish, 24, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_LOBSTER, "Raw Lobster", ItemCategory::RawFish, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_SWORDFISH, "Raw Swordfish", ItemCategory::RawFish, 75, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_SHARK, "Raw Shark", ItemCategory::RawFish, 140, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RAW_WHALE, "Raw Whale", ItemCategory::RawFish, 260, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Raw Synth-Biota (9..16)
+    {ITEM_RAW_KRILL_BIOMASS, "Raw Krill Biomass", ItemCategory::RawBiota, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_NEON_EEL, "Raw Neon Eel", ItemCategory::RawBiota, 6, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_SYNTH_CARP, "Raw Synth-Carp", ItemCategory::RawBiota, 14, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_CHROME_SALMON, "Raw Chrome Salmon", ItemCategory::RawBiota, 24, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_CYBER_LOBSTER, "Raw Cyber-Lobster", ItemCategory::RawBiota, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_PLASMA_RAY, "Raw Plasma Ray", ItemCategory::RawBiota, 75, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_APEX_SHARK, "Raw Apex Shark", ItemCategory::RawBiota, 140, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RAW_LEVIATHAN_CELL, "Raw Leviathan Cell", ItemCategory::RawBiota, 260, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Cooked Food & Burnt (17..26)
-    {ITEM_COOKED_SHRIMP, "Cooked Shrimp", ItemCategory::CookedFood, 8, 30, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_SARDINE, "Cooked Sardine", ItemCategory::CookedFood, 15, 50, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_TROUT, "Cooked Trout", ItemCategory::CookedFood, 32, 80, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_SALMON, "Cooked Salmon", ItemCategory::CookedFood, 55, 110, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_LOBSTER, "Cooked Lobster", ItemCategory::CookedFood, 100, 160, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_SWORDFISH, "Cooked Swordfish", ItemCategory::CookedFood, 165, 220, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_SHARK, "Cooked Shark", ItemCategory::CookedFood, 300, 320, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_WHALE, "Cooked Whale", ItemCategory::CookedFood, 550, 480, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COOKED_BEEF, "Cooked Beef", ItemCategory::CookedFood, 6, 25, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_BURNT_FISH, "Burnt Fish", ItemCategory::BurntFood, 1, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Synthesized Stims / Rations & Toxic Slag (17..26)
+    {ITEM_KRILL_RATION, "Krill Ration", ItemCategory::StimFood, 8, 30, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_NEON_EEL_SKEWER, "Neon Eel Skewer", ItemCategory::StimFood, 15, 50, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SYNTH_CARP_PACK, "Synth-Carp Pack", ItemCategory::StimFood, 32, 80, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CHROME_SALMON_STIM, "Chrome Salmon Stim", ItemCategory::StimFood, 55, 110, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CYBER_LOBSTER_MEAL, "Cyber-Lobster Meal", ItemCategory::StimFood, 100, 160, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_PLASMA_RAY_INFUSION, "Plasma Ray Infusion", ItemCategory::StimFood, 165, 220, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_APEX_SHARK_BOOSTER, "Apex Shark Booster", ItemCategory::StimFood, 300, 320, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_LEVIATHAN_NANOMED, "Leviathan Nanomed", ItemCategory::StimFood, 550, 480, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SYNTH_PROTEIN_BAR, "Synth-Protein Bar", ItemCategory::StimFood, 6, 25, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_TOXIC_SLAG, "Toxic Bio-Slag", ItemCategory::ToxicWaste, 1, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Ores (27..36)
-    {ITEM_COPPER_ORE, "Copper Ore", ItemCategory::Ore, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_TIN_ORE, "Tin Ore", ItemCategory::Ore, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_IRON_ORE, "Iron Ore", ItemCategory::Ore, 12, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_COAL_ORE, "Coal Ore", ItemCategory::Ore, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_SILVER_ORE, "Silver Ore", ItemCategory::Ore, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_GOLD_ORE, "Gold Ore", ItemCategory::Ore, 50, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_MITHRIL_ORE, "Mithril Ore", ItemCategory::Ore, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_ADAMANTITE_ORE, "Adamantite Ore", ItemCategory::Ore, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RUNITE_ORE, "Runite Ore", ItemCategory::Ore, 220, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_DRAGONITE_ORE, "Dragonite Ore", ItemCategory::Ore, 400, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Deep-Mined Ores & Cells (27..36)
+    {ITEM_COPPER_ORE, "Copper Ore", ItemCategory::RawOre, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SILICON_ORE, "Silicon Ore", ItemCategory::RawOre, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_TITANIUM_ORE, "Titanium Ore", ItemCategory::RawOre, 12, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CARBON_CELL, "Carbon Cell", ItemCategory::RawOre, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SILVER_ORE, "Silver Ore", ItemCategory::RawOre, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_GOLD_ORE, "Gold Ore", ItemCategory::RawOre, 50, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_COBALT_ORE, "Cobalt Ore", ItemCategory::RawOre, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_TUNGSTEN_ORE, "Tungsten Ore", ItemCategory::RawOre, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_NEUTRONIUM_ORE, "Neutronium Ore", ItemCategory::RawOre, 220, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CHRONO_ORE, "Chrono-Crystal Ore", ItemCategory::RawOre, 400, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Bars (37..45)
-    {ITEM_BRONZE_BAR, "Bronze Bar", ItemCategory::Bar, 15, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_IRON_BAR, "Iron Bar", ItemCategory::Bar, 32, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_STEEL_BAR, "Steel Bar", ItemCategory::Bar, 65, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_SILVER_BAR, "Silver Bar", ItemCategory::Bar, 80, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_GOLD_BAR, "Gold Bar", ItemCategory::Bar, 130, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_MITHRIL_BAR, "Mithril Bar", ItemCategory::Bar, 175, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_ADAMANT_BAR, "Adamant Bar", ItemCategory::Bar, 310, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RUNE_BAR, "Rune Bar", ItemCategory::Bar, 580, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_DRAGON_BAR, "Dragon Bar", ItemCategory::Bar, 1100, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Refined Alloys & Conductors (37..45)
+    {ITEM_SCRAP_ALLOY, "Scrap-Alloy Ingot", ItemCategory::Alloy, 15, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_TITANIUM_ALLOY, "Titanium Ingot", ItemCategory::Alloy, 32, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_DURASTEEL_ALLOY, "Durasteel Ingot", ItemCategory::Alloy, 65, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SILVER_CONDUCTOR, "Silver Conductor", ItemCategory::Alloy, 80, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_GOLD_SUPERCONDUCTOR, "Gold Superconductor", ItemCategory::Alloy, 130, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_COBALT_ALLOY, "Cobalt-Chrome Ingot", ItemCategory::Alloy, 175, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_TUNGSTEN_ALLOY, "Tungsten Ingot", ItemCategory::Alloy, 310, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_NEUTRONIUM_ALLOY, "Neutronium Ingot", ItemCategory::Alloy, 580, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_CHRONO_ALLOY, "Chrono-Alloy Ingot", ItemCategory::Alloy, 1100, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Gems (46..50)
-    {ITEM_TOPAZ, "Topaz", ItemCategory::Gem, 150, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_SAPPHIRE, "Sapphire", ItemCategory::Gem, 250, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_RUBY, "Ruby", ItemCategory::Gem, 450, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_EMERALD, "Emerald", ItemCategory::Gem, 750, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_DIAMOND, "Diamond", ItemCategory::Gem, 1500, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Data Crystals (46..50)
+    {ITEM_AMBER_DATACHIP, "Amber Datachip", ItemCategory::DataCrystal, 150, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SAPPHIRE_CORTEX, "Sapphire Cortex", ItemCategory::DataCrystal, 250, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_RUBY_LASER_CORE, "Ruby Laser Core", ItemCategory::DataCrystal, 450, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_EMERALD_CRYPTOKEY, "Emerald Cryptokey", ItemCategory::DataCrystal, 750, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_QUANTUM_DIAMOND, "Quantum Diamond", ItemCategory::DataCrystal, 1500, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Weapons (51..57)
-    {ITEM_BRONZE_SCIMITAR, "Bronze Scimitar", ItemCategory::Weapon, 45, 0, EquipSlot::Weapon, 1, 10, 12, 0, 0},
-    {ITEM_IRON_SCIMITAR, "Iron Scimitar", ItemCategory::Weapon, 100, 0, EquipSlot::Weapon, 5, 18, 20, 0, 0},
-    {ITEM_STEEL_SCIMITAR, "Steel Scimitar", ItemCategory::Weapon, 220, 0, EquipSlot::Weapon, 10, 28, 32, 0, 0},
-    {ITEM_MITHRIL_SCIMITAR, "Mithril Scimitar", ItemCategory::Weapon, 550, 0, EquipSlot::Weapon, 20, 42, 48, 0, 0},
-    {ITEM_ADAMANT_SCIMITAR, "Adamant Scimitar", ItemCategory::Weapon, 1100, 0, EquipSlot::Weapon, 30, 60, 66, 0, 0},
-    {ITEM_RUNE_SCIMITAR, "Rune Scimitar", ItemCategory::Weapon, 2400, 0, EquipSlot::Weapon, 40, 84, 92, 0, 0},
-    {ITEM_DRAGON_SCIMITAR, "Dragon Scimitar", ItemCategory::Weapon, 6000, 0, EquipSlot::Weapon, 60, 120, 130, 0, 0},
+    // Weapons - Mono-Blades (51..57)
+    {ITEM_SCRAP_BLADE, "Scrap Vibro-Knife", ItemCategory::Weapon, 45, 0, EquipSlot::Weapon, 1, 10, 12, 0, 0},
+    {ITEM_TITANIUM_BLADE, "Titanium Mono-Blade", ItemCategory::Weapon, 100, 0, EquipSlot::Weapon, 5, 18, 20, 0, 0},
+    {ITEM_DURASTEEL_BLADE, "Durasteel Katana", ItemCategory::Weapon, 220, 0, EquipSlot::Weapon, 10, 28, 32, 0, 0},
+    {ITEM_COBALT_BLADE, "Cobalt Laser-Edge", ItemCategory::Weapon, 550, 0, EquipSlot::Weapon, 20, 42, 48, 0, 0},
+    {ITEM_TUNGSTEN_BLADE, "Tungsten Mantis-Blade", ItemCategory::Weapon, 1100, 0, EquipSlot::Weapon, 30, 60, 66, 0, 0},
+    {ITEM_NEUTRONIUM_BLADE, "Neutronium Phase-Saber", ItemCategory::Weapon, 2400, 0, EquipSlot::Weapon, 40, 84, 92, 0, 0},
+    {ITEM_CHRONO_BLADE, "Chrono-Edge Katana", ItemCategory::Weapon, 6000, 0, EquipSlot::Weapon, 60, 120, 130, 0, 0},
 
-    // Helmets (58..64)
-    {ITEM_BRONZE_HELMET, "Bronze Helmet", ItemCategory::Helmet, 40, 0, EquipSlot::Helmet, 1, 0, 0, 6, 1},
-    {ITEM_IRON_HELMET, "Iron Helmet", ItemCategory::Helmet, 90, 0, EquipSlot::Helmet, 5, 0, 0, 11, 2},
-    {ITEM_STEEL_HELMET, "Steel Helmet", ItemCategory::Helmet, 200, 0, EquipSlot::Helmet, 10, 0, 0, 18, 3},
-    {ITEM_MITHRIL_HELMET, "Mithril Helmet", ItemCategory::Helmet, 500, 0, EquipSlot::Helmet, 20, 0, 0, 27, 4},
-    {ITEM_ADAMANT_HELMET, "Adamant Helmet", ItemCategory::Helmet, 950, 0, EquipSlot::Helmet, 30, 0, 0, 38, 5},
-    {ITEM_RUNE_HELMET, "Rune Helmet", ItemCategory::Helmet, 2100, 0, EquipSlot::Helmet, 40, 0, 0, 52, 7},
-    {ITEM_DRAGON_HELMET, "Dragon Helmet", ItemCategory::Helmet, 5200, 0, EquipSlot::Helmet, 60, 0, 0, 72, 10},
+    // Visors (58..64)
+    {ITEM_SCRAP_VISOR, "Scrap Optic Visor", ItemCategory::Visor, 40, 0, EquipSlot::Visor, 1, 0, 0, 6, 1},
+    {ITEM_TITANIUM_VISOR, "Titanium HUD Visor", ItemCategory::Visor, 90, 0, EquipSlot::Visor, 5, 0, 0, 11, 2},
+    {ITEM_DURASTEEL_VISOR, "Durasteel Tac-Helm", ItemCategory::Visor, 200, 0, EquipSlot::Visor, 10, 0, 0, 18, 3},
+    {ITEM_COBALT_VISOR, "Cobalt Neural Visor", ItemCategory::Visor, 500, 0, EquipSlot::Visor, 20, 0, 0, 27, 4},
+    {ITEM_TUNGSTEN_VISOR, "Tungsten Cyber-Helm", ItemCategory::Visor, 950, 0, EquipSlot::Visor, 30, 0, 0, 38, 5},
+    {ITEM_NEUTRONIUM_VISOR, "Neutronium Mind-Crown", ItemCategory::Visor, 2100, 0, EquipSlot::Visor, 40, 0, 0, 52, 7},
+    {ITEM_CHRONO_VISOR, "Chrono-Sync Visor", ItemCategory::Visor, 5200, 0, EquipSlot::Visor, 60, 0, 0, 72, 10},
 
-    // Platebodies (65..71)
-    {ITEM_BRONZE_PLATEBODY, "Bronze Platebody", ItemCategory::Platebody, 85, 0, EquipSlot::Platebody, 1, 0, 0, 14, 2},
-    {ITEM_IRON_PLATEBODY, "Iron Platebody", ItemCategory::Platebody, 180, 0, EquipSlot::Platebody, 5, 0, 0, 24, 3},
-    {ITEM_STEEL_PLATEBODY, "Steel Platebody", ItemCategory::Platebody, 400, 0, EquipSlot::Platebody, 10, 0, 0, 36, 5},
-    {ITEM_MITHRIL_PLATEBODY, "Mithril Platebody", ItemCategory::Platebody, 950, 0, EquipSlot::Platebody, 20, 0, 0, 52, 7},
-    {ITEM_ADAMANT_PLATEBODY, "Adamant Platebody", ItemCategory::Platebody, 1900, 0, EquipSlot::Platebody, 30, 0, 0, 74, 9},
-    {ITEM_RUNE_PLATEBODY, "Rune Platebody", ItemCategory::Platebody, 4200, 0, EquipSlot::Platebody, 40, 0, 0, 102, 12},
-    {ITEM_DRAGON_PLATEBODY, "Dragon Platebody", ItemCategory::Platebody, 9800, 0, EquipSlot::Platebody, 60, 0, 0, 140, 16},
+    // Exo-Suits (65..71)
+    {ITEM_SCRAP_EXOSUIT, "Scrap Exo-Harness", ItemCategory::ExoSuit, 85, 0, EquipSlot::ExoSuit, 1, 0, 0, 14, 2},
+    {ITEM_TITANIUM_EXOSUIT, "Titanium Flak-Jacket", ItemCategory::ExoSuit, 180, 0, EquipSlot::ExoSuit, 5, 0, 0, 24, 3},
+    {ITEM_DURASTEEL_EXOSUIT, "Durasteel Exo-Rig", ItemCategory::ExoSuit, 400, 0, EquipSlot::ExoSuit, 10, 0, 0, 36, 5},
+    {ITEM_COBALT_EXOSUIT, "Cobalt Subdermal Rig", ItemCategory::ExoSuit, 950, 0, EquipSlot::ExoSuit, 20, 0, 0, 52, 7},
+    {ITEM_TUNGSTEN_EXOSUIT, "Tungsten Power-Armor", ItemCategory::ExoSuit, 1900, 0, EquipSlot::ExoSuit, 30, 0, 0, 74, 9},
+    {ITEM_NEUTRONIUM_EXOSUIT, "Neutronium Nano-Suit", ItemCategory::ExoSuit, 4200, 0, EquipSlot::ExoSuit, 40, 0, 0, 102, 12},
+    {ITEM_CHRONO_EXOSUIT, "Chrono-Weave Exo-Suit", ItemCategory::ExoSuit, 9800, 0, EquipSlot::ExoSuit, 60, 0, 0, 140, 16},
 
-    // Shields (72..78)
-    {ITEM_BRONZE_SHIELD, "Bronze Shield", ItemCategory::Shield, 55, 0, EquipSlot::Shield, 1, 0, 0, 9, 1},
-    {ITEM_IRON_SHIELD, "Iron Shield", ItemCategory::Shield, 120, 0, EquipSlot::Shield, 5, 0, 0, 16, 2},
-    {ITEM_STEEL_SHIELD, "Steel Shield", ItemCategory::Shield, 260, 0, EquipSlot::Shield, 10, 0, 0, 25, 3},
-    {ITEM_MITHRIL_SHIELD, "Mithril Shield", ItemCategory::Shield, 620, 0, EquipSlot::Shield, 20, 0, 0, 36, 5},
-    {ITEM_ADAMANT_SHIELD, "Adamant Shield", ItemCategory::Shield, 1250, 0, EquipSlot::Shield, 30, 0, 0, 50, 6},
-    {ITEM_RUNE_SHIELD, "Rune Shield", ItemCategory::Shield, 2800, 0, EquipSlot::Shield, 40, 0, 0, 68, 8},
-    {ITEM_DRAGON_SHIELD, "Dragon Shield", ItemCategory::Shield, 6800, 0, EquipSlot::Shield, 60, 0, 0, 96, 12},
+    // Holo-Shields (72..78)
+    {ITEM_SCRAP_SHIELD, "Scrap Riot Buckler", ItemCategory::HoloShield, 55, 0, EquipSlot::HoloShield, 1, 0, 0, 9, 1},
+    {ITEM_TITANIUM_SHIELD, "Titanium Deflector", ItemCategory::HoloShield, 120, 0, EquipSlot::HoloShield, 5, 0, 0, 16, 2},
+    {ITEM_DURASTEEL_SHIELD, "Durasteel Barrier", ItemCategory::HoloShield, 260, 0, EquipSlot::HoloShield, 10, 0, 0, 25, 3},
+    {ITEM_COBALT_SHIELD, "Cobalt Holo-Aegis", ItemCategory::HoloShield, 620, 0, EquipSlot::HoloShield, 20, 0, 0, 36, 5},
+    {ITEM_TUNGSTEN_SHIELD, "Tungsten Pulse-Shield", ItemCategory::HoloShield, 1250, 0, EquipSlot::HoloShield, 30, 0, 0, 50, 6},
+    {ITEM_NEUTRONIUM_SHIELD, "Neutronium Forcefield", ItemCategory::HoloShield, 2800, 0, EquipSlot::HoloShield, 40, 0, 0, 68, 8},
+    {ITEM_CHRONO_SHIELD, "Chrono-Phase Barrier", ItemCategory::HoloShield, 6800, 0, EquipSlot::HoloShield, 60, 0, 0, 96, 12},
 
-    // Monster Loot (79..83)
-    {ITEM_BONES, "Bones", ItemCategory::Loot, 8, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_BIG_BONES, "Big Bones", ItemCategory::Loot, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_DRAGON_BONES, "Dragon Bones", ItemCategory::Loot, 180, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_FEATHER, "Feather", ItemCategory::Loot, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ITEM_LEATHER, "Leather", ItemCategory::Loot, 16, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Enemy Salvage Loot (79..83)
+    {ITEM_SERVO_PARTS, "Servo Parts", ItemCategory::CyberLoot, 8, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_HEAVY_CHASSIS, "Heavy Mech Chassis", ItemCategory::CyberLoot, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_APEX_CYBER_CORE, "Apex Cyber-Core", ItemCategory::CyberLoot, 180, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_MICROCHIP, "Microchip", ItemCategory::CyberLoot, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ITEM_SYNTH_WEAVE_HIDE, "Synth-Weave Hide", ItemCategory::CyberLoot, 16, 0, EquipSlot::None, 1, 0, 0, 0, 0},
 }};
 
 const std::vector<SkillAction> skill_actions = {
-    // Woodcutting (0..8)
-    {0, SkillType::Woodcutting, "Chop Normal Tree", 1, 3000, 15, ITEM_NORMAL_LOGS, 1, -1, 0, -1, 0},
-    {1, SkillType::Woodcutting, "Chop Oak Tree", 10, 3500, 30, ITEM_OAK_LOGS, 1, -1, 0, -1, 0},
-    {2, SkillType::Woodcutting, "Chop Willow Tree", 25, 4000, 55, ITEM_WILLOW_LOGS, 1, -1, 0, -1, 0},
-    {3, SkillType::Woodcutting, "Chop Teak Tree", 35, 4500, 85, ITEM_TEAK_LOGS, 1, -1, 0, -1, 0},
-    {4, SkillType::Woodcutting, "Chop Maple Tree", 45, 5000, 120, ITEM_MAPLE_LOGS, 1, -1, 0, -1, 0},
-    {5, SkillType::Woodcutting, "Chop Mahogany Tree", 55, 5500, 165, ITEM_MAHOGANY_LOGS, 1, -1, 0, -1, 0},
-    {6, SkillType::Woodcutting, "Chop Yew Tree", 60, 6000, 220, ITEM_YEW_LOGS, 1, -1, 0, -1, 0},
-    {7, SkillType::Woodcutting, "Chop Magic Tree", 75, 7500, 340, ITEM_MAGIC_LOGS, 1, -1, 0, -1, 0},
-    {8, SkillType::Woodcutting, "Chop Redwood Tree", 90, 9000, 500, ITEM_REDWOOD_LOGS, 1, -1, 0, -1, 0},
+    // Salvaging (0..8)
+    {0, SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15, ITEM_COPPER_WIRE_SCRAP, 1, -1, 0, -1, 0},
+    {1, SkillType::Salvaging, "Salvage Plasteel Hull", 10, 3500, 30, ITEM_PLASTEEL_SHARDS, 1, -1, 0, -1, 0},
+    {2, SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55, ITEM_CARBON_NANOTUBES, 1, -1, 0, -1, 0},
+    {3, SkillType::Salvaging, "Splice Optic Fibers", 35, 4500, 85, ITEM_OPTIC_FIBER_BUNDLE, 1, -1, 0, -1, 0},
+    {4, SkillType::Salvaging, "Pull Positronic Relay", 45, 5000, 120, ITEM_POSITRONIC_RELAYS, 1, -1, 0, -1, 0},
+    {5, SkillType::Salvaging, "Drain Cryo-Cell Rack", 55, 5500, 165, ITEM_CRYO_CELL_CORE, 1, -1, 0, -1, 0},
+    {6, SkillType::Salvaging, "Tap Plasma Conduit", 60, 6000, 220, ITEM_PLASMA_CONDUIT, 1, -1, 0, -1, 0},
+    {7, SkillType::Salvaging, "Hack Quantum Node", 75, 7500, 340, ITEM_QUANTUM_NODE, 1, -1, 0, -1, 0},
+    {8, SkillType::Salvaging, "Rip AI Mainframe Core", 90, 9000, 500, ITEM_AI_MAINFRAME_CORE, 1, -1, 0, -1, 0},
 
-    // Fishing (9..16)
-    {9, SkillType::Fishing, "Catch Raw Shrimp", 1, 3000, 12, ITEM_RAW_SHRIMP, 1, -1, 0, -1, 0},
-    {10, SkillType::Fishing, "Catch Raw Sardine", 5, 3400, 24, ITEM_RAW_SARDINE, 1, -1, 0, -1, 0},
-    {11, SkillType::Fishing, "Catch Raw Trout", 20, 4000, 55, ITEM_RAW_TROUT, 1, -1, 0, -1, 0},
-    {12, SkillType::Fishing, "Catch Raw Salmon", 35, 4500, 90, ITEM_RAW_SALMON, 1, -1, 0, -1, 0},
-    {13, SkillType::Fishing, "Catch Raw Lobster", 45, 5200, 135, ITEM_RAW_LOBSTER, 1, -1, 0, -1, 0},
-    {14, SkillType::Fishing, "Catch Raw Swordfish", 55, 6000, 195, ITEM_RAW_SWORDFISH, 1, -1, 0, -1, 0},
-    {15, SkillType::Fishing, "Catch Raw Shark", 70, 7200, 310, ITEM_RAW_SHARK, 1, -1, 0, -1, 0},
-    {16, SkillType::Fishing, "Catch Raw Whale", 85, 8500, 480, ITEM_RAW_WHALE, 1, -1, 0, -1, 0},
+    // Bio-Harvest (9..16)
+    {9, SkillType::BioHarvest, "Culture Krill Biomass", 1, 3000, 12, ITEM_RAW_KRILL_BIOMASS, 1, -1, 0, -1, 0},
+    {10, SkillType::BioHarvest, "Net Neon Eel", 5, 3400, 24, ITEM_RAW_NEON_EEL, 1, -1, 0, -1, 0},
+    {11, SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55, ITEM_RAW_SYNTH_CARP, 1, -1, 0, -1, 0},
+    {12, SkillType::BioHarvest, "Extract Chrome Salmon", 35, 4500, 90, ITEM_RAW_CHROME_SALMON, 1, -1, 0, -1, 0},
+    {13, SkillType::BioHarvest, "Trap Cyber-Lobster", 45, 5200, 135, ITEM_RAW_CYBER_LOBSTER, 1, -1, 0, -1, 0},
+    {14, SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195, ITEM_RAW_PLASMA_RAY, 1, -1, 0, -1, 0},
+    {15, SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310, ITEM_RAW_APEX_SHARK, 1, -1, 0, -1, 0},
+    {16, SkillType::BioHarvest, "Clone Leviathan Cell", 85, 8500, 480, ITEM_RAW_LEVIATHAN_CELL, 1, -1, 0, -1, 0},
 
-    // Firemaking (17..25)
-    {17, SkillType::Firemaking, "Burn Normal Logs", 1, 2200, 22, -1, 0, ITEM_NORMAL_LOGS, 1, -1, 0},
-    {18, SkillType::Firemaking, "Burn Oak Logs", 10, 2400, 42, -1, 0, ITEM_OAK_LOGS, 1, -1, 0},
-    {19, SkillType::Firemaking, "Burn Willow Logs", 25, 2600, 75, -1, 0, ITEM_WILLOW_LOGS, 1, -1, 0},
-    {20, SkillType::Firemaking, "Burn Teak Logs", 35, 2800, 110, -1, 0, ITEM_TEAK_LOGS, 1, -1, 0},
-    {21, SkillType::Firemaking, "Burn Maple Logs", 45, 3000, 155, -1, 0, ITEM_MAPLE_LOGS, 1, -1, 0},
-    {22, SkillType::Firemaking, "Burn Mahogany Logs", 55, 3200, 210, -1, 0, ITEM_MAHOGANY_LOGS, 1, -1, 0},
-    {23, SkillType::Firemaking, "Burn Yew Logs", 60, 3500, 280, -1, 0, ITEM_YEW_LOGS, 1, -1, 0},
-    {24, SkillType::Firemaking, "Burn Magic Logs", 75, 3800, 410, -1, 0, ITEM_MAGIC_LOGS, 1, -1, 0},
-    {25, SkillType::Firemaking, "Burn Redwood Logs", 90, 4200, 600, -1, 0, ITEM_REDWOOD_LOGS, 1, -1, 0},
+    // Overclock (17..25)
+    {17, SkillType::Overclock, "Overclock Copper Scrap", 1, 2200, 22, -1, 0, ITEM_COPPER_WIRE_SCRAP, 1, -1, 0},
+    {18, SkillType::Overclock, "Overclock Plasteel", 10, 2400, 42, -1, 0, ITEM_PLASTEEL_SHARDS, 1, -1, 0},
+    {19, SkillType::Overclock, "Overclock Nanotubes", 25, 2600, 75, -1, 0, ITEM_CARBON_NANOTUBES, 1, -1, 0},
+    {20, SkillType::Overclock, "Overclock Optic Fibers", 35, 2800, 110, -1, 0, ITEM_OPTIC_FIBER_BUNDLE, 1, -1, 0},
+    {21, SkillType::Overclock, "Overclock Relay Core", 45, 3000, 155, -1, 0, ITEM_POSITRONIC_RELAYS, 1, -1, 0},
+    {22, SkillType::Overclock, "Overclock Cryo-Cell", 55, 3200, 210, -1, 0, ITEM_CRYO_CELL_CORE, 1, -1, 0},
+    {23, SkillType::Overclock, "Overclock Plasma Line", 60, 3500, 280, -1, 0, ITEM_PLASMA_CONDUIT, 1, -1, 0},
+    {24, SkillType::Overclock, "Overclock Quantum Node", 75, 3800, 410, -1, 0, ITEM_QUANTUM_NODE, 1, -1, 0},
+    {25, SkillType::Overclock, "Overclock AI Mainframe", 90, 4200, 600, -1, 0, ITEM_AI_MAINFRAME_CORE, 1, -1, 0},
 
-    // Cooking (26..33)
-    {26, SkillType::Cooking, "Cook Shrimp (+30 HP)", 1, 2600, 18, ITEM_COOKED_SHRIMP, 1, ITEM_RAW_SHRIMP, 1, -1, 0},
-    {27, SkillType::Cooking, "Cook Sardine (+50 HP)", 5, 2800, 34, ITEM_COOKED_SARDINE, 1, ITEM_RAW_SARDINE, 1, -1, 0},
-    {28, SkillType::Cooking, "Cook Trout (+80 HP)", 20, 3000, 70, ITEM_COOKED_TROUT, 1, ITEM_RAW_TROUT, 1, -1, 0},
-    {29, SkillType::Cooking, "Cook Salmon (+110 HP)", 35, 3200, 115, ITEM_COOKED_SALMON, 1, ITEM_RAW_SALMON, 1, -1, 0},
-    {30, SkillType::Cooking, "Cook Lobster (+160 HP)", 45, 3400, 175, ITEM_COOKED_LOBSTER, 1, ITEM_RAW_LOBSTER, 1, -1, 0},
-    {31, SkillType::Cooking, "Cook Swordfish (+220 HP)", 55, 3600, 240, ITEM_COOKED_SWORDFISH, 1, ITEM_RAW_SWORDFISH, 1, -1, 0},
-    {32, SkillType::Cooking, "Cook Shark (+320 HP)", 70, 3800, 360, ITEM_COOKED_SHARK, 1, ITEM_RAW_SHARK, 1, -1, 0},
-    {33, SkillType::Cooking, "Cook Whale (+480 HP)", 85, 4200, 540, ITEM_COOKED_WHALE, 1, ITEM_RAW_WHALE, 1, -1, 0},
+    // Synth-Cook (26..33)
+    {26, SkillType::SynthCook, "Synth Krill Ration (+30 HP)", 1, 2600, 18, ITEM_KRILL_RATION, 1, ITEM_RAW_KRILL_BIOMASS, 1, -1, 0},
+    {27, SkillType::SynthCook, "Synth Neon Eel (+50 HP)", 5, 2800, 34, ITEM_NEON_EEL_SKEWER, 1, ITEM_RAW_NEON_EEL, 1, -1, 0},
+    {28, SkillType::SynthCook, "Synth Carp Pack (+80 HP)", 20, 3000, 70, ITEM_SYNTH_CARP_PACK, 1, ITEM_RAW_SYNTH_CARP, 1, -1, 0},
+    {29, SkillType::SynthCook, "Synth Salmon Stim (+110 HP)", 35, 3200, 115, ITEM_CHROME_SALMON_STIM, 1, ITEM_RAW_CHROME_SALMON, 1, -1, 0},
+    {30, SkillType::SynthCook, "Synth Lobster Meal (+160 HP)", 45, 3400, 175, ITEM_CYBER_LOBSTER_MEAL, 1, ITEM_RAW_CYBER_LOBSTER, 1, -1, 0},
+    {31, SkillType::SynthCook, "Synth Plasma Ray (+220 HP)", 55, 3600, 240, ITEM_PLASMA_RAY_INFUSION, 1, ITEM_RAW_PLASMA_RAY, 1, -1, 0},
+    {32, SkillType::SynthCook, "Synth Shark Boost (+320 HP)", 70, 3800, 360, ITEM_APEX_SHARK_BOOSTER, 1, ITEM_RAW_APEX_SHARK, 1, -1, 0},
+    {33, SkillType::SynthCook, "Synth Leviathan Med (+480 HP)", 85, 4200, 540, ITEM_LEVIATHAN_NANOMED, 1, ITEM_RAW_LEVIATHAN_CELL, 1, -1, 0},
 
-    // Mining (34..43)
-    {34, SkillType::Mining, "Mine Copper Ore", 1, 2800, 14, ITEM_COPPER_ORE, 1, -1, 0, -1, 0},
-    {35, SkillType::Mining, "Mine Tin Ore", 1, 2800, 14, ITEM_TIN_ORE, 1, -1, 0, -1, 0},
-    {36, SkillType::Mining, "Mine Iron Ore", 15, 3200, 35, ITEM_IRON_ORE, 1, -1, 0, -1, 0},
-    {37, SkillType::Mining, "Mine Coal Ore", 30, 3500, 55, ITEM_COAL_ORE, 1, -1, 0, -1, 0},
-    {38, SkillType::Mining, "Mine Silver Ore", 35, 3800, 75, ITEM_SILVER_ORE, 1, -1, 0, -1, 0},
-    {39, SkillType::Mining, "Mine Gold Ore", 40, 4200, 105, ITEM_GOLD_ORE, 1, -1, 0, -1, 0},
-    {40, SkillType::Mining, "Mine Mithril Ore", 50, 4800, 150, ITEM_MITHRIL_ORE, 1, -1, 0, -1, 0},
-    {41, SkillType::Mining, "Mine Adamantite Ore", 70, 5800, 230, ITEM_ADAMANTITE_ORE, 1, -1, 0, -1, 0},
-    {42, SkillType::Mining, "Mine Runite Ore", 80, 7000, 350, ITEM_RUNITE_ORE, 1, -1, 0, -1, 0},
-    {43, SkillType::Mining, "Mine Dragonite Ore", 92, 8500, 520, ITEM_DRAGONITE_ORE, 1, -1, 0, -1, 0},
+    // Deep-Mining (34..43)
+    {34, SkillType::DeepMining, "Mine Copper Vein", 1, 2800, 14, ITEM_COPPER_ORE, 1, -1, 0, -1, 0},
+    {35, SkillType::DeepMining, "Mine Silicon Deposit", 1, 2800, 14, ITEM_SILICON_ORE, 1, -1, 0, -1, 0},
+    {36, SkillType::DeepMining, "Mine Titanium Seam", 15, 3200, 35, ITEM_TITANIUM_ORE, 1, -1, 0, -1, 0},
+    {37, SkillType::DeepMining, "Mine Carbon Cell Bed", 30, 3500, 55, ITEM_CARBON_CELL, 1, -1, 0, -1, 0},
+    {38, SkillType::DeepMining, "Mine Silver Vein", 35, 3800, 75, ITEM_SILVER_ORE, 1, -1, 0, -1, 0},
+    {39, SkillType::DeepMining, "Mine Gold Deposit", 40, 4200, 105, ITEM_GOLD_ORE, 1, -1, 0, -1, 0},
+    {40, SkillType::DeepMining, "Mine Cobalt Node", 50, 4800, 150, ITEM_COBALT_ORE, 1, -1, 0, -1, 0},
+    {41, SkillType::DeepMining, "Mine Tungsten Core", 70, 5800, 230, ITEM_TUNGSTEN_ORE, 1, -1, 0, -1, 0},
+    {42, SkillType::DeepMining, "Mine Neutronium Rift", 80, 7000, 350, ITEM_NEUTRONIUM_ORE, 1, -1, 0, -1, 0},
+    {43, SkillType::DeepMining, "Mine Chrono-Crystal", 92, 8500, 520, ITEM_CHRONO_ORE, 1, -1, 0, -1, 0},
 
-    // Smithing - Smelting Bars & Forging Gear (44..78)
-    {44, SkillType::Smithing, "Smelt Bronze Bar", 1, 2200, 16, ITEM_BRONZE_BAR, 1, ITEM_COPPER_ORE, 1, ITEM_TIN_ORE, 1},
-    {45, SkillType::Smithing, "Forge Bronze Scimitar", 1, 2500, 35, ITEM_BRONZE_SCIMITAR, 1, ITEM_BRONZE_BAR, 2, -1, 0},
-    {46, SkillType::Smithing, "Forge Bronze Helmet", 2, 2500, 35, ITEM_BRONZE_HELMET, 1, ITEM_BRONZE_BAR, 2, -1, 0},
-    {47, SkillType::Smithing, "Forge Bronze Shield", 3, 2600, 50, ITEM_BRONZE_SHIELD, 1, ITEM_BRONZE_BAR, 3, -1, 0},
-    {48, SkillType::Smithing, "Forge Bronze Platebody", 5, 2800, 80, ITEM_BRONZE_PLATEBODY, 1, ITEM_BRONZE_BAR, 5, -1, 0},
+    // Cyber-Fab - Refining Alloys & Fabricating Cyber-Gear (44..80)
+    {44, SkillType::CyberFab, "Refine Scrap-Alloy Ingot", 1, 2200, 16, ITEM_SCRAP_ALLOY, 1, ITEM_COPPER_ORE, 1, ITEM_SILICON_ORE, 1},
+    {45, SkillType::CyberFab, "Fab Scrap Vibro-Knife", 1, 2500, 35, ITEM_SCRAP_BLADE, 1, ITEM_SCRAP_ALLOY, 2, -1, 0},
+    {46, SkillType::CyberFab, "Fab Scrap Optic Visor", 2, 2500, 35, ITEM_SCRAP_VISOR, 1, ITEM_SCRAP_ALLOY, 2, -1, 0},
+    {47, SkillType::CyberFab, "Fab Scrap Riot Buckler", 3, 2600, 50, ITEM_SCRAP_SHIELD, 1, ITEM_SCRAP_ALLOY, 3, -1, 0},
+    {48, SkillType::CyberFab, "Fab Scrap Exo-Harness", 5, 2800, 80, ITEM_SCRAP_EXOSUIT, 1, ITEM_SCRAP_ALLOY, 5, -1, 0},
 
-    {49, SkillType::Smithing, "Smelt Iron Bar", 15, 2400, 32, ITEM_IRON_BAR, 1, ITEM_IRON_ORE, 1, -1, 0},
-    {50, SkillType::Smithing, "Forge Iron Scimitar", 15, 2600, 65, ITEM_IRON_SCIMITAR, 1, ITEM_IRON_BAR, 2, -1, 0},
-    {51, SkillType::Smithing, "Forge Iron Helmet", 16, 2600, 65, ITEM_IRON_HELMET, 1, ITEM_IRON_BAR, 2, -1, 0},
-    {52, SkillType::Smithing, "Forge Iron Shield", 18, 2700, 95, ITEM_IRON_SHIELD, 1, ITEM_IRON_BAR, 3, -1, 0},
-    {53, SkillType::Smithing, "Forge Iron Platebody", 20, 2900, 150, ITEM_IRON_PLATEBODY, 1, ITEM_IRON_BAR, 5, -1, 0},
+    {49, SkillType::CyberFab, "Refine Titanium Ingot", 15, 2400, 32, ITEM_TITANIUM_ALLOY, 1, ITEM_TITANIUM_ORE, 1, -1, 0},
+    {50, SkillType::CyberFab, "Fab Titanium Mono-Blade", 15, 2600, 65, ITEM_TITANIUM_BLADE, 1, ITEM_TITANIUM_ALLOY, 2, -1, 0},
+    {51, SkillType::CyberFab, "Fab Titanium HUD Visor", 16, 2600, 65, ITEM_TITANIUM_VISOR, 1, ITEM_TITANIUM_ALLOY, 2, -1, 0},
+    {52, SkillType::CyberFab, "Fab Titanium Deflector", 18, 2700, 95, ITEM_TITANIUM_SHIELD, 1, ITEM_TITANIUM_ALLOY, 3, -1, 0},
+    {53, SkillType::CyberFab, "Fab Titanium Flak-Jacket", 20, 2900, 150, ITEM_TITANIUM_EXOSUIT, 1, ITEM_TITANIUM_ALLOY, 5, -1, 0},
 
-    {54, SkillType::Smithing, "Smelt Steel Bar", 30, 2600, 55, ITEM_STEEL_BAR, 1, ITEM_IRON_ORE, 1, ITEM_COAL_ORE, 2},
-    {55, SkillType::Smithing, "Forge Steel Scimitar", 30, 2800, 110, ITEM_STEEL_SCIMITAR, 1, ITEM_STEEL_BAR, 2, -1, 0},
-    {56, SkillType::Smithing, "Forge Steel Helmet", 32, 2800, 110, ITEM_STEEL_HELMET, 1, ITEM_STEEL_BAR, 2, -1, 0},
-    {57, SkillType::Smithing, "Forge Steel Shield", 34, 2900, 160, ITEM_STEEL_SHIELD, 1, ITEM_STEEL_BAR, 3, -1, 0},
-    {58, SkillType::Smithing, "Forge Steel Platebody", 36, 3100, 260, ITEM_STEEL_PLATEBODY, 1, ITEM_STEEL_BAR, 5, -1, 0},
+    {54, SkillType::CyberFab, "Refine Durasteel Ingot", 30, 2600, 55, ITEM_DURASTEEL_ALLOY, 1, ITEM_TITANIUM_ORE, 1, ITEM_CARBON_CELL, 2},
+    {55, SkillType::CyberFab, "Fab Durasteel Katana", 30, 2800, 110, ITEM_DURASTEEL_BLADE, 1, ITEM_DURASTEEL_ALLOY, 2, -1, 0},
+    {56, SkillType::CyberFab, "Fab Durasteel Tac-Helm", 32, 2800, 110, ITEM_DURASTEEL_VISOR, 1, ITEM_DURASTEEL_ALLOY, 2, -1, 0},
+    {57, SkillType::CyberFab, "Fab Durasteel Barrier", 34, 2900, 160, ITEM_DURASTEEL_SHIELD, 1, ITEM_DURASTEEL_ALLOY, 3, -1, 0},
+    {58, SkillType::CyberFab, "Fab Durasteel Exo-Rig", 36, 3100, 260, ITEM_DURASTEEL_EXOSUIT, 1, ITEM_DURASTEEL_ALLOY, 5, -1, 0},
 
-    {59, SkillType::Smithing, "Smelt Silver Bar", 35, 2500, 68, ITEM_SILVER_BAR, 1, ITEM_SILVER_ORE, 1, -1, 0},
-    {60, SkillType::Smithing, "Smelt Gold Bar", 40, 2600, 95, ITEM_GOLD_BAR, 1, ITEM_GOLD_ORE, 1, -1, 0},
+    {59, SkillType::CyberFab, "Refine Silver Conductor", 35, 2500, 68, ITEM_SILVER_CONDUCTOR, 1, ITEM_SILVER_ORE, 1, -1, 0},
+    {60, SkillType::CyberFab, "Refine Gold Superconductor", 40, 2600, 95, ITEM_GOLD_SUPERCONDUCTOR, 1, ITEM_GOLD_ORE, 1, -1, 0},
 
-    {61, SkillType::Smithing, "Smelt Mithril Bar", 50, 2800, 115, ITEM_MITHRIL_BAR, 1, ITEM_MITHRIL_ORE, 1, ITEM_COAL_ORE, 4},
-    {62, SkillType::Smithing, "Forge Mithril Scimitar", 50, 3000, 220, ITEM_MITHRIL_SCIMITAR, 1, ITEM_MITHRIL_BAR, 2, -1, 0},
-    {63, SkillType::Smithing, "Forge Mithril Helmet", 52, 3000, 220, ITEM_MITHRIL_HELMET, 1, ITEM_MITHRIL_BAR, 2, -1, 0},
-    {64, SkillType::Smithing, "Forge Mithril Shield", 54, 3100, 320, ITEM_MITHRIL_SHIELD, 1, ITEM_MITHRIL_BAR, 3, -1, 0},
-    {65, SkillType::Smithing, "Forge Mithril Platebody", 56, 3300, 520, ITEM_MITHRIL_PLATEBODY, 1, ITEM_MITHRIL_BAR, 5, -1, 0},
+    {61, SkillType::CyberFab, "Refine Cobalt Ingot", 50, 2800, 115, ITEM_COBALT_ALLOY, 1, ITEM_COBALT_ORE, 1, ITEM_CARBON_CELL, 4},
+    {62, SkillType::CyberFab, "Fab Cobalt Laser-Edge", 50, 3000, 220, ITEM_COBALT_BLADE, 1, ITEM_COBALT_ALLOY, 2, -1, 0},
+    {63, SkillType::CyberFab, "Fab Cobalt Neural Visor", 52, 3000, 220, ITEM_COBALT_VISOR, 1, ITEM_COBALT_ALLOY, 2, -1, 0},
+    {64, SkillType::CyberFab, "Fab Cobalt Holo-Aegis", 54, 3100, 320, ITEM_COBALT_SHIELD, 1, ITEM_COBALT_ALLOY, 3, -1, 0},
+    {65, SkillType::CyberFab, "Fab Cobalt Subdermal Rig", 56, 3300, 520, ITEM_COBALT_EXOSUIT, 1, ITEM_COBALT_ALLOY, 5, -1, 0},
 
-    {66, SkillType::Smithing, "Smelt Adamant Bar", 70, 3000, 175, ITEM_ADAMANT_BAR, 1, ITEM_ADAMANTITE_ORE, 1, ITEM_COAL_ORE, 6},
-    {67, SkillType::Smithing, "Forge Adamant Scimitar", 70, 3200, 340, ITEM_ADAMANT_SCIMITAR, 1, ITEM_ADAMANT_BAR, 2, -1, 0},
-    {68, SkillType::Smithing, "Forge Adamant Helmet", 72, 3200, 340, ITEM_ADAMANT_HELMET, 1, ITEM_ADAMANT_BAR, 2, -1, 0},
-    {69, SkillType::Smithing, "Forge Adamant Shield", 74, 3300, 500, ITEM_ADAMANT_SHIELD, 1, ITEM_ADAMANT_BAR, 3, -1, 0},
-    {70, SkillType::Smithing, "Forge Adamant Platebody", 76, 3500, 820, ITEM_ADAMANT_PLATEBODY, 1, ITEM_ADAMANT_BAR, 5, -1, 0},
+    {66, SkillType::CyberFab, "Refine Tungsten Ingot", 70, 3000, 175, ITEM_TUNGSTEN_ALLOY, 1, ITEM_TUNGSTEN_ORE, 1, ITEM_CARBON_CELL, 6},
+    {67, SkillType::CyberFab, "Fab Tungsten Mantis-Blade", 70, 3200, 340, ITEM_TUNGSTEN_BLADE, 1, ITEM_TUNGSTEN_ALLOY, 2, -1, 0},
+    {68, SkillType::CyberFab, "Fab Tungsten Cyber-Helm", 72, 3200, 340, ITEM_TUNGSTEN_VISOR, 1, ITEM_TUNGSTEN_ALLOY, 2, -1, 0},
+    {69, SkillType::CyberFab, "Fab Tungsten Pulse-Shield", 74, 3300, 500, ITEM_TUNGSTEN_SHIELD, 1, ITEM_TUNGSTEN_ALLOY, 3, -1, 0},
+    {70, SkillType::CyberFab, "Fab Tungsten Power-Armor", 76, 3500, 820, ITEM_TUNGSTEN_EXOSUIT, 1, ITEM_TUNGSTEN_ALLOY, 5, -1, 0},
 
-    {71, SkillType::Smithing, "Smelt Rune Bar", 80, 3200, 260, ITEM_RUNE_BAR, 1, ITEM_RUNITE_ORE, 1, ITEM_COAL_ORE, 8},
-    {72, SkillType::Smithing, "Forge Rune Scimitar", 80, 3400, 520, ITEM_RUNE_SCIMITAR, 1, ITEM_RUNE_BAR, 2, -1, 0},
-    {73, SkillType::Smithing, "Forge Rune Helmet", 82, 3400, 520, ITEM_RUNE_HELMET, 1, ITEM_RUNE_BAR, 2, -1, 0},
-    {74, SkillType::Smithing, "Forge Rune Shield", 84, 3500, 760, ITEM_RUNE_SHIELD, 1, ITEM_RUNE_BAR, 3, -1, 0},
-    {75, SkillType::Smithing, "Forge Rune Platebody", 86, 3700, 1250, ITEM_RUNE_PLATEBODY, 1, ITEM_RUNE_BAR, 5, -1, 0},
+    {71, SkillType::CyberFab, "Refine Neutronium Ingot", 80, 3200, 260, ITEM_NEUTRONIUM_ALLOY, 1, ITEM_NEUTRONIUM_ORE, 1, ITEM_CARBON_CELL, 8},
+    {72, SkillType::CyberFab, "Fab Neutronium Saber", 80, 3400, 520, ITEM_NEUTRONIUM_BLADE, 1, ITEM_NEUTRONIUM_ALLOY, 2, -1, 0},
+    {73, SkillType::CyberFab, "Fab Neutronium Mind-Crown", 82, 3400, 520, ITEM_NEUTRONIUM_VISOR, 1, ITEM_NEUTRONIUM_ALLOY, 2, -1, 0},
+    {74, SkillType::CyberFab, "Fab Neutronium Forcefield", 84, 3500, 760, ITEM_NEUTRONIUM_SHIELD, 1, ITEM_NEUTRONIUM_ALLOY, 3, -1, 0},
+    {75, SkillType::CyberFab, "Fab Neutronium Nano-Suit", 86, 3700, 1250, ITEM_NEUTRONIUM_EXOSUIT, 1, ITEM_NEUTRONIUM_ALLOY, 5, -1, 0},
 
-    {76, SkillType::Smithing, "Smelt Dragon Bar", 92, 3600, 400, ITEM_DRAGON_BAR, 1, ITEM_DRAGONITE_ORE, 1, ITEM_RUNITE_ORE, 2},
-    {77, SkillType::Smithing, "Forge Dragon Scimitar", 92, 3800, 800, ITEM_DRAGON_SCIMITAR, 1, ITEM_DRAGON_BAR, 2, -1, 0},
-    {78, SkillType::Smithing, "Forge Dragon Helmet", 94, 3800, 800, ITEM_DRAGON_HELMET, 1, ITEM_DRAGON_BAR, 2, -1, 0},
-    {79, SkillType::Smithing, "Forge Dragon Shield", 96, 3900, 1150, ITEM_DRAGON_SHIELD, 1, ITEM_DRAGON_BAR, 3, -1, 0},
-    {80, SkillType::Smithing, "Forge Dragon Platebody", 98, 4100, 1900, ITEM_DRAGON_PLATEBODY, 1, ITEM_DRAGON_BAR, 5, -1, 0},
+    {76, SkillType::CyberFab, "Refine Chrono-Alloy Ingot", 92, 3600, 400, ITEM_CHRONO_ALLOY, 1, ITEM_CHRONO_ORE, 1, ITEM_NEUTRONIUM_ORE, 2},
+    {77, SkillType::CyberFab, "Fab Chrono-Edge Katana", 92, 3800, 800, ITEM_CHRONO_BLADE, 1, ITEM_CHRONO_ALLOY, 2, -1, 0},
+    {78, SkillType::CyberFab, "Fab Chrono-Sync Visor", 94, 3800, 800, ITEM_CHRONO_VISOR, 1, ITEM_CHRONO_ALLOY, 2, -1, 0},
+    {79, SkillType::CyberFab, "Fab Chrono-Phase Barrier", 96, 3900, 1150, ITEM_CHRONO_SHIELD, 1, ITEM_CHRONO_ALLOY, 3, -1, 0},
+    {80, SkillType::CyberFab, "Fab Chrono-Weave Exo-Suit", 98, 4100, 1900, ITEM_CHRONO_EXOSUIT, 1, ITEM_CHRONO_ALLOY, 5, -1, 0},
 };
 
 const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
     {0,
-     "Chicken",
-     "Farmlands",
+     "Stray Servo-Drone",
+     "Neon Slums",
      1,
      30,
      2600,
@@ -265,12 +265,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      10,
      1,
      false,
-     {{{ITEM_FEATHER, 90, 2, 6},
-       {ITEM_BONES, 100, 1, 1},
-       {ITEM_COOKED_SHRIMP, 25, 1, 2}}}},
+     {{{ITEM_MICROCHIP, 90, 2, 6},
+       {ITEM_SERVO_PARTS, 100, 1, 1},
+       {ITEM_KRILL_RATION, 25, 1, 2}}}},
     {1,
-     "Cow",
-     "Farmlands",
+     "Bio-Vat Hound",
+     "Neon Slums",
      4,
      65,
      2800,
@@ -282,12 +282,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      22,
      1,
      false,
-     {{{ITEM_LEATHER, 85, 1, 2},
-       {ITEM_COOKED_BEEF, 70, 1, 2},
-       {ITEM_BONES, 100, 1, 1}}}},
+     {{{ITEM_SYNTH_WEAVE_HIDE, 85, 1, 2},
+       {ITEM_SYNTH_PROTEIN_BAR, 70, 1, 2},
+       {ITEM_SERVO_PARTS, 100, 1, 1}}}},
     {2,
-     "Junior Farmer",
-     "Farmlands",
+     "Street Scavenger",
+     "Neon Slums",
      9,
      110,
      2600,
@@ -299,12 +299,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      45,
      1,
      false,
-     {{{ITEM_OAK_LOGS, 50, 2, 5},
-       {ITEM_COOKED_TROUT, 40, 1, 2},
-       {ITEM_BONES, 100, 1, 1}}}},
+     {{{ITEM_PLASTEEL_SHARDS, 50, 2, 5},
+       {ITEM_SYNTH_CARP_PACK, 40, 1, 2},
+       {ITEM_SERVO_PARTS, 100, 1, 1}}}},
     {3,
-     "Goblin",
-     "Goblin Village",
+     "Chrome Gang Punk",
+     "Back-Alley Sector",
      14,
      160,
      2500,
@@ -316,12 +316,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      70,
      1,
      false,
-     {{{ITEM_BRONZE_SCIMITAR, 15, 1, 1},
-       {ITEM_IRON_ORE, 45, 2, 4},
-       {ITEM_BONES, 100, 1, 1}}}},
+     {{{ITEM_SCRAP_BLADE, 15, 1, 1},
+       {ITEM_TITANIUM_ORE, 45, 2, 4},
+       {ITEM_SERVO_PARTS, 100, 1, 1}}}},
     {4,
-     "Hill Giant",
-     "Giant Caves",
+     "Riot Enforcer Bot",
+     "Industrial Sector",
      24,
      280,
      3000,
@@ -333,12 +333,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      130,
      10,
      false,
-     {{{ITEM_BIG_BONES, 100, 1, 2},
-       {ITEM_STEEL_SCIMITAR, 12, 1, 1},
-       {ITEM_COAL_ORE, 40, 3, 6}}}},
+     {{{ITEM_HEAVY_CHASSIS, 100, 1, 2},
+       {ITEM_DURASTEEL_BLADE, 12, 1, 1},
+       {ITEM_CARBON_CELL, 40, 3, 6}}}},
     {5,
-     "Moss Giant",
-     "Giant Caves",
+     "Chem-Mutant Brute",
+     "Industrial Sector",
      36,
      450,
      3000,
@@ -350,12 +350,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      220,
      20,
      false,
-     {{{ITEM_BIG_BONES, 100, 1, 2},
-       {ITEM_MITHRIL_ORE, 45, 2, 5},
-       {ITEM_COOKED_LOBSTER, 35, 2, 4}}}},
+     {{{ITEM_HEAVY_CHASSIS, 100, 1, 2},
+       {ITEM_COBALT_ORE, 45, 2, 5},
+       {ITEM_CYBER_LOBSTER_MEAL, 35, 2, 4}}}},
     {6,
-     "Ice Giant",
-     "Giant Caves",
+     "Cryo-Sec Mech",
+     "Industrial Sector",
      48,
      650,
      2900,
@@ -367,12 +367,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      340,
      30,
      false,
-     {{{ITEM_BIG_BONES, 100, 2, 3},
-       {ITEM_MITHRIL_PLATEBODY, 10, 1, 1},
-       {ITEM_SAPPHIRE, 25, 1, 2}}}},
+     {{{ITEM_HEAVY_CHASSIS, 100, 2, 3},
+       {ITEM_COBALT_EXOSUIT, 10, 1, 1},
+       {ITEM_SAPPHIRE_CORTEX, 25, 1, 2}}}},
     {7,
-     "Black Knight",
-     "Castle of Routineverse",
+     "Corp Shadow-Op",
+     "Megacorp Plaza",
      60,
      880,
      2700,
@@ -384,12 +384,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      520,
      40,
      false,
-     {{{ITEM_ADAMANT_SCIMITAR, 12, 1, 1},
-       {ITEM_ADAMANTITE_ORE, 45, 2, 5},
-       {ITEM_COOKED_SWORDFISH, 40, 2, 4}}}},
+     {{{ITEM_TUNGSTEN_BLADE, 12, 1, 1},
+       {ITEM_TUNGSTEN_ORE, 45, 2, 5},
+       {ITEM_PLASMA_RAY_INFUSION, 40, 2, 4}}}},
     {8,
-     "Mithril Knight",
-     "Castle of Routineverse",
+     "Cobalt Cyber-Ninja",
+     "Megacorp Plaza",
      74,
      1150,
      2600,
@@ -401,12 +401,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      780,
      50,
      false,
-     {{{ITEM_ADAMANT_PLATEBODY, 10, 1, 1},
-       {ITEM_RUBY, 30, 1, 2},
-       {ITEM_COOKED_SHARK, 35, 2, 4}}}},
+     {{{ITEM_TUNGSTEN_EXOSUIT, 10, 1, 1},
+       {ITEM_RUBY_LASER_CORE, 30, 1, 2},
+       {ITEM_APEX_SHARK_BOOSTER, 35, 2, 4}}}},
     {9,
-     "Rune Knight",
-     "Castle of Routineverse",
+     "Neutronium Cyborg",
+     "Megacorp Plaza",
      88,
      1500,
      2500,
@@ -418,12 +418,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      1200,
      65,
      false,
-     {{{ITEM_RUNE_SCIMITAR, 10, 1, 1},
-       {ITEM_RUNE_PLATEBODY, 8, 1, 1},
-       {ITEM_EMERALD, 30, 1, 2}}}},
+     {{{ITEM_NEUTRONIUM_BLADE, 10, 1, 1},
+       {ITEM_NEUTRONIUM_EXOSUIT, 8, 1, 1},
+       {ITEM_EMERALD_CRYPTOKEY, 30, 1, 2}}}},
     {10,
-     "Red Dragon",
-     "Dragon Valley",
+     "Apex Cyber-Wyrm",
+     "Orbital Spire",
      110,
      2150,
      2600,
@@ -435,12 +435,12 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      2000,
      75,
      false,
-     {{{ITEM_DRAGON_BONES, 100, 1, 2},
-       {ITEM_DRAGONITE_ORE, 35, 2, 4},
-       {ITEM_DIAMOND, 25, 1, 2}}}},
+     {{{ITEM_APEX_CYBER_CORE, 100, 1, 2},
+       {ITEM_CHRONO_ORE, 35, 2, 4},
+       {ITEM_QUANTUM_DIAMOND, 25, 1, 2}}}},
     {11,
-     "Malcs, Guardian of Routineverse",
-     "Volcanic Cave [BOSS]",
+     "NEXUS-9, Rogue Overmind",
+     "Mainframe Core [BOSS]",
      150,
      3500,
      2400,
@@ -452,72 +452,72 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      5500,
      85,
      true,
-     {{{ITEM_DRAGON_SCIMITAR, 20, 1, 1},
-       {ITEM_DRAGON_PLATEBODY, 15, 1, 1},
-       {ITEM_COOKED_WHALE, 60, 4, 8}}}},
+     {{{ITEM_CHRONO_BLADE, 20, 1, 1},
+       {ITEM_CHRONO_EXOSUIT, 15, 1, 1},
+       {ITEM_LEVIATHAN_NANOMED, 60, 4, 8}}}},
 }};
 
-const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> axe_upgrades = {{
-    {0, "Bronze Axe", "Starter Woodcutting Axe", 1, 0, 0},
-    {1, "Iron Axe", "-6% Woodcutting Interval", 10, 200, 6},
-    {2, "Steel Axe", "-12% Woodcutting Interval", 25, 750, 12},
-    {3, "Mithril Axe", "-18% Woodcutting Interval", 40, 2500, 18},
-    {4, "Adamant Axe", "-24% Woodcutting Interval", 55, 8000, 24},
-    {5, "Rune Axe", "-30% Woodcutting Interval", 70, 25000, 30},
-    {6, "Dragon Axe", "-38% Woodcutting Interval", 85, 80000, 38},
+const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades = {{
+    {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0},
+    {1, "Titanium Cutter", "-6% Salvaging Interval", 10, 200, 6},
+    {2, "Durasteel Cutter", "-12% Salvaging Interval", 25, 750, 12},
+    {3, "Cobalt Laser-Cutter", "-18% Salvaging Interval", 40, 2500, 18},
+    {4, "Tungsten Plasma-Torch", "-24% Salvaging Interval", 55, 8000, 24},
+    {5, "Neutronium Arc-Splicer", "-30% Salvaging Interval", 70, 25000, 30},
+    {6, "Chrono Deconstructor", "-38% Salvaging Interval", 85, 80000, 38},
 }};
 
-const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> rod_upgrades = {{
-    {0, "Bronze Fishing Rod", "Starter Fishing Rod", 1, 0, 0},
-    {1, "Iron Fishing Rod", "-6% Fishing Interval", 10, 200, 6},
-    {2, "Steel Fishing Rod", "-12% Fishing Interval", 25, 750, 12},
-    {3, "Mithril Fishing Rod", "-18% Fishing Interval", 40, 2500, 18},
-    {4, "Adamant Fishing Rod", "-24% Fishing Interval", 55, 8000, 24},
-    {5, "Rune Fishing Rod", "-30% Fishing Interval", 70, 25000, 30},
-    {6, "Dragon Fishing Rod", "-38% Fishing Interval", 85, 80000, 38},
+const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades = {{
+    {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0},
+    {1, "Titanium Bio-Rig", "-6% Bio-Harvest Interval", 10, 200, 6},
+    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest Interval", 25, 750, 12},
+    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest Interval", 40, 2500, 18},
+    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest Interval", 55, 8000, 24},
+    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest Interval", 70, 25000, 30},
+    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest Interval", 85, 80000, 38},
 }};
 
-const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> pickaxe_upgrades = {{
-    {0, "Bronze Pickaxe", "Starter Mining Pickaxe", 1, 0, 0},
-    {1, "Iron Pickaxe", "-6% Mining Interval", 10, 200, 6},
-    {2, "Steel Pickaxe", "-12% Mining Interval", 25, 750, 12},
-    {3, "Mithril Pickaxe", "-18% Mining Interval", 40, 2500, 18},
-    {4, "Adamant Pickaxe", "-24% Mining Interval", 55, 8000, 24},
-    {5, "Rune Pickaxe", "-30% Mining Interval", 70, 25000, 30},
-    {6, "Dragon Pickaxe", "-38% Mining Interval", 85, 80000, 38},
+const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades = {{
+    {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0},
+    {1, "Titanium Impact Drill", "-6% Deep-Mining Interval", 10, 200, 6},
+    {2, "Durasteel Sonic Drill", "-12% Deep-Mining Interval", 25, 750, 12},
+    {3, "Cobalt Laser Bore", "-18% Deep-Mining Interval", 40, 2500, 18},
+    {4, "Tungsten Plasma Bore", "-24% Deep-Mining Interval", 55, 8000, 24},
+    {5, "Neutronium Quantum Drill", "-30% Deep-Mining Interval", 70, 25000, 30},
+    {6, "Chrono Singularity Bore", "-38% Deep-Mining Interval", 85, 80000, 38},
 }};
 
-const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> fire_upgrades = {{
-    {0, "Basic Campfire", "Starter Cooking Fire", 1, 0, 0},
-    {1, "Oak Cooking Fire", "-5% Cooking Interval & +5% XP", 10, 250, 5},
-    {2, "Willow Cooking Fire", "-10% Cooking Interval & +10% XP", 25, 900, 10},
-    {3, "Maple Cooking Fire", "-15% Cooking Interval & +15% XP", 45, 3000, 15},
-    {4, "Yew Cooking Fire", "-20% Cooking Interval & +20% XP", 60, 10000, 20},
-    {5, "Magic Cooking Fire", "-26% Cooking Interval & +26% XP", 75, 30000, 26},
-    {6, "Redwood Cooking Fire", "-34% Cooking Interval & +34% XP", 90, 95000, 34},
+const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades = {{
+    {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0},
+    {1, "Plasteel Thermal Unit", "-5% Synth-Cook Interval & +5% XP", 10, 250, 5},
+    {2, "Nanotube Induction Core", "-10% Synth-Cook Interval & +10% XP", 25, 900, 10},
+    {3, "Positronic Reactor", "-15% Synth-Cook Interval & +15% XP", 45, 3000, 15},
+    {4, "Plasma Fusion Furnace", "-20% Synth-Cook Interval & +20% XP", 60, 10000, 20},
+    {5, "Quantum Synth-Core", "-26% Synth-Cook Interval & +26% XP", 75, 30000, 26},
+    {6, "AI Mainframe Reactor", "-34% Synth-Cook Interval & +34% XP", 90, 95000, 34},
 }};
 
-const std::array<ShopUpgradeInfo, AUTO_EAT_TIER_COUNT> auto_eat_upgrades = {{
-    {0, "No Auto-Eat", "Manual food eating only", 1, 0, 0},
-    {1, "Auto-Eat — Tier I", "Auto-eats equipped food below 25% HP", 1, 1500, 25},
-    {2, "Auto-Eat — Tier II", "Auto-eats equipped food below 40% HP", 1, 12000, 40},
-    {3, "Auto-Eat — Tier III", "Auto-eats equipped food below 55% HP", 1, 50000, 55},
+const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades = {{
+    {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0},
+    {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500, 25},
+    {2, "Auto-Stim — Mk II", "Auto-injects equipped stim below 40% HP", 1, 12000, 40},
+    {3, "Auto-Stim — Mk III", "Auto-injects equipped stim below 55% HP", 1, 50000, 55},
 }};
 
 std::string skill_name(SkillType skill) {
   switch (skill) {
-    case SkillType::Woodcutting:
-      return "Woodcutting";
-    case SkillType::Fishing:
-      return "Fishing";
-    case SkillType::Firemaking:
-      return "Firemaking";
-    case SkillType::Cooking:
-      return "Cooking";
-    case SkillType::Mining:
-      return "Mining";
-    case SkillType::Smithing:
-      return "Smithing";
+    case SkillType::Salvaging:
+      return "Salvaging";
+    case SkillType::BioHarvest:
+      return "Bio-Harvest";
+    case SkillType::Overclock:
+      return "Overclock";
+    case SkillType::SynthCook:
+      return "Synth-Cook";
+    case SkillType::DeepMining:
+      return "Deep-Mining";
+    case SkillType::CyberFab:
+      return "Cyber-Fab";
     case SkillType::Attack:
       return "Attack";
     case SkillType::Strength:
@@ -526,26 +526,26 @@ std::string skill_name(SkillType skill) {
       return "Defence";
     case SkillType::Hitpoints:
       return "Hitpoints";
-    case SkillType::Slayer:
-      return "Slayer";
+    case SkillType::Bounty:
+      return "Bounty";
   }
   return "Unknown";
 }
 
 std::string skill_short_name(SkillType skill) {
   switch (skill) {
-    case SkillType::Woodcutting:
-      return "WC";
-    case SkillType::Fishing:
-      return "FSH";
-    case SkillType::Firemaking:
-      return "FM";
-    case SkillType::Cooking:
-      return "CK";
-    case SkillType::Mining:
+    case SkillType::Salvaging:
+      return "SLV";
+    case SkillType::BioHarvest:
+      return "BIO";
+    case SkillType::Overclock:
+      return "OVC";
+    case SkillType::SynthCook:
+      return "SYN";
+    case SkillType::DeepMining:
       return "MIN";
-    case SkillType::Smithing:
-      return "SMT";
+    case SkillType::CyberFab:
+      return "FAB";
     case SkillType::Attack:
       return "ATK";
     case SkillType::Strength:
@@ -554,38 +554,38 @@ std::string skill_short_name(SkillType skill) {
       return "DEF";
     case SkillType::Hitpoints:
       return "HP";
-    case SkillType::Slayer:
-      return "SLY";
+    case SkillType::Bounty:
+      return "BNT";
   }
   return "???";
 }
 
 std::string item_category_name(ItemCategory cat) {
   switch (cat) {
-    case ItemCategory::Logs:
-      return "Logs";
-    case ItemCategory::RawFish:
-      return "Raw Fish";
-    case ItemCategory::CookedFood:
-      return "Food";
-    case ItemCategory::BurntFood:
-      return "Junk";
-    case ItemCategory::Ore:
+    case ItemCategory::Scrap:
+      return "Scrap";
+    case ItemCategory::RawBiota:
+      return "Raw Biota";
+    case ItemCategory::StimFood:
+      return "Stim/Ration";
+    case ItemCategory::ToxicWaste:
+      return "Slag";
+    case ItemCategory::RawOre:
       return "Ore";
-    case ItemCategory::Bar:
-      return "Bar";
-    case ItemCategory::Gem:
-      return "Gem";
+    case ItemCategory::Alloy:
+      return "Alloy";
+    case ItemCategory::DataCrystal:
+      return "Crystal";
     case ItemCategory::Weapon:
       return "Weapon";
-    case ItemCategory::Helmet:
-      return "Helmet";
-    case ItemCategory::Platebody:
-      return "Platebody";
-    case ItemCategory::Shield:
+    case ItemCategory::Visor:
+      return "Visor";
+    case ItemCategory::ExoSuit:
+      return "Exo-Suit";
+    case ItemCategory::HoloShield:
       return "Shield";
-    case ItemCategory::Loot:
-      return "Loot";
+    case ItemCategory::CyberLoot:
+      return "Salvage";
   }
   return "Item";
 }
@@ -594,12 +594,12 @@ std::string equip_slot_name(EquipSlot slot) {
   switch (slot) {
     case EquipSlot::Weapon:
       return "Weapon";
-    case EquipSlot::Helmet:
-      return "Helmet";
-    case EquipSlot::Platebody:
-      return "Platebody";
-    case EquipSlot::Shield:
-      return "Shield";
+    case EquipSlot::Visor:
+      return "Visor";
+    case EquipSlot::ExoSuit:
+      return "Exo-Suit";
+    case EquipSlot::HoloShield:
+      return "Holo-Shield";
     case EquipSlot::None:
       return "None";
   }
@@ -609,13 +609,13 @@ std::string equip_slot_name(EquipSlot slot) {
 std::string attack_style_name(AttackStyle style) {
   switch (style) {
     case AttackStyle::Accurate:
-      return "Accurate (Attack)";
+      return "Precision (Attack)";
     case AttackStyle::Aggressive:
-      return "Aggressive (Strength)";
+      return "Overdrive (Strength)";
     case AttackStyle::Defensive:
-      return "Defensive (Defence)";
+      return "Evasive (Defence)";
   }
-  return "Accurate";
+  return "Precision";
 }
 
 std::string number_string(long long value) {
@@ -636,7 +636,7 @@ std::string number_string(long long value) {
 }
 
 std::string money_string(long long value) {
-  return number_string(value) + " GP";
+  return number_string(value) + " Cr";
 }
 
 int xp_for_level(int level) {
@@ -679,12 +679,12 @@ std::vector<int> actions_for_skill(SkillType skill) {
 GameState::GameState() { new_game(); }
 
 void GameState::new_game() {
-  gp = 250;
-  slayer_coins = 0;
+  credits = 250;
+  bounty_tokens = 0;
   total_ticks_ms = 0;
 
   xp.fill(0);
-  // Hitpoints starts at Level 10 (1,154 XP) just like OSRS / Melvor Idle!
+  // Hitpoints starts at Level 10 (1,154 XP)
   xp[static_cast<int>(SkillType::Hitpoints)] = xp_for_level(10);
 
   action_mastery_xp.assign(skill_actions.size(), 0);
@@ -693,22 +693,22 @@ void GameState::new_game() {
   bank.clear();
 
   equipped_items = {-1, -1, -1, -1};
-  equipped_food_item = ITEM_COOKED_SHRIMP;
+  equipped_food_item = ITEM_KRILL_RATION;
   equipped_food_qty = 10;
 
-  // Give starter Bronze Scimitar equipped and a few logs/shrimp
-  equipped_items[static_cast<int>(EquipSlot::Weapon)] = ITEM_BRONZE_SCIMITAR;
-  add_item(ITEM_NORMAL_LOGS, 5, false);
-  add_item(ITEM_COOKED_SHRIMP, 5, false);
+  // Give starter Scrap Vibro-Knife equipped and a few scrap/rations in storage
+  equipped_items[static_cast<int>(EquipSlot::Weapon)] = ITEM_SCRAP_BLADE;
+  add_item(ITEM_COPPER_WIRE_SCRAP, 5, false);
+  add_item(ITEM_KRILL_RATION, 5, false);
 
-  axe_tier = 0;
-  rod_tier = 0;
-  pickaxe_tier = 0;
-  fire_tier = 0;
-  auto_eat_tier = 0;
+  cutter_tier = 0;
+  harvester_tier = 0;
+  drill_tier = 0;
+  reactor_tier = 0;
+  auto_stim_tier = 0;
 
   active_type = ActiveActivityType::Skill;
-  active_action_id = 0;  // Start chopping Normal Tree by default!
+  active_action_id = 0;  // Start stripping Copper Wiring by default!
   active_progress_ms = 0;
   active_target_ms = action_effective_interval_ms(0);
 
@@ -720,18 +720,18 @@ void GameState::new_game() {
   monster_attack_timer_ms = 0;
   hp_regen_timer_ms = 0;
 
-  slayer_task_monster_id = 0;
-  slayer_task_remaining = 8;
-  slayer_tasks_completed = 0;
+  bounty_target_id = 0;
+  bounty_remaining = 8;
+  bounties_completed = 0;
 
   monster_kills.fill(0);
   total_items_gathered = 0;
   total_monsters_killed = 0;
-  total_gp_earned = 250;
+  total_credits_earned = 250;
   player_deaths = 0;
 
   game_log.clear();
-  gp_history.clear();
+  credits_history.clear();
   bank_value_history.clear();
   total_level_history.clear();
   total_xp_history.clear();
@@ -739,9 +739,9 @@ void GameState::new_game() {
   for (auto& vec : skill_xp_history) vec.clear();
   history_timer_ms_ = 0;
 
-  status_banner = "Chopping Normal Tree (Woodcutting)";
-  add_log("Welcome to Routineverse! You begin your adventure with a Bronze Scimitar, 10 Cooked Shrimp, and 250 GP.");
-  add_log("Active task: Chop Normal Tree. Select any skill or monster to train!");
+  status_banner = "Strip Copper Wiring (Salvaging)";
+  add_log("Welcome to Routineverse! You jack into Neo-Sector with a Scrap Vibro-Knife, 10 Krill Rations, and 250 Cr.");
+  add_log("Active protocol: Strip Copper Wiring. Select any skill or hostile target to begin!");
   record_history_snapshot();
 }
 
@@ -761,7 +761,7 @@ void GameState::record_history_snapshot() {
     }
   };
 
-  push_capped(gp_history, gp);
+  push_capped(credits_history, credits);
   push_capped(bank_value_history, total_bank_value());
   push_capped(total_level_history, total_skill_level());
   push_capped(total_xp_history, total_skill_xp());
@@ -809,22 +809,23 @@ int GameState::action_effective_interval_ms(int global_action_id) const {
   const auto& act = skill_actions[global_action_id];
   int bonus_pct = 0;
   switch (act.skill) {
-    case SkillType::Woodcutting:
-      bonus_pct = axe_upgrades[std::clamp(axe_tier, 0, TOOL_TIER_COUNT - 1)]
+    case SkillType::Salvaging:
+      bonus_pct = cutter_upgrades[std::clamp(cutter_tier, 0, TOOL_TIER_COUNT - 1)]
                       .speed_bonus_pct;
       break;
-    case SkillType::Fishing:
-      bonus_pct = rod_upgrades[std::clamp(rod_tier, 0, TOOL_TIER_COUNT - 1)]
-                      .speed_bonus_pct;
-      break;
-    case SkillType::Mining:
+    case SkillType::BioHarvest:
       bonus_pct =
-          pickaxe_upgrades[std::clamp(pickaxe_tier, 0, TOOL_TIER_COUNT - 1)]
+          harvester_upgrades[std::clamp(harvester_tier, 0, TOOL_TIER_COUNT - 1)]
               .speed_bonus_pct;
       break;
-    case SkillType::Cooking:
-      bonus_pct = fire_upgrades[std::clamp(fire_tier, 0, TOOL_TIER_COUNT - 1)]
+    case SkillType::DeepMining:
+      bonus_pct = drill_upgrades[std::clamp(drill_tier, 0, TOOL_TIER_COUNT - 1)]
                       .speed_bonus_pct;
+      break;
+    case SkillType::SynthCook:
+      bonus_pct =
+          reactor_upgrades[std::clamp(reactor_tier, 0, TOOL_TIER_COUNT - 1)]
+              .speed_bonus_pct;
       break;
     default:
       break;
@@ -860,7 +861,7 @@ bool GameState::start_skill_action(int global_action_id) {
   }
   const auto& act = skill_actions[global_action_id];
   if (skill_level(act.skill) < act.req_level) {
-    add_log(std::format("Requires {} Level {} to perform {}.",
+    add_log(std::format("Requires {} Level {} to execute {}.",
                         skill_name(act.skill), act.req_level, act.name));
     return false;
   }
@@ -874,7 +875,7 @@ bool GameState::start_skill_action(int global_action_id) {
       req_str += std::format(" + {}x {}", act.input_qty_2,
                              item_info[act.input_item_2].name);
     }
-    add_log(std::format("Missing ingredients for {}: need {}.", act.name,
+    add_log(std::format("Missing components for {}: need {}.", act.name,
                         req_str));
     return false;
   }
@@ -884,7 +885,7 @@ bool GameState::start_skill_action(int global_action_id) {
   active_progress_ms = 0;
   active_target_ms = action_effective_interval_ms(global_action_id);
   status_banner = std::format("{} ({})", act.name, skill_name(act.skill));
-  add_log(std::format("Started {} ({:.2f}s interval).", act.name,
+  add_log(std::format("Started {} ({:.2f}s cycle).", act.name,
                       active_target_ms / 1000.0));
   return true;
 }
@@ -892,9 +893,9 @@ bool GameState::start_skill_action(int global_action_id) {
 bool GameState::start_combat(int monster_id) {
   if (monster_id < 0 || monster_id >= MONSTER_COUNT) return false;
   const auto& mon = monster_info[monster_id];
-  if (skill_level(SkillType::Slayer) < mon.slayer_req) {
-    add_log(std::format("Requires Slayer Level {} to fight {}.",
-                        mon.slayer_req, mon.name));
+  if (skill_level(SkillType::Bounty) < mon.bounty_req) {
+    add_log(std::format("Requires Bounty Level {} clearance to engage {}.",
+                        mon.bounty_req, mon.name));
     return false;
   }
   active_type = ActiveActivityType::Combat;
@@ -902,9 +903,9 @@ bool GameState::start_combat(int monster_id) {
   monster_hp = mon.max_hp;
   player_attack_timer_ms = 0;
   monster_attack_timer_ms = 0;
-  status_banner = std::format("Fighting {} (Lv {}) in {}", mon.name,
+  status_banner = std::format("Engaging {} (Lv {}) in {}", mon.name,
                               mon.combat_level, mon.zone_name);
-  add_log(std::format("Entered combat with {} ({} HP) in {}.", mon.name,
+  add_log(std::format("Engaged hostile {} ({} HP) in {}.", mon.name,
                       mon.max_hp, mon.zone_name));
   return true;
 }
@@ -912,20 +913,20 @@ bool GameState::start_combat(int monster_id) {
 void GameState::stop_activity() {
   active_type = ActiveActivityType::None;
   active_progress_ms = 0;
-  status_banner = "Idle — Select a Skill or Monster";
-  add_log("Stopped current activity.");
+  status_banner = "Standby — Select a Skill or Hostile Target";
+  add_log("Paused active protocol.");
 }
 
 void GameState::gain_xp(SkillType skill, long long amount) {
   if (amount <= 0) return;
   int idx = static_cast<int>(skill);
   int old_lvl = level_for_xp(xp[idx]);
-  // Firemaking tier grants a small global XP bonus
-  long long bonus = (amount * fire_tier * 2) / 100;
+  // Reactor tier grants a global XP bonus
+  long long bonus = (amount * reactor_tier * 2) / 100;
   xp[idx] += (amount + bonus);
   int new_lvl = level_for_xp(xp[idx]);
   if (new_lvl > old_lvl) {
-    add_log(std::format("LEVEL UP! Your {} level is now {}!",
+    add_log(std::format("NEURAL UPGRADE! Your {} skill is now Level {}!",
                         skill_name(skill), new_lvl));
     if (skill == SkillType::Hitpoints) {
       player_hp += (new_lvl - old_lvl) * 10;
@@ -936,18 +937,18 @@ void GameState::gain_xp(SkillType skill, long long amount) {
 
 void GameState::complete_skill_action(int global_action_id) {
   if (!can_perform_action(global_action_id)) {
-    add_log("Out of materials! Stopping action.");
+    add_log("Out of input components! Halting protocol.");
     stop_activity();
     return;
   }
   const auto& act = skill_actions[global_action_id];
   int m_lvl = mastery_level(global_action_id);
 
-  // Resource preservation chance for Artisan skills (5% + 0.2% per mastery level)
+  // Resource preservation chance for Fabrication/Synthesis skills (5% + 0.2% per mastery level)
   bool preserved = false;
   if (act.input_item_1 >= 0 &&
-      (act.skill == SkillType::Smithing || act.skill == SkillType::Cooking ||
-       act.skill == SkillType::Firemaking)) {
+      (act.skill == SkillType::CyberFab || act.skill == SkillType::SynthCook ||
+       act.skill == SkillType::Overclock)) {
     int pres_chance = 5 + (m_lvl / 5);
     if (rand_int(1, 100) <= pres_chance) {
       preserved = true;
@@ -963,23 +964,23 @@ void GameState::complete_skill_action(int global_action_id) {
   gain_xp(act.skill, act.xp);
   action_mastery_xp[global_action_id] += std::max(10, act.xp / 2);
 
-  // Double reward chance (5% + 0.3% per mastery level)
+  // Double output chance (5% + 0.3% per mastery level)
   int qty = act.product_qty;
   if (qty > 0 && rand_int(1, 100) <= (5 + m_lvl / 3)) {
     qty *= 2;
   }
 
-  if (act.skill == SkillType::Cooking && act.product_item >= 0) {
-    // Cooking success chance (75% base + mastery/level bonus up to 99%)
+  if (act.skill == SkillType::SynthCook && act.product_item >= 0) {
+    // Synthesis success chance (75% base + mastery/level bonus up to 99%)
     int cook_chance =
-        std::min(99, 74 + (skill_level(SkillType::Cooking) - act.req_level) / 2 +
+        std::min(99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 +
                          m_lvl / 4);
     if (rand_int(1, 100) <= cook_chance) {
       add_item(act.product_item, qty, false);
       total_items_gathered += qty;
     } else {
-      add_item(ITEM_BURNT_FISH, 1, false);
-      add_log(std::format("You accidentally burnt the {}!",
+      add_item(ITEM_TOXIC_SLAG, 1, false);
+      add_log(std::format("Synthesis contaminated! Ruined {}.",
                           item_info[act.input_item_1].name));
     }
   } else if (act.product_item >= 0 && qty > 0) {
@@ -988,36 +989,36 @@ void GameState::complete_skill_action(int global_action_id) {
   }
 
   // Bonus procs by skill
-  if (act.skill == SkillType::Firemaking) {
-    // 25% chance to receive Coal Ore from burning logs, plus small GP ash bonus
+  if (act.skill == SkillType::Overclock) {
+    // 25% chance to discharge a Carbon Cell from overclocking scrap, plus crypto-credit yield
     if (rand_int(1, 100) <= 25) {
-      add_item(ITEM_COAL_ORE, 1, false);
+      add_item(ITEM_CARBON_CELL, 1, false);
     }
-    gp += 2 + act.req_level / 5;
-    total_gp_earned += 2 + act.req_level / 5;
-  } else if (act.skill == SkillType::Mining) {
-    // 8% chance to find a random Gem while mining!
+    credits += 2 + act.req_level / 5;
+    total_credits_earned += 2 + act.req_level / 5;
+  } else if (act.skill == SkillType::DeepMining) {
+    // 8% chance to unearth a rare Data Crystal while deep-mining!
     if (rand_int(1, 100) <= 8) {
-      int gem_id = ITEM_TOPAZ + rand_int(0, 4);
+      int gem_id = ITEM_AMBER_DATACHIP + rand_int(0, 4);
       if (add_item(gem_id, 1, false)) {
-        add_log(std::format("While mining, you found a sparkling {}!",
+        add_log(std::format("While deep-mining, you extracted a rare {}!",
                             item_info[gem_id].name));
       }
     }
-  } else if (act.skill == SkillType::Fishing) {
-    // 5% chance to fish up a sunken treasure chest (GP or Gem)
+  } else if (act.skill == SkillType::BioHarvest) {
+    // 5% chance to recover a submerged Corp Data-Cache (Credits)
     if (rand_int(1, 100) <= 5) {
-      int bonus_gp = 25 + act.req_level * 8;
-      gp += bonus_gp;
-      total_gp_earned += bonus_gp;
-      add_log(std::format("You fished up a Sunken Treasure worth {}!",
-                          money_string(bonus_gp)));
+      int bonus_cr = 25 + act.req_level * 8;
+      credits += bonus_cr;
+      total_credits_earned += bonus_cr;
+      add_log(std::format("Recovered a submerged Corp Data-Cache worth {}!",
+                          money_string(bonus_cr)));
     }
   }
 
   // Stop if materials ran out after this action
   if (!can_perform_action(global_action_id)) {
-    add_log(std::format("Finished {}: no more input materials remaining.",
+    add_log(std::format("Completed {}: input components depleted.",
                         act.name));
     stop_activity();
   }
@@ -1027,7 +1028,7 @@ void GameState::tick(int elapsed_ms) {
   if (elapsed_ms <= 0) return;
   total_ticks_ms += elapsed_ms;
 
-  // Passive HP regeneration outside/inside combat (+1% max HP every 5 seconds)
+  // Passive nanite HP regeneration outside/inside combat (+1% max HP every 5 seconds)
   hp_regen_timer_ms += elapsed_ms;
   while (hp_regen_timer_ms >= 5000) {
     hp_regen_timer_ms -= 5000;
@@ -1132,9 +1133,9 @@ void GameState::on_monster_defeated(int monster_id) {
   monster_kills[monster_id]++;
   total_monsters_killed++;
 
-  int gp_drop = rand_int(mon.gp_min, mon.gp_max);
-  gp += gp_drop;
-  total_gp_earned += gp_drop;
+  int cr_drop = rand_int(mon.credits_min, mon.credits_max);
+  credits += cr_drop;
+  total_credits_earned += cr_drop;
 
   // Bonus XP on kill
   if (attack_style == AttackStyle::Accurate) {
@@ -1146,24 +1147,24 @@ void GameState::on_monster_defeated(int monster_id) {
   }
   gain_xp(SkillType::Hitpoints, mon.xp_reward / 3);
 
-  // Slayer task check
-  if (monster_id == slayer_task_monster_id && slayer_task_remaining > 0) {
-    slayer_task_remaining--;
-    gain_xp(SkillType::Slayer, mon.xp_reward / 2 + 15);
-    int sc = std::max(5, mon.combat_level * 2);
-    slayer_coins += sc;
-    if (slayer_task_remaining <= 0) {
-      slayer_tasks_completed++;
-      int bonus_sc = 50 + slayer_tasks_completed * 15;
-      slayer_coins += bonus_sc;
-      gain_xp(SkillType::Slayer, 120 + mon.xp_reward);
+  // Bounty contract check
+  if (monster_id == bounty_target_id && bounty_remaining > 0) {
+    bounty_remaining--;
+    gain_xp(SkillType::Bounty, mon.xp_reward / 2 + 15);
+    int bt = std::max(5, mon.combat_level * 2);
+    bounty_tokens += bt;
+    if (bounty_remaining <= 0) {
+      bounties_completed++;
+      int bonus_bt = 50 + bounties_completed * 15;
+      bounty_tokens += bonus_bt;
+      gain_xp(SkillType::Bounty, 120 + mon.xp_reward);
       add_log(std::format(
-          "SLAYER TASK COMPLETE! Earned +{} Slayer Coins! Assigning new task...",
-          bonus_sc));
-      assign_new_slayer_task();
+          "BOUNTY CONTRACT COMPLETE! Earned +{} Bounty Tokens! Assigning new target...",
+          bonus_bt));
+      assign_new_bounty_contract();
     }
-  } else if (mon.slayer_req > 1) {
-    gain_xp(SkillType::Slayer, mon.xp_reward / 4);
+  } else if (mon.bounty_req > 1) {
+    gain_xp(SkillType::Bounty, mon.xp_reward / 4);
   }
 
   // Roll monster drop table
@@ -1179,11 +1180,11 @@ void GameState::on_monster_defeated(int monster_id) {
   }
 
   if (loot_str.empty()) {
-    add_log(std::format("Defeated {}! Looted {}.", mon.name,
-                        money_string(gp_drop)));
+    add_log(std::format("Neutralized {}! Siphoned {}.", mon.name,
+                        money_string(cr_drop)));
   } else {
-    add_log(std::format("Defeated {}! Looted {} and {}.", mon.name,
-                        money_string(gp_drop), loot_str));
+    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.",
+                        mon.name, money_string(cr_drop), loot_str));
   }
 
   // Respawn monster
@@ -1195,32 +1196,32 @@ void GameState::on_monster_defeated(int monster_id) {
 void GameState::on_player_defeated() {
   player_deaths++;
   player_hp = max_hp();
-  long long lost_gp = std::min(gp, std::max(10LL, gp / 10));
-  gp -= lost_gp;
+  long long lost_cr = std::min(credits, std::max(10LL, credits / 10));
+  credits -= lost_cr;
   add_log(std::format(
-      "YOU DIED fighting {}! You respawned in town at full HP and dropped {}.",
-      monster_info[active_monster_id].name, money_string(lost_gp)));
+      "CRITICAL FLATLINE fighting {}! Trauma Team reconstructed you in Neo-Sector for {}.",
+      monster_info[active_monster_id].name, money_string(lost_cr)));
   stop_activity();
 }
 
-void GameState::assign_new_slayer_task() {
+void GameState::assign_new_bounty_contract() {
   std::vector<int> eligible;
-  int s_lvl = skill_level(SkillType::Slayer);
+  int b_lvl = skill_level(SkillType::Bounty);
   int c_lvl = combat_level();
   for (int i = 0; i < MONSTER_COUNT; ++i) {
-    if (monster_info[i].slayer_req <= s_lvl &&
+    if (monster_info[i].bounty_req <= b_lvl &&
         monster_info[i].combat_level <= c_lvl + 15 &&
         !monster_info[i].is_boss) {
       eligible.push_back(i);
     }
   }
   if (eligible.empty()) eligible.push_back(0);
-  slayer_task_monster_id = eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
-  slayer_task_remaining = rand_int(6, 15);
-  add_log(std::format("New Slayer Task: Defeat {}x {} ({}).",
-                      slayer_task_remaining,
-                      monster_info[slayer_task_monster_id].name,
-                      monster_info[slayer_task_monster_id].zone_name));
+  bounty_target_id = eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
+  bounty_remaining = rand_int(6, 15);
+  add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
+                      bounty_remaining,
+                      monster_info[bounty_target_id].name,
+                      monster_info[bounty_target_id].zone_name));
 }
 
 int GameState::item_qty(int item_id) const {
@@ -1253,25 +1254,25 @@ bool GameState::can_store_item(int item_id) const {
 
 bool GameState::add_item(int item_id, int qty, bool log_drop) {
   if (item_id < 0 || item_id >= ITEM_COUNT || qty <= 0) return false;
-  // If this is the currently equipped food, top up food stack directly or bank
   for (auto& s : bank) {
     if (s.item_id == item_id) {
       s.qty += qty;
       if (log_drop) {
-        add_log(std::format("Added {}x {} to Bank.", qty,
+        add_log(std::format("Stored {}x {} in Cyber-Vault.", qty,
                             item_info[item_id].name));
       }
       return true;
     }
   }
   if (static_cast<int>(bank.size()) >= bank_capacity) {
-    add_log(std::format("Bank is full ({}/{})! Could not store {}!",
+    add_log(std::format("Cyber-Vault is full ({}/{})! Could not store {}!",
                         bank.size(), bank_capacity, item_info[item_id].name));
     return false;
   }
   bank.push_back(BankSlot{item_id, qty});
   if (log_drop) {
-    add_log(std::format("Added {}x {} to Bank.", qty, item_info[item_id].name));
+    add_log(std::format("Stored {}x {} in Cyber-Vault.", qty,
+                        item_info[item_id].name));
   }
   return true;
 }
@@ -1296,10 +1297,10 @@ bool GameState::sell_item(int item_id, int qty) {
   if (sell_q <= 0) return false;
   long long value = static_cast<long long>(sell_q) * item_info[item_id].price;
   remove_item(item_id, sell_q);
-  gp += value;
-  total_gp_earned += value;
-  add_log(std::format("Sold {}x {} for {}.", sell_q, item_info[item_id].name,
-                      money_string(value)));
+  credits += value;
+  total_credits_earned += value;
+  add_log(std::format("Liquidated {}x {} for {}.", sell_q,
+                      item_info[item_id].name, money_string(value)));
   return true;
 }
 
@@ -1314,9 +1315,9 @@ long long GameState::sell_all_non_equipped() {
   }
   bank.clear();
   if (gained > 0) {
-    gp += gained;
-    total_gp_earned += gained;
-    add_log(std::format("Sold all {} Bank items for {}!", items_sold,
+    credits += gained;
+    total_credits_earned += gained;
+    add_log(std::format("Liquidated all {} Vault items for {}!", items_sold,
                         money_string(gained)));
   }
   return gained;
@@ -1349,7 +1350,7 @@ bool GameState::equip_item(int item_id) {
     add_item(old_item, 1, false);
   }
   equipped_items[slot_idx] = item_id;
-  add_log(std::format("Equipped {} in {} slot.", info.name,
+  add_log(std::format("Installed {} in {} slot.", info.name,
                       equip_slot_name(info.equip_slot)));
   return true;
 }
@@ -1360,7 +1361,7 @@ bool GameState::unequip_slot(EquipSlot slot) {
   int cur = equipped_items[slot_idx];
   if (cur < 0) return false;
   if (!can_store_item(cur)) {
-    add_log("Bank is full! Cannot unequip item.");
+    add_log("Cyber-Vault is full! Cannot unequip item.");
     return false;
   }
   add_item(cur, 1, false);
@@ -1378,15 +1379,15 @@ bool GameState::equip_food(int item_id) {
   if (equipped_food_item == item_id) {
     remove_item(item_id, have);
     equipped_food_qty += have;
-    add_log(std::format("Added {}x {} to equipped food ({} total).", have,
+    add_log(std::format("Loaded {}x {} into Stim-Injector ({} total).", have,
                         item_info[item_id].name, equipped_food_qty));
     return true;
   }
 
-  // Return old equipped food to bank if any
+  // Return old equipped stim to vault if any
   if (equipped_food_item >= 0 && equipped_food_qty > 0) {
     if (!can_store_item(equipped_food_item)) {
-      add_log("Bank is full! Cannot swap equipped food.");
+      add_log("Cyber-Vault is full! Cannot swap equipped stims.");
       return false;
     }
     add_item(equipped_food_item, equipped_food_qty, false);
@@ -1394,14 +1395,14 @@ bool GameState::equip_food(int item_id) {
   remove_item(item_id, have);
   equipped_food_item = item_id;
   equipped_food_qty = have;
-  add_log(std::format("Equipped {}x {} (+{} HP each).", have,
+  add_log(std::format("Loaded {}x {} (+{} HP each).", have,
                       item_info[item_id].name, item_info[item_id].heal_amount));
   return true;
 }
 
 bool GameState::eat_food() {
   if (equipped_food_item < 0 || equipped_food_qty <= 0) {
-    add_log("No food equipped!");
+    add_log("No stim-pack or ration loaded!");
     return false;
   }
   if (player_hp >= max_hp()) {
@@ -1412,7 +1413,7 @@ bool GameState::eat_food() {
   equipped_food_qty--;
   int before = player_hp;
   player_hp = std::min(max_hp(), player_hp + heal);
-  add_log(std::format("Ate {} and restored +{} HP ({}/{} HP).",
+  add_log(std::format("Used {} and restored +{} HP ({}/{} HP).",
                       item_info[equipped_food_item].name, player_hp - before,
                       player_hp, max_hp()));
   if (equipped_food_qty == 0) {
@@ -1422,7 +1423,7 @@ bool GameState::eat_food() {
 }
 
 void GameState::check_auto_eat() {
-  if (auto_eat_tier <= 0) return;
+  if (auto_stim_tier <= 0) return;
   int threshold = auto_eat_threshold_hp();
   while (player_hp > 0 && player_hp <= threshold && equipped_food_item >= 0 &&
          equipped_food_qty > 0) {
@@ -1441,106 +1442,106 @@ int GameState::next_bank_slot_cost() const {
   return 150 + extra * extra * 120 + extra * 150;
 }
 
-bool GameState::buy_axe_upgrade() {
-  if (axe_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = axe_upgrades[axe_tier + 1];
-  if (skill_level(SkillType::Woodcutting) < upg.req_skill_level) {
-    add_log(std::format("Requires Woodcutting Level {} to buy {}.",
+bool GameState::buy_cutter_upgrade() {
+  if (cutter_tier + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = cutter_upgrades[cutter_tier + 1];
+  if (skill_level(SkillType::Salvaging) < upg.req_skill_level) {
+    add_log(std::format("Requires Salvaging Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
   }
-  if (gp < upg.cost_gp) {
-    add_log(std::format("Not enough GP for {} (need {}).", upg.name,
-                        money_string(upg.cost_gp)));
+  if (credits < upg.cost_credits) {
+    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
+                        money_string(upg.cost_credits)));
     return false;
   }
-  gp -= upg.cost_gp;
-  axe_tier++;
+  credits -= upg.cost_credits;
+  cutter_tier++;
   add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
   return true;
 }
 
-bool GameState::buy_rod_upgrade() {
-  if (rod_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = rod_upgrades[rod_tier + 1];
-  if (skill_level(SkillType::Fishing) < upg.req_skill_level) {
-    add_log(std::format("Requires Fishing Level {} to buy {}.",
+bool GameState::buy_harvester_upgrade() {
+  if (harvester_tier + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = harvester_upgrades[harvester_tier + 1];
+  if (skill_level(SkillType::BioHarvest) < upg.req_skill_level) {
+    add_log(std::format("Requires Bio-Harvest Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
   }
-  if (gp < upg.cost_gp) {
-    add_log(std::format("Not enough GP for {} (need {}).", upg.name,
-                        money_string(upg.cost_gp)));
+  if (credits < upg.cost_credits) {
+    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
+                        money_string(upg.cost_credits)));
     return false;
   }
-  gp -= upg.cost_gp;
-  rod_tier++;
+  credits -= upg.cost_credits;
+  harvester_tier++;
   add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
   return true;
 }
 
-bool GameState::buy_pickaxe_upgrade() {
-  if (pickaxe_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = pickaxe_upgrades[pickaxe_tier + 1];
-  if (skill_level(SkillType::Mining) < upg.req_skill_level) {
-    add_log(std::format("Requires Mining Level {} to buy {}.",
+bool GameState::buy_drill_upgrade() {
+  if (drill_tier + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = drill_upgrades[drill_tier + 1];
+  if (skill_level(SkillType::DeepMining) < upg.req_skill_level) {
+    add_log(std::format("Requires Deep-Mining Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
   }
-  if (gp < upg.cost_gp) {
-    add_log(std::format("Not enough GP for {} (need {}).", upg.name,
-                        money_string(upg.cost_gp)));
+  if (credits < upg.cost_credits) {
+    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
+                        money_string(upg.cost_credits)));
     return false;
   }
-  gp -= upg.cost_gp;
-  pickaxe_tier++;
+  credits -= upg.cost_credits;
+  drill_tier++;
   add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
   return true;
 }
 
-bool GameState::buy_fire_upgrade() {
-  if (fire_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = fire_upgrades[fire_tier + 1];
-  if (skill_level(SkillType::Firemaking) < upg.req_skill_level) {
-    add_log(std::format("Requires Firemaking Level {} to buy {}.",
+bool GameState::buy_reactor_upgrade() {
+  if (reactor_tier + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = reactor_upgrades[reactor_tier + 1];
+  if (skill_level(SkillType::Overclock) < upg.req_skill_level) {
+    add_log(std::format("Requires Overclock Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
   }
-  if (gp < upg.cost_gp) {
-    add_log(std::format("Not enough GP for {} (need {}).", upg.name,
-                        money_string(upg.cost_gp)));
+  if (credits < upg.cost_credits) {
+    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
+                        money_string(upg.cost_credits)));
     return false;
   }
-  gp -= upg.cost_gp;
-  fire_tier++;
+  credits -= upg.cost_credits;
+  reactor_tier++;
   add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
   return true;
 }
 
-bool GameState::buy_auto_eat_upgrade() {
-  if (auto_eat_tier + 1 >= AUTO_EAT_TIER_COUNT) return false;
-  const auto& upg = auto_eat_upgrades[auto_eat_tier + 1];
-  if (gp < upg.cost_gp) {
-    add_log(std::format("Not enough GP for {} (need {}).", upg.name,
-                        money_string(upg.cost_gp)));
+bool GameState::buy_auto_stim_upgrade() {
+  if (auto_stim_tier + 1 >= AUTO_STIM_TIER_COUNT) return false;
+  const auto& upg = auto_stim_upgrades[auto_stim_tier + 1];
+  if (credits < upg.cost_credits) {
+    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
+                        money_string(upg.cost_credits)));
     return false;
   }
-  gp -= upg.cost_gp;
-  auto_eat_tier++;
+  credits -= upg.cost_credits;
+  auto_stim_tier++;
   add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
   return true;
 }
 
 bool GameState::buy_bank_slot() {
   int cost = next_bank_slot_cost();
-  if (gp < cost) {
-    add_log(std::format("Not enough GP for +4 Bank Slots (need {}).",
+  if (credits < cost) {
+    add_log(std::format("Not enough Credits for +4 Vault Slots (need {}).",
                         money_string(cost)));
     return false;
   }
-  gp -= cost;
+  credits -= cost;
   bank_capacity += 4;
-  add_log(std::format("Purchased +4 Bank Slots! Bank capacity is now {}.",
+  add_log(std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
                       bank_capacity));
   return true;
 }
@@ -1618,8 +1619,8 @@ int GameState::monster_hit_chance_pct(int monster_id) const {
 }
 
 int GameState::auto_eat_threshold_hp() const {
-  if (auto_eat_tier <= 0 || auto_eat_tier >= AUTO_EAT_TIER_COUNT) return 0;
-  int pct = auto_eat_upgrades[auto_eat_tier].speed_bonus_pct;
+  if (auto_stim_tier <= 0 || auto_stim_tier >= AUTO_STIM_TIER_COUNT) return 0;
+  int pct = auto_stim_upgrades[auto_stim_tier].speed_bonus_pct;
   return (max_hp() * pct) / 100;
 }
 
@@ -1640,7 +1641,7 @@ bool GameState::save_to_file(const std::string& path) const {
   if (!out.is_open()) return false;
 
   out << "ROUTINEVERSE_SAVE_V1\n";
-  out << gp << " " << slayer_coins << " " << total_ticks_ms << "\n";
+  out << credits << " " << bounty_tokens << " " << total_ticks_ms << "\n";
   for (int i = 0; i < SKILL_COUNT; ++i) {
     out << xp[i] << (i + 1 == SKILL_COUNT ? "\n" : " ");
   }
@@ -1657,15 +1658,15 @@ bool GameState::save_to_file(const std::string& path) const {
     out << equipped_items[i] << (i + 1 == EQUIP_SLOT_COUNT ? "\n" : " ");
   }
   out << equipped_food_item << " " << equipped_food_qty << "\n";
-  out << axe_tier << " " << rod_tier << " " << pickaxe_tier << " " << fire_tier
-      << " " << auto_eat_tier << "\n";
+  out << cutter_tier << " " << harvester_tier << " " << drill_tier << " "
+      << reactor_tier << " " << auto_stim_tier << "\n";
   out << static_cast<int>(active_type) << " " << active_action_id << " "
       << active_monster_id << " " << player_hp << " " << monster_hp << " "
       << static_cast<int>(attack_style) << "\n";
-  out << slayer_task_monster_id << " " << slayer_task_remaining << " "
-      << slayer_tasks_completed << "\n";
+  out << bounty_target_id << " " << bounty_remaining << " "
+      << bounties_completed << "\n";
   out << total_items_gathered << " " << total_monsters_killed << " "
-      << total_gp_earned << " " << player_deaths << "\n";
+      << total_credits_earned << " " << player_deaths << "\n";
   return out.good();
 }
 
@@ -1676,7 +1677,7 @@ bool GameState::load_from_file(const std::string& path) {
   std::string header;
   if (!(in >> header) || header != "ROUTINEVERSE_SAVE_V1") return false;
 
-  in >> gp >> slayer_coins >> total_ticks_ms;
+  in >> credits >> bounty_tokens >> total_ticks_ms;
   for (int i = 0; i < SKILL_COUNT; ++i) in >> xp[i];
 
   size_t m_sz = 0;
@@ -1701,7 +1702,8 @@ bool GameState::load_from_file(const std::string& path) {
 
   for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) in >> equipped_items[i];
   in >> equipped_food_item >> equipped_food_qty;
-  in >> axe_tier >> rod_tier >> pickaxe_tier >> fire_tier >> auto_eat_tier;
+  in >> cutter_tier >> harvester_tier >> drill_tier >> reactor_tier >>
+      auto_stim_tier;
 
   int act_t = 0;
   int style_t = 0;
@@ -1710,10 +1712,9 @@ bool GameState::load_from_file(const std::string& path) {
   active_type = static_cast<ActiveActivityType>(std::clamp(act_t, 0, 2));
   attack_style = static_cast<AttackStyle>(std::clamp(style_t, 0, 2));
 
-  in >> slayer_task_monster_id >> slayer_task_remaining >>
-      slayer_tasks_completed;
-  in >> total_items_gathered >> total_monsters_killed >> total_gp_earned >>
-      player_deaths;
+  in >> bounty_target_id >> bounty_remaining >> bounties_completed;
+  in >> total_items_gathered >> total_monsters_killed >>
+      total_credits_earned >> player_deaths;
 
   if (active_type == ActiveActivityType::Skill && active_action_id >= 0 &&
       active_action_id < static_cast<int>(skill_actions.size())) {
@@ -1724,12 +1725,12 @@ bool GameState::load_from_file(const std::string& path) {
   } else if (active_type == ActiveActivityType::Combat &&
              active_monster_id >= 0 && active_monster_id < MONSTER_COUNT) {
     status_banner =
-        std::format("Fighting {}", monster_info[active_monster_id].name);
+        std::format("Engaging {}", monster_info[active_monster_id].name);
   } else {
-    status_banner = "Idle — Select a Skill or Monster";
+    status_banner = "Standby — Select a Skill or Hostile Target";
   }
 
   record_history_snapshot();
-  add_log("Loaded saved game state.");
+  add_log("Loaded saved neural state.");
   return true;
 }
