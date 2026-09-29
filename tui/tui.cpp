@@ -642,7 +642,8 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   for (int i = 0; i < SKILL_COUNT && row < y + h - 1; ++i) {
-    if (i == NON_COMBAT_SKILL_COUNT && row < y + h - 2) {
+    if (i == NON_COMBAT_SKILL_COUNT && h >= SKILL_COUNT + 4 &&
+        row < y + h - 2) {
       attron(COLOR_PAIR(CP_DIM));
       mvaddstr(row++, x + 2, "── Combat & Bounty ─");
       attroff(COLOR_PAIR(CP_DIM));
@@ -714,8 +715,14 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     auto act_ids = actions_for_skill(sk);
-    for (int i = 0; i < static_cast<int>(act_ids.size()) && row < y + h - 1;
-         ++i) {
+    int visible_rows = std::max(1, (y + h - 1) - row);
+    int start_idx = 0;
+    if (_actionCursor >= visible_rows) {
+      start_idx = _actionCursor - visible_rows + 1;
+    }
+
+    for (int i = start_idx;
+         i < static_cast<int>(act_ids.size()) && row < y + h - 1; ++i) {
       int id = act_ids[i];
       const auto& act = skill_actions[id];
       bool is_sel = (i == _actionCursor);
@@ -1365,12 +1372,13 @@ void TuiApp::showDocsDialog() {
   showMessageModal(
       "Routineverse Cyber-Guide",
       "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
-      "• Extraction Protocols: Train Salvaging, Bio-Harvest, and Deep-Mining to "
-      "gather scrap, synth-biota, ores, and rare Data Crystals.\n"
+      "• Extraction Protocols: Train Salvaging, Bio-Harvest, Farming, and "
+      "Deep-Mining to gather scrap, synth-biota, hydroponic crops, ores, and "
+      "rare Data Crystals.\n"
       "• Processing & Fabrication: Train Recycling, Synth-Cook, Smithing, and "
-      "Cyber-Fab to recycle scrap into raw materials, synthesize healing stims, "
-      "smelt alloy ingots & forge blades/exo-suits, and fabricate visors, "
-      "holo-shields & data crystals.\n"
+      "Cyber-Fab to recycle scrap into raw materials, mill Synth-Noodles & cook "
+      "Cyber-Ramen / healing stims, smelt alloy ingots & forge blades/exo-suits, "
+      "and fabricate visors, holo-shields & data crystals.\n"
       "• Combat & Bounty: Equip weapons, cyber-armor, and stims from your Vault. "
       "Neutralize hostiles and complete Bounty contracts for Bounty Tokens!\n"
       "• Cyber-Shop Upgrades: Press [u] to upgrade tools, unlock Auto-Stim, and "
