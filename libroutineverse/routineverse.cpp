@@ -2,12 +2,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <fstream>
 #include <random>
-#include <sstream>
 
 namespace {
 
@@ -41,303 +41,565 @@ const std::array<int, MAX_SKILL_LEVEL + 1>& xp_table() {
 }  // namespace
 
 const std::array<ItemInfo, ITEM_COUNT> item_info = {{
-    // Scrap & Tech Nodes (0..8)
-    {ItemId::CopperWireScrap, "Copper Wire Scrap", ItemCategory::Scrap, 2, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasteelShards, "Plasteel Shards", ItemCategory::Scrap, 5, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CarbonNanotubes, "Carbon Nanotubes", ItemCategory::Scrap, 10, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::OpticFiberBundle, "Optic Fiber Bundle", ItemCategory::Scrap, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PositronicRelays, "Positronic Relays", ItemCategory::Scrap, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CryoCellCore, "Cryo-Cell Core", ItemCategory::Scrap, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasmaConduit, "Plasma Conduit", ItemCategory::Scrap, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumNode, "Quantum Node", ItemCategory::Scrap, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::AiMainframeCore, "AI Mainframe Core", ItemCategory::Scrap, 200, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::None, "Empty", ItemCategory::Scrap, 0, 0, EquipSlot::None, 0, 0, 0,
+     0, 0},
 
-    // Recycled Basic / Raw Materials (9..17)
-    {ItemId::CopperFilament, "Copper Filament", ItemCategory::RawMaterial, 6, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasteelPolymer, "Plasteel Polymer", ItemCategory::RawMaterial, 14, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CarbonFiberWeave, "Carbon Fiber Weave", ItemCategory::RawMaterial, 28, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::OpticSilicaGlass, "Optic Silica Glass", ItemCategory::RawMaterial, 48, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PositronicWafer, "Positronic Wafer", ItemCategory::RawMaterial, 80, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CryoCoolantGel, "Cryo-Coolant Gel", ItemCategory::RawMaterial, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasmaCoil, "Magnetic Plasma Coil", ItemCategory::RawMaterial, 185, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumLattice, "Quantum Lattice", ItemCategory::RawMaterial, 310, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NeuralMatrix, "Neural Matrix", ItemCategory::RawMaterial, 520, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Scrap & Tech Nodes
+    {ItemId::CopperWireScrap, "Copper Wire Scrap", ItemCategory::Scrap, 2, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasteelShards, "Plasteel Shards", ItemCategory::Scrap, 5, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CarbonNanotubes, "Carbon Nanotubes", ItemCategory::Scrap, 10, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::OpticFiberBundle, "Optic Fiber Bundle", ItemCategory::Scrap, 18, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PositronicRelays, "Positronic Relays", ItemCategory::Scrap, 30, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CryoCellCore, "Cryo-Cell Core", ItemCategory::Scrap, 45, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasmaConduit, "Plasma Conduit", ItemCategory::Scrap, 70, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumNode, "Quantum Node", ItemCategory::Scrap, 120, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::AiMainframeCore, "AI Mainframe Core", ItemCategory::Scrap, 200, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Raw Synth-Biota (18..26)
-    {ItemId::RawKrillBiomass, "Raw Krill Biomass", ItemCategory::RawBiota, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawNeonEel, "Raw Neon Eel", ItemCategory::RawBiota, 6, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawSynthCarp, "Raw Synth-Carp", ItemCategory::RawBiota, 14, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawChromeSalmon, "Raw Chrome Salmon", ItemCategory::RawBiota, 24, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawCyberLobster, "Raw Cyber-Lobster", ItemCategory::RawBiota, 45, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawPlasmaRay, "Raw Plasma Ray", ItemCategory::RawBiota, 75, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawApexShark, "Raw Apex Shark", ItemCategory::RawBiota, 140, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawLeviathanCell, "Raw Leviathan Cell", ItemCategory::RawBiota, 260, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RawCyberKraken, "Raw Cyber-Kraken", ItemCategory::RawBiota, 450, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Recycled Basic / Raw Materials
+    {ItemId::CopperFilament, "Copper Filament", ItemCategory::RawMaterial, 6, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasteelPolymer, "Plasteel Polymer", ItemCategory::RawMaterial, 14,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CarbonFiberWeave, "Carbon Fiber Weave", ItemCategory::RawMaterial,
+     28, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::OpticSilicaGlass, "Optic Silica Glass", ItemCategory::RawMaterial,
+     48, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PositronicWafer, "Positronic Wafer", ItemCategory::RawMaterial, 80,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CryoCoolantGel, "Cryo-Coolant Gel", ItemCategory::RawMaterial, 120,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasmaCoil, "Magnetic Plasma Coil", ItemCategory::RawMaterial, 185,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumLattice, "Quantum Lattice", ItemCategory::RawMaterial, 310,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NeuralMatrix, "Neural Matrix", ItemCategory::RawMaterial, 520, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Hydro-Farmed Crops & Synth-Noodles (27..36)
-    {ItemId::HydroWheat, "Hydro-Wheat", ItemCategory::Crop, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SoyPods, "Synth-Soy Pods", ItemCategory::Crop, 10, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NeonScallion, "Neon Scallion", ItemCategory::Crop, 22, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::GlowNori, "Bioluminescent Nori", ItemCategory::Crop, 42, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::BioBamboo, "Cyber-Bamboo Shoot", ItemCategory::Crop, 75, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CyberShiitake, "Spore-Tech Shiitake", ItemCategory::Crop, 130, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasmaChili, "Plasma Ghost-Chili", ItemCategory::Crop, 225, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ChronoLotus, "Chrono-Lotus Root", ItemCategory::Crop, 380, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumTruffle, "Quantum Myco-Truffle", ItemCategory::Crop, 650, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SynthNoodles, "Synth-Noodles", ItemCategory::Crop, 8, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Raw Synth-Biota
+    {ItemId::RawKrillBiomass, "Raw Krill Biomass", ItemCategory::RawBiota, 3, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawNeonEel, "Raw Neon Eel", ItemCategory::RawBiota, 6, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawSynthCarp, "Raw Synth-Carp", ItemCategory::RawBiota, 14, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawChromeSalmon, "Raw Chrome Salmon", ItemCategory::RawBiota, 24,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawCyberLobster, "Raw Cyber-Lobster", ItemCategory::RawBiota, 45,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawPlasmaRay, "Raw Plasma Ray", ItemCategory::RawBiota, 75, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawApexShark, "Raw Apex Shark", ItemCategory::RawBiota, 140, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawLeviathanCell, "Raw Leviathan Cell", ItemCategory::RawBiota,
+     260, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RawCyberKraken, "Raw Cyber-Kraken", ItemCategory::RawBiota, 450, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Synthesized Stims, Cyber-Ramen & Toxic Slag (37..56)
-    {ItemId::KrillRation, "Krill Ration", ItemCategory::StimFood, 8, 30, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NeonEelSkewer, "Neon Eel Skewer", ItemCategory::StimFood, 15, 50, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SynthCarpPack, "Synth-Carp Pack", ItemCategory::StimFood, 32, 80, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ChromeSalmonStim, "Chrome Salmon Stim", ItemCategory::StimFood, 55, 110, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CyberLobsterMeal, "Cyber-Lobster Meal", ItemCategory::StimFood, 100, 160, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasmaRayInfusion, "Plasma Ray Infusion", ItemCategory::StimFood, 165, 220, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ApexSharkBooster, "Apex Shark Booster", ItemCategory::StimFood, 300, 320, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::LeviathanNanomed, "Leviathan Nanomed", ItemCategory::StimFood, 550, 480, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::KrakenBioElixir, "Kraken Bio-Elixir", ItemCategory::StimFood, 950, 680, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ShoyuRamen, "Soy-Shoyu Cyber-Ramen", ItemCategory::StimFood, 35, 65, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ScallionRamen, "Neon Scallion Ramen", ItemCategory::StimFood, 68, 125, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NoriRamen, "Glow-Nori Umami Ramen", ItemCategory::StimFood, 135, 195, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::BambooRamen, "Cyber-Bamboo Miso Ramen", ItemCategory::StimFood, 230, 280, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ShiitakeRamen, "Spore-Shiitake Tonkotsu Ramen", ItemCategory::StimFood, 390, 390, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::PlasmaChiliRamen, "Plasma Volcano Ramen", ItemCategory::StimFood, 680, 540, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ChronoLotusRamen, "Chrono-Lotus Broth Ramen", ItemCategory::StimFood, 1150, 720, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::TruffleRamen, "Quantum Truffle Ramen", ItemCategory::StimFood, 1850, 860, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumKrakenRamen, "Quantum Kraken Special Ramen", ItemCategory::StimFood, 2200, 980, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SynthProteinBar, "Synth-Protein Bar", ItemCategory::StimFood, 6, 25, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ToxicSlag, "Toxic Bio-Slag", ItemCategory::ToxicWaste, 1, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Hydro-Farmed Crops & Synth-Noodles
+    {ItemId::HydroWheat, "Hydro-Wheat", ItemCategory::Crop, 4, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SoyPods, "Synth-Soy Pods", ItemCategory::Crop, 10, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NeonScallion, "Neon Scallion", ItemCategory::Crop, 22, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::GlowNori, "Bioluminescent Nori", ItemCategory::Crop, 42, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::BioBamboo, "Cyber-Bamboo Shoot", ItemCategory::Crop, 75, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CyberShiitake, "Spore-Tech Shiitake", ItemCategory::Crop, 130, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasmaChili, "Plasma Ghost-Chili", ItemCategory::Crop, 225, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ChronoLotus, "Chrono-Lotus Root", ItemCategory::Crop, 380, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumTruffle, "Quantum Myco-Truffle", ItemCategory::Crop, 650, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SynthNoodles, "Synth-Noodles", ItemCategory::Crop, 8, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Deep-Mined Ores & Cells (57..67)
-    {ItemId::CopperOre, "Copper Ore", ItemCategory::RawOre, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SiliconOre, "Silicon Ore", ItemCategory::RawOre, 4, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::TitaniumOre, "Titanium Ore", ItemCategory::RawOre, 12, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CarbonCell, "Carbon Cell", ItemCategory::RawOre, 18, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SilverOre, "Silver Ore", ItemCategory::RawOre, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::GoldOre, "Gold Ore", ItemCategory::RawOre, 50, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CobaltOre, "Cobalt Ore", ItemCategory::RawOre, 70, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::TungstenOre, "Tungsten Ore", ItemCategory::RawOre, 120, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NeutroniumOre, "Neutronium Ore", ItemCategory::RawOre, 220, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ChronoOre, "Chrono-Crystal Ore", ItemCategory::RawOre, 400, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumOre, "Quantum Singularity Ore", ItemCategory::RawOre, 750, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Synthesized Stims, Cyber-Ramen & Toxic Slag
+    {ItemId::KrillRation, "Krill Ration", ItemCategory::StimFood, 8, 30,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NeonEelSkewer, "Neon Eel Skewer", ItemCategory::StimFood, 15, 50,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SynthCarpPack, "Synth-Carp Pack", ItemCategory::StimFood, 32, 80,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ChromeSalmonStim, "Chrome Salmon Stim", ItemCategory::StimFood, 55,
+     110, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CyberLobsterMeal, "Cyber-Lobster Meal", ItemCategory::StimFood,
+     100, 160, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasmaRayInfusion, "Plasma Ray Infusion", ItemCategory::StimFood,
+     165, 220, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ApexSharkBooster, "Apex Shark Booster", ItemCategory::StimFood,
+     300, 320, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::LeviathanNanomed, "Leviathan Nanomed", ItemCategory::StimFood, 550,
+     480, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::KrakenBioElixir, "Kraken Bio-Elixir", ItemCategory::StimFood, 950,
+     680, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ShoyuRamen, "Soy-Shoyu Cyber-Ramen", ItemCategory::StimFood, 35,
+     65, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ScallionRamen, "Neon Scallion Ramen", ItemCategory::StimFood, 68,
+     125, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NoriRamen, "Glow-Nori Umami Ramen", ItemCategory::StimFood, 135,
+     195, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::BambooRamen, "Cyber-Bamboo Miso Ramen", ItemCategory::StimFood,
+     230, 280, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ShiitakeRamen, "Spore-Shiitake Tonkotsu Ramen",
+     ItemCategory::StimFood, 390, 390, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::PlasmaChiliRamen, "Plasma Volcano Ramen", ItemCategory::StimFood,
+     680, 540, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ChronoLotusRamen, "Chrono-Lotus Broth Ramen",
+     ItemCategory::StimFood, 1150, 720, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::TruffleRamen, "Quantum Truffle Ramen", ItemCategory::StimFood,
+     1850, 860, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumKrakenRamen, "Quantum Kraken Special Ramen",
+     ItemCategory::StimFood, 2200, 980, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SynthProteinBar, "Synth-Protein Bar", ItemCategory::StimFood, 6,
+     25, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ToxicSlag, "Toxic Bio-Slag", ItemCategory::ToxicWaste, 1, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Refined Alloys & Conductors (68..77)
-    {ItemId::ScrapAlloy, "Scrap-Alloy Ingot", ItemCategory::Alloy, 15, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::TitaniumAlloy, "Titanium Ingot", ItemCategory::Alloy, 32, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::DurasteelAlloy, "Durasteel Ingot", ItemCategory::Alloy, 65, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SilverConductor, "Silver Conductor", ItemCategory::Alloy, 80, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::GoldSuperconductor, "Gold Superconductor", ItemCategory::Alloy, 130, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::CobaltAlloy, "Cobalt-Chrome Ingot", ItemCategory::Alloy, 175, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::TungstenAlloy, "Tungsten Ingot", ItemCategory::Alloy, 310, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::NeutroniumAlloy, "Neutronium Ingot", ItemCategory::Alloy, 580, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ChronoAlloy, "Chrono-Alloy Ingot", ItemCategory::Alloy, 1100, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumAlloy, "Quantum-Flux Ingot", ItemCategory::Alloy, 2000, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Deep-Mined Ores & Cells
+    {ItemId::CopperOre, "Copper Ore", ItemCategory::RawOre, 4, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SiliconOre, "Silicon Ore", ItemCategory::RawOre, 4, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::TitaniumOre, "Titanium Ore", ItemCategory::RawOre, 12, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CarbonCell, "Carbon Cell", ItemCategory::RawOre, 18, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SilverOre, "Silver Ore", ItemCategory::RawOre, 30, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::GoldOre, "Gold Ore", ItemCategory::RawOre, 50, 0, EquipSlot::None,
+     1, 0, 0, 0, 0},
+    {ItemId::CobaltOre, "Cobalt Ore", ItemCategory::RawOre, 70, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::TungstenOre, "Tungsten Ore", ItemCategory::RawOre, 120, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NeutroniumOre, "Neutronium Ore", ItemCategory::RawOre, 220, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ChronoOre, "Chrono-Crystal Ore", ItemCategory::RawOre, 400, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumOre, "Quantum Singularity Ore", ItemCategory::RawOre, 750,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Data Crystals (78..82)
-    {ItemId::AmberDatachip, "Amber Datachip", ItemCategory::DataCrystal, 150, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SapphireCortex, "Sapphire Cortex", ItemCategory::DataCrystal, 250, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::RubyLaserCore, "Ruby Laser Core", ItemCategory::DataCrystal, 450, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::EmeraldCryptokey, "Emerald Cryptokey", ItemCategory::DataCrystal, 750, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::QuantumDiamond, "Quantum Diamond", ItemCategory::DataCrystal, 1500, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Refined Alloys & Conductors
+    {ItemId::ScrapAlloy, "Scrap-Alloy Ingot", ItemCategory::Alloy, 15, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::TitaniumAlloy, "Titanium Ingot", ItemCategory::Alloy, 32, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::DurasteelAlloy, "Durasteel Ingot", ItemCategory::Alloy, 65, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SilverConductor, "Silver Conductor", ItemCategory::Alloy, 80, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::GoldSuperconductor, "Gold Superconductor", ItemCategory::Alloy,
+     130, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::CobaltAlloy, "Cobalt-Chrome Ingot", ItemCategory::Alloy, 175, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::TungstenAlloy, "Tungsten Ingot", ItemCategory::Alloy, 310, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::NeutroniumAlloy, "Neutronium Ingot", ItemCategory::Alloy, 580, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ChronoAlloy, "Chrono-Alloy Ingot", ItemCategory::Alloy, 1100, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumAlloy, "Quantum-Flux Ingot", ItemCategory::Alloy, 2000, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Weapons - Mono-Blades (83..90)
-    {ItemId::ScrapBlade, "Scrap Vibro-Knife", ItemCategory::Weapon, 45, 0, EquipSlot::Weapon, 1, 10, 12, 0, 0},
-    {ItemId::TitaniumBlade, "Titanium Mono-Blade", ItemCategory::Weapon, 100, 0, EquipSlot::Weapon, 5, 18, 20, 0, 0},
-    {ItemId::DurasteelBlade, "Durasteel Katana", ItemCategory::Weapon, 220, 0, EquipSlot::Weapon, 10, 28, 32, 0, 0},
-    {ItemId::CobaltBlade, "Cobalt Laser-Edge", ItemCategory::Weapon, 550, 0, EquipSlot::Weapon, 20, 42, 48, 0, 0},
-    {ItemId::TungstenBlade, "Tungsten Mantis-Blade", ItemCategory::Weapon, 1100, 0, EquipSlot::Weapon, 30, 60, 66, 0, 0},
-    {ItemId::NeutroniumBlade, "Neutronium Phase-Saber", ItemCategory::Weapon, 2400, 0, EquipSlot::Weapon, 40, 84, 92, 0, 0},
-    {ItemId::ChronoBlade, "Chrono-Edge Katana", ItemCategory::Weapon, 6000, 0, EquipSlot::Weapon, 60, 120, 130, 0, 0},
-    {ItemId::QuantumBlade, "Quantum Singularity Blade", ItemCategory::Weapon, 12000, 0, EquipSlot::Weapon, 75, 165, 180, 0, 0},
+    // Data Crystals
+    {ItemId::AmberDatachip, "Amber Datachip", ItemCategory::DataCrystal, 150, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SapphireCortex, "Sapphire Cortex", ItemCategory::DataCrystal, 250,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::RubyLaserCore, "Ruby Laser Core", ItemCategory::DataCrystal, 450,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::EmeraldCryptokey, "Emerald Cryptokey", ItemCategory::DataCrystal,
+     750, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::QuantumDiamond, "Quantum Diamond", ItemCategory::DataCrystal, 1500,
+     0, EquipSlot::None, 1, 0, 0, 0, 0},
 
-    // Visors (91..98)
-    {ItemId::ScrapVisor, "Scrap Optic Visor", ItemCategory::Visor, 40, 0, EquipSlot::Visor, 1, 0, 0, 6, 1},
-    {ItemId::TitaniumVisor, "Titanium HUD Visor", ItemCategory::Visor, 90, 0, EquipSlot::Visor, 5, 0, 0, 11, 2},
-    {ItemId::DurasteelVisor, "Durasteel Tac-Helm", ItemCategory::Visor, 200, 0, EquipSlot::Visor, 10, 0, 0, 18, 3},
-    {ItemId::CobaltVisor, "Cobalt Neural Visor", ItemCategory::Visor, 500, 0, EquipSlot::Visor, 20, 0, 0, 27, 4},
-    {ItemId::TungstenVisor, "Tungsten Cyber-Helm", ItemCategory::Visor, 950, 0, EquipSlot::Visor, 30, 0, 0, 38, 5},
-    {ItemId::NeutroniumVisor, "Neutronium Mind-Crown", ItemCategory::Visor, 2100, 0, EquipSlot::Visor, 40, 0, 0, 52, 7},
-    {ItemId::ChronoVisor, "Chrono-Sync Visor", ItemCategory::Visor, 5200, 0, EquipSlot::Visor, 60, 0, 0, 72, 10},
-    {ItemId::QuantumVisor, "Quantum Tachyon Visor", ItemCategory::Visor, 10500, 0, EquipSlot::Visor, 75, 0, 0, 98, 13},
+    // Gears
+    // Weapons - Melee
+    {ItemId::ScrapBlade, "Scrap Vibro-Knife", ItemCategory::Weapon, 45, 0,
+     EquipSlot::Weapon, 1, 10, 12, 0, 0},
+    {ItemId::TitaniumBlade, "Titanium Mono-Blade", ItemCategory::Weapon, 100, 0,
+     EquipSlot::Weapon, 5, 18, 20, 0, 0},
+    {ItemId::DurasteelBlade, "Durasteel Katana", ItemCategory::Weapon, 220, 0,
+     EquipSlot::Weapon, 10, 28, 32, 0, 0},
+    {ItemId::CobaltBlade, "Cobalt Laser-Edge", ItemCategory::Weapon, 550, 0,
+     EquipSlot::Weapon, 20, 42, 48, 0, 0},
+    {ItemId::TungstenBlade, "Tungsten Mantis-Blade", ItemCategory::Weapon, 1100,
+     0, EquipSlot::Weapon, 30, 60, 66, 0, 0},
+    {ItemId::NeutroniumBlade, "Neutronium Phase-Saber", ItemCategory::Weapon,
+     2400, 0, EquipSlot::Weapon, 40, 84, 92, 0, 0},
+    {ItemId::ChronoBlade, "Chrono-Edge Katana", ItemCategory::Weapon, 6000, 0,
+     EquipSlot::Weapon, 60, 120, 130, 0, 0},
+    {ItemId::QuantumBlade, "Quantum Singularity Blade", ItemCategory::Weapon,
+     12000, 0, EquipSlot::Weapon, 75, 165, 180, 0, 0},
 
-    // Exo-Suits (99..106)
-    {ItemId::ScrapExoSuit, "Scrap Exo-Harness", ItemCategory::ExoSuit, 85, 0, EquipSlot::ExoSuit, 1, 0, 0, 14, 2},
-    {ItemId::TitaniumExoSuit, "Titanium Flak-Jacket", ItemCategory::ExoSuit, 180, 0, EquipSlot::ExoSuit, 5, 0, 0, 24, 3},
-    {ItemId::DurasteelExoSuit, "Durasteel Exo-Rig", ItemCategory::ExoSuit, 400, 0, EquipSlot::ExoSuit, 10, 0, 0, 36, 5},
-    {ItemId::CobaltExoSuit, "Cobalt Subdermal Rig", ItemCategory::ExoSuit, 950, 0, EquipSlot::ExoSuit, 20, 0, 0, 52, 7},
-    {ItemId::TungstenExoSuit, "Tungsten Power-Armor", ItemCategory::ExoSuit, 1900, 0, EquipSlot::ExoSuit, 30, 0, 0, 74, 9},
-    {ItemId::NeutroniumExoSuit, "Neutronium Nano-Suit", ItemCategory::ExoSuit, 4200, 0, EquipSlot::ExoSuit, 40, 0, 0, 102, 12},
-    {ItemId::ChronoExoSuit, "Chrono-Weave Exo-Suit", ItemCategory::ExoSuit, 9800, 0, EquipSlot::ExoSuit, 60, 0, 0, 140, 16},
-    {ItemId::QuantumExoSuit, "Quantum Phase Exo-Suit", ItemCategory::ExoSuit, 19500, 0, EquipSlot::ExoSuit, 75, 0, 0, 190, 20},
+    // Visors
+    {ItemId::ScrapVisor, "Scrap Optic Visor", ItemCategory::Visor, 40, 0,
+     EquipSlot::Visor, 1, 0, 0, 6, 1},
+    {ItemId::TitaniumVisor, "Titanium HUD Visor", ItemCategory::Visor, 90, 0,
+     EquipSlot::Visor, 5, 0, 0, 11, 2},
+    {ItemId::DurasteelVisor, "Durasteel Tac-Helm", ItemCategory::Visor, 200, 0,
+     EquipSlot::Visor, 10, 0, 0, 18, 3},
+    {ItemId::CobaltVisor, "Cobalt Neural Visor", ItemCategory::Visor, 500, 0,
+     EquipSlot::Visor, 20, 0, 0, 27, 4},
+    {ItemId::TungstenVisor, "Tungsten Cyber-Helm", ItemCategory::Visor, 950, 0,
+     EquipSlot::Visor, 30, 0, 0, 38, 5},
+    {ItemId::NeutroniumVisor, "Neutronium Mind-Crown", ItemCategory::Visor,
+     2100, 0, EquipSlot::Visor, 40, 0, 0, 52, 7},
+    {ItemId::ChronoVisor, "Chrono-Sync Visor", ItemCategory::Visor, 5200, 0,
+     EquipSlot::Visor, 60, 0, 0, 72, 10},
+    {ItemId::QuantumVisor, "Quantum Tachyon Visor", ItemCategory::Visor, 10500,
+     0, EquipSlot::Visor, 75, 0, 0, 98, 13},
 
-    // Holo-Shields (107..114)
-    {ItemId::ScrapShield, "Scrap Riot Buckler", ItemCategory::HoloShield, 55, 0, EquipSlot::HoloShield, 1, 0, 0, 9, 1},
-    {ItemId::TitaniumShield, "Titanium Deflector", ItemCategory::HoloShield, 120, 0, EquipSlot::HoloShield, 5, 0, 0, 16, 2},
-    {ItemId::DurasteelShield, "Durasteel Barrier", ItemCategory::HoloShield, 260, 0, EquipSlot::HoloShield, 10, 0, 0, 25, 3},
-    {ItemId::CobaltShield, "Cobalt Holo-Aegis", ItemCategory::HoloShield, 620, 0, EquipSlot::HoloShield, 20, 0, 0, 36, 5},
-    {ItemId::TungstenShield, "Tungsten Pulse-Shield", ItemCategory::HoloShield, 1250, 0, EquipSlot::HoloShield, 30, 0, 0, 50, 6},
-    {ItemId::NeutroniumShield, "Neutronium Forcefield", ItemCategory::HoloShield, 2800, 0, EquipSlot::HoloShield, 40, 0, 0, 68, 8},
-    {ItemId::ChronoShield, "Chrono-Phase Barrier", ItemCategory::HoloShield, 6800, 0, EquipSlot::HoloShield, 60, 0, 0, 96, 12},
-    {ItemId::QuantumShield, "Quantum Event-Horizon Shield", ItemCategory::HoloShield, 13500, 0, EquipSlot::HoloShield, 75, 0, 0, 132, 15},
+    // Exo-Suits
+    {ItemId::ScrapExoSuit, "Scrap Exo-Harness", ItemCategory::ExoSuit, 85, 0,
+     EquipSlot::ExoSuit, 1, 0, 0, 14, 2},
+    {ItemId::TitaniumExoSuit, "Titanium Flak-Jacket", ItemCategory::ExoSuit,
+     180, 0, EquipSlot::ExoSuit, 5, 0, 0, 24, 3},
+    {ItemId::DurasteelExoSuit, "Durasteel Exo-Rig", ItemCategory::ExoSuit, 400,
+     0, EquipSlot::ExoSuit, 10, 0, 0, 36, 5},
+    {ItemId::CobaltExoSuit, "Cobalt Subdermal Rig", ItemCategory::ExoSuit, 950,
+     0, EquipSlot::ExoSuit, 20, 0, 0, 52, 7},
+    {ItemId::TungstenExoSuit, "Tungsten Power-Armor", ItemCategory::ExoSuit,
+     1900, 0, EquipSlot::ExoSuit, 30, 0, 0, 74, 9},
+    {ItemId::NeutroniumExoSuit, "Neutronium Nano-Suit", ItemCategory::ExoSuit,
+     4200, 0, EquipSlot::ExoSuit, 40, 0, 0, 102, 12},
+    {ItemId::ChronoExoSuit, "Chrono-Weave Exo-Suit", ItemCategory::ExoSuit,
+     9800, 0, EquipSlot::ExoSuit, 60, 0, 0, 140, 16},
+    {ItemId::QuantumExoSuit, "Quantum Phase Exo-Suit", ItemCategory::ExoSuit,
+     19500, 0, EquipSlot::ExoSuit, 75, 0, 0, 190, 20},
 
-    // Enemy Salvage Loot (115..119)
-    {ItemId::ServoParts, "Servo Parts", ItemCategory::CyberLoot, 8, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::HeavyChassis, "Heavy Mech Chassis", ItemCategory::CyberLoot, 30, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::ApexCyberCore, "Apex Cyber-Core", ItemCategory::CyberLoot, 180, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::Microchip, "Microchip", ItemCategory::CyberLoot, 3, 0, EquipSlot::None, 1, 0, 0, 0, 0},
-    {ItemId::SynthWeaveHide, "Synth-Weave Hide", ItemCategory::CyberLoot, 16, 0, EquipSlot::None, 1, 0, 0, 0, 0},
+    // Holo-Shields
+    {ItemId::ScrapShield, "Scrap Riot Buckler", ItemCategory::HoloShield, 55, 0,
+     EquipSlot::HoloShield, 1, 0, 0, 9, 1},
+    {ItemId::TitaniumShield, "Titanium Deflector", ItemCategory::HoloShield,
+     120, 0, EquipSlot::HoloShield, 5, 0, 0, 16, 2},
+    {ItemId::DurasteelShield, "Durasteel Barrier", ItemCategory::HoloShield,
+     260, 0, EquipSlot::HoloShield, 10, 0, 0, 25, 3},
+    {ItemId::CobaltShield, "Cobalt Holo-Aegis", ItemCategory::HoloShield, 620,
+     0, EquipSlot::HoloShield, 20, 0, 0, 36, 5},
+    {ItemId::TungstenShield, "Tungsten Pulse-Shield", ItemCategory::HoloShield,
+     1250, 0, EquipSlot::HoloShield, 30, 0, 0, 50, 6},
+    {ItemId::NeutroniumShield, "Neutronium Forcefield",
+     ItemCategory::HoloShield, 2800, 0, EquipSlot::HoloShield, 40, 0, 0, 68, 8},
+    {ItemId::ChronoShield, "Chrono-Phase Barrier", ItemCategory::HoloShield,
+     6800, 0, EquipSlot::HoloShield, 60, 0, 0, 96, 12},
+    {ItemId::QuantumShield, "Quantum Event-Horizon Shield",
+     ItemCategory::HoloShield, 13500, 0, EquipSlot::HoloShield, 75, 0, 0, 132,
+     15},
+
+    // Enemy Salvage
+    {ItemId::ServoParts, "Servo Parts", ItemCategory::CyberLoot, 8, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::HeavyChassis, "Heavy Mech Chassis", ItemCategory::CyberLoot, 30, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::ApexCyberCore, "Apex Cyber-Core", ItemCategory::CyberLoot, 180, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::Microchip, "Microchip", ItemCategory::CyberLoot, 3, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
+    {ItemId::SynthWeaveHide, "Synth-Weave Hide", ItemCategory::CyberLoot, 16, 0,
+     EquipSlot::None, 1, 0, 0, 0, 0},
 }};
 
 const std::vector<SkillAction> skill_actions = {
-    // Salvaging (0..8)
-    {0, SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15, ItemId::CopperWireScrap, 1, ItemId::None, 0, ItemId::None, 0},
-    {1, SkillType::Salvaging, "Salvage Plasteel Hull", 10, 3500, 30, ItemId::PlasteelShards, 1, ItemId::None, 0, ItemId::None, 0},
-    {2, SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55, ItemId::CarbonNanotubes, 1, ItemId::None, 0, ItemId::None, 0},
-    {3, SkillType::Salvaging, "Splice Optic Fibers", 35, 4500, 85, ItemId::OpticFiberBundle, 1, ItemId::None, 0, ItemId::None, 0},
-    {4, SkillType::Salvaging, "Pull Positronic Relay", 45, 5000, 120, ItemId::PositronicRelays, 1, ItemId::None, 0, ItemId::None, 0},
-    {5, SkillType::Salvaging, "Drain Cryo-Cell Rack", 55, 5500, 165, ItemId::CryoCellCore, 1, ItemId::None, 0, ItemId::None, 0},
-    {6, SkillType::Salvaging, "Tap Plasma Conduit", 60, 6000, 220, ItemId::PlasmaConduit, 1, ItemId::None, 0, ItemId::None, 0},
-    {7, SkillType::Salvaging, "Hack Quantum Node", 75, 7500, 340, ItemId::QuantumNode, 1, ItemId::None, 0, ItemId::None, 0},
-    {8, SkillType::Salvaging, "Rip AI Mainframe Core", 90, 9000, 500, ItemId::AiMainframeCore, 1, ItemId::None, 0, ItemId::None, 0},
+    // Salvaging
+    {SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15,
+     ItemId::CopperWireScrap, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Salvage Plasteel Hull", 10, 3500, 30,
+     ItemId::PlasteelShards, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55,
+     ItemId::CarbonNanotubes, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Splice Optic Fibers", 35, 4500, 85,
+     ItemId::OpticFiberBundle, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Pull Positronic Relay", 45, 5000, 120,
+     ItemId::PositronicRelays, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Drain Cryo-Cell Rack", 55, 5500, 165,
+     ItemId::CryoCellCore, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Tap Plasma Conduit", 60, 6000, 220,
+     ItemId::PlasmaConduit, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Hack Quantum Node", 75, 7500, 340,
+     ItemId::QuantumNode, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Rip AI Mainframe Core", 90, 9000, 500,
+     ItemId::AiMainframeCore, 1, ItemId::None, 0, ItemId::None, 0},
 
-    // Bio-Harvest (9..17)
-    {9, SkillType::BioHarvest, "Culture Krill Biomass", 1, 3000, 12, ItemId::RawKrillBiomass, 1, ItemId::None, 0, ItemId::None, 0},
-    {10, SkillType::BioHarvest, "Net Neon Eel", 5, 3400, 24, ItemId::RawNeonEel, 1, ItemId::None, 0, ItemId::None, 0},
-    {11, SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55, ItemId::RawSynthCarp, 1, ItemId::None, 0, ItemId::None, 0},
-    {12, SkillType::BioHarvest, "Extract Chrome Salmon", 35, 4500, 90, ItemId::RawChromeSalmon, 1, ItemId::None, 0, ItemId::None, 0},
-    {13, SkillType::BioHarvest, "Trap Cyber-Lobster", 45, 5200, 135, ItemId::RawCyberLobster, 1, ItemId::None, 0, ItemId::None, 0},
-    {14, SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195, ItemId::RawPlasmaRay, 1, ItemId::None, 0, ItemId::None, 0},
-    {15, SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310, ItemId::RawApexShark, 1, ItemId::None, 0, ItemId::None, 0},
-    {16, SkillType::BioHarvest, "Clone Leviathan Cell", 85, 8500, 480, ItemId::RawLeviathanCell, 1, ItemId::None, 0, ItemId::None, 0},
-    {17, SkillType::BioHarvest, "Dredge Cyber-Kraken", 95, 9500, 650, ItemId::RawCyberKraken, 1, ItemId::None, 0, ItemId::None, 0},
+    // Bio-Harvest
+    {SkillType::BioHarvest, "Culture Krill Biomass", 1, 3000, 12,
+     ItemId::RawKrillBiomass, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Net Neon Eel", 5, 3400, 24, ItemId::RawNeonEel, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55,
+     ItemId::RawSynthCarp, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Extract Chrome Salmon", 35, 4500, 90,
+     ItemId::RawChromeSalmon, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Trap Cyber-Lobster", 45, 5200, 135,
+     ItemId::RawCyberLobster, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195,
+     ItemId::RawPlasmaRay, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310,
+     ItemId::RawApexShark, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Clone Leviathan Cell", 85, 8500, 480,
+     ItemId::RawLeviathanCell, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Dredge Cyber-Kraken", 95, 9500, 650,
+     ItemId::RawCyberKraken, 1, ItemId::None, 0, ItemId::None, 0},
 
-    // Farming - Hydroponic Crops & Noodle Milling (18..27)
-    {18, SkillType::Farming, "Cultivate Hydro-Wheat", 1, 2800, 14, ItemId::HydroWheat, 1, ItemId::None, 0, ItemId::None, 0},
-    {19, SkillType::Farming, "Mill Synth-Noodles", 3, 2200, 20, ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
-    {20, SkillType::Farming, "Grow Synth-Soy Pods", 10, 3200, 28, ItemId::SoyPods, 1, ItemId::None, 0, ItemId::None, 0},
-    {21, SkillType::Farming, "Harvest Neon Scallion", 22, 3600, 55, ItemId::NeonScallion, 1, ItemId::None, 0, ItemId::None, 0},
-    {22, SkillType::Farming, "Culture Glow-Nori", 35, 4200, 92, ItemId::GlowNori, 1, ItemId::None, 0, ItemId::None, 0},
-    {23, SkillType::Farming, "Harvest Cyber-Bamboo", 48, 4800, 145, ItemId::BioBamboo, 1, ItemId::None, 0, ItemId::None, 0},
-    {24, SkillType::Farming, "Grow Spore-Shiitake", 62, 5500, 215, ItemId::CyberShiitake, 1, ItemId::None, 0, ItemId::None, 0},
-    {25, SkillType::Farming, "Cultivate Plasma Chili", 75, 6500, 330, ItemId::PlasmaChili, 1, ItemId::None, 0, ItemId::None, 0},
-    {26, SkillType::Farming, "Harvest Chrono-Lotus", 86, 7600, 490, ItemId::ChronoLotus, 1, ItemId::None, 0, ItemId::None, 0},
-    {27, SkillType::Farming, "Forage Quantum Truffle", 94, 8800, 660, ItemId::QuantumTruffle, 1, ItemId::None, 0, ItemId::None, 0},
+    // Farming - Hydroponic Crops & Noodle Milling
+    {SkillType::Farming, "Cultivate Hydro-Wheat", 1, 2800, 14,
+     ItemId::HydroWheat, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Mill Synth-Noodles", 3, 2200, 20,
+     ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
+    {SkillType::Farming, "Grow Synth-Soy Pods", 10, 3200, 28, ItemId::SoyPods,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Neon Scallion", 22, 3600, 55,
+     ItemId::NeonScallion, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Culture Glow-Nori", 35, 4200, 92, ItemId::GlowNori, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Cyber-Bamboo", 48, 4800, 145,
+     ItemId::BioBamboo, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Grow Spore-Shiitake", 62, 5500, 215,
+     ItemId::CyberShiitake, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Cultivate Plasma Chili", 75, 6500, 330,
+     ItemId::PlasmaChili, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Chrono-Lotus", 86, 7600, 490,
+     ItemId::ChronoLotus, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Forage Quantum Truffle", 94, 8800, 660,
+     ItemId::QuantumTruffle, 1, ItemId::None, 0, ItemId::None, 0},
 
-    // Recycling - Transforming Scrap into Basic / Raw Materials (28..36)
-    {28, SkillType::Recycling, "Recycle Copper Scrap", 1, 2200, 22, ItemId::CopperFilament, 1, ItemId::CopperWireScrap, 1, ItemId::None, 0},
-    {29, SkillType::Recycling, "Recycle Plasteel Shards", 10, 2400, 42, ItemId::PlasteelPolymer, 1, ItemId::PlasteelShards, 1, ItemId::None, 0},
-    {30, SkillType::Recycling, "Recycle Nanotubes", 25, 2600, 75, ItemId::CarbonFiberWeave, 1, ItemId::CarbonNanotubes, 1, ItemId::None, 0},
-    {31, SkillType::Recycling, "Recycle Optic Fibers", 35, 2800, 110, ItemId::OpticSilicaGlass, 1, ItemId::OpticFiberBundle, 1, ItemId::None, 0},
-    {32, SkillType::Recycling, "Recycle Positronic Relay", 45, 3000, 155, ItemId::PositronicWafer, 1, ItemId::PositronicRelays, 1, ItemId::None, 0},
-    {33, SkillType::Recycling, "Recycle Cryo-Cell Core", 55, 3200, 210, ItemId::CryoCoolantGel, 1, ItemId::CryoCellCore, 1, ItemId::None, 0},
-    {34, SkillType::Recycling, "Recycle Plasma Conduit", 60, 3500, 280, ItemId::PlasmaCoil, 1, ItemId::PlasmaConduit, 1, ItemId::None, 0},
-    {35, SkillType::Recycling, "Recycle Quantum Node", 75, 3800, 410, ItemId::QuantumLattice, 1, ItemId::QuantumNode, 1, ItemId::None, 0},
-    {36, SkillType::Recycling, "Recycle AI Mainframe", 90, 4200, 600, ItemId::NeuralMatrix, 1, ItemId::AiMainframeCore, 1, ItemId::None, 0},
+    // Recycling - Transforming Scrap into Basic / Raw Materials
+    {SkillType::Recycling, "Recycle Copper Scrap", 1, 2200, 22,
+     ItemId::CopperFilament, 1, ItemId::CopperWireScrap, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Plasteel Shards", 10, 2400, 42,
+     ItemId::PlasteelPolymer, 1, ItemId::PlasteelShards, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Nanotubes", 25, 2600, 75,
+     ItemId::CarbonFiberWeave, 1, ItemId::CarbonNanotubes, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Optic Fibers", 35, 2800, 110,
+     ItemId::OpticSilicaGlass, 1, ItemId::OpticFiberBundle, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Positronic Relay", 45, 3000, 155,
+     ItemId::PositronicWafer, 1, ItemId::PositronicRelays, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Cryo-Cell Core", 55, 3200, 210,
+     ItemId::CryoCoolantGel, 1, ItemId::CryoCellCore, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Plasma Conduit", 60, 3500, 280,
+     ItemId::PlasmaCoil, 1, ItemId::PlasmaConduit, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Quantum Node", 75, 3800, 410,
+     ItemId::QuantumLattice, 1, ItemId::QuantumNode, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle AI Mainframe", 90, 4200, 600,
+     ItemId::NeuralMatrix, 1, ItemId::AiMainframeCore, 1, ItemId::None, 0},
 
-    // Synth-Cook - Noodles, Cyber-Ramen & Biota Stims (37..55)
-    {37, SkillType::SynthCook, "Prep Synth-Noodles", 1, 2200, 20, ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
-    {38, SkillType::SynthCook, "Synth Krill Ration (+30 HP)", 1, 2600, 18, ItemId::KrillRation, 1, ItemId::RawKrillBiomass, 1, ItemId::None, 0},
-    {39, SkillType::SynthCook, "Synth Neon Eel (+50 HP)", 5, 2800, 34, ItemId::NeonEelSkewer, 1, ItemId::RawNeonEel, 1, ItemId::None, 0},
-    {40, SkillType::SynthCook, "Cook Shoyu Ramen (+65 HP)", 10, 2800, 45, ItemId::ShoyuRamen, 1, ItemId::SynthNoodles, 1, ItemId::SoyPods, 1},
-    {41, SkillType::SynthCook, "Synth Carp Pack (+80 HP)", 20, 3000, 70, ItemId::SynthCarpPack, 1, ItemId::RawSynthCarp, 1, ItemId::None, 0},
-    {42, SkillType::SynthCook, "Cook Scallion Ramen (+125 HP)", 22, 3000, 85, ItemId::ScallionRamen, 1, ItemId::SynthNoodles, 1, ItemId::NeonScallion, 1},
-    {43, SkillType::SynthCook, "Synth Salmon Stim (+110 HP)", 35, 3200, 115, ItemId::ChromeSalmonStim, 1, ItemId::RawChromeSalmon, 1, ItemId::None, 0},
-    {44, SkillType::SynthCook, "Cook Nori Ramen (+195 HP)", 38, 3300, 150, ItemId::NoriRamen, 1, ItemId::SynthNoodles, 1, ItemId::GlowNori, 1},
-    {45, SkillType::SynthCook, "Synth Lobster Meal (+160 HP)", 45, 3400, 175, ItemId::CyberLobsterMeal, 1, ItemId::RawCyberLobster, 1, ItemId::None, 0},
-    {46, SkillType::SynthCook, "Cook Bamboo Ramen (+280 HP)", 50, 3500, 220, ItemId::BambooRamen, 1, ItemId::SynthNoodles, 1, ItemId::BioBamboo, 1},
-    {47, SkillType::SynthCook, "Synth Plasma Ray (+220 HP)", 55, 3600, 240, ItemId::PlasmaRayInfusion, 1, ItemId::RawPlasmaRay, 1, ItemId::None, 0},
-    {48, SkillType::SynthCook, "Cook Shiitake Ramen (+390 HP)", 64, 3800, 310, ItemId::ShiitakeRamen, 1, ItemId::SynthNoodles, 1, ItemId::CyberShiitake, 1},
-    {49, SkillType::SynthCook, "Synth Shark Boost (+320 HP)", 70, 3800, 360, ItemId::ApexSharkBooster, 1, ItemId::RawApexShark, 1, ItemId::None, 0},
-    {50, SkillType::SynthCook, "Cook Plasma Chili Ramen (+540 HP)", 76, 4100, 440, ItemId::PlasmaChiliRamen, 1, ItemId::SynthNoodles, 1, ItemId::PlasmaChili, 1},
-    {51, SkillType::SynthCook, "Synth Leviathan Med (+480 HP)", 85, 4200, 540, ItemId::LeviathanNanomed, 1, ItemId::RawLeviathanCell, 1, ItemId::None, 0},
-    {52, SkillType::SynthCook, "Cook Chrono-Lotus Ramen (+720 HP)", 88, 4400, 620, ItemId::ChronoLotusRamen, 1, ItemId::SynthNoodles, 1, ItemId::ChronoLotus, 1},
-    {53, SkillType::SynthCook, "Cook Truffle Ramen (+860 HP)", 94, 4600, 780, ItemId::TruffleRamen, 1, ItemId::SynthNoodles, 1, ItemId::QuantumTruffle, 1},
-    {54, SkillType::SynthCook, "Synth Kraken Elixir (+680 HP)", 95, 4600, 720, ItemId::KrakenBioElixir, 1, ItemId::RawCyberKraken, 1, ItemId::None, 0},
-    {55, SkillType::SynthCook, "Cook Kraken Ramen (+980 HP)", 97, 4800, 880, ItemId::QuantumKrakenRamen, 1, ItemId::SynthNoodles, 1, ItemId::RawCyberKraken, 1},
+    // Synth-Cook - Noodles, Cyber-Ramen & Biota Stims
+    {SkillType::SynthCook, "Prep Synth-Noodles", 1, 2200, 20,
+     ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Synth Krill Ration (+30 HP)", 1, 2600, 18,
+     ItemId::KrillRation, 1, ItemId::RawKrillBiomass, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Synth Neon Eel (+50 HP)", 5, 2800, 34,
+     ItemId::NeonEelSkewer, 1, ItemId::RawNeonEel, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Shoyu Ramen (+65 HP)", 10, 2800, 45,
+     ItemId::ShoyuRamen, 1, ItemId::SynthNoodles, 1, ItemId::SoyPods, 1},
+    {SkillType::SynthCook, "Synth Carp Pack (+80 HP)", 20, 3000, 70,
+     ItemId::SynthCarpPack, 1, ItemId::RawSynthCarp, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Scallion Ramen (+125 HP)", 22, 3000, 85,
+     ItemId::ScallionRamen, 1, ItemId::SynthNoodles, 1, ItemId::NeonScallion,
+     1},
+    {SkillType::SynthCook, "Synth Salmon Stim (+110 HP)", 35, 3200, 115,
+     ItemId::ChromeSalmonStim, 1, ItemId::RawChromeSalmon, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Nori Ramen (+195 HP)", 38, 3300, 150,
+     ItemId::NoriRamen, 1, ItemId::SynthNoodles, 1, ItemId::GlowNori, 1},
+    {SkillType::SynthCook, "Synth Lobster Meal (+160 HP)", 45, 3400, 175,
+     ItemId::CyberLobsterMeal, 1, ItemId::RawCyberLobster, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Bamboo Ramen (+280 HP)", 50, 3500, 220,
+     ItemId::BambooRamen, 1, ItemId::SynthNoodles, 1, ItemId::BioBamboo, 1},
+    {SkillType::SynthCook, "Synth Plasma Ray (+220 HP)", 55, 3600, 240,
+     ItemId::PlasmaRayInfusion, 1, ItemId::RawPlasmaRay, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Shiitake Ramen (+390 HP)", 64, 3800, 310,
+     ItemId::ShiitakeRamen, 1, ItemId::SynthNoodles, 1, ItemId::CyberShiitake,
+     1},
+    {SkillType::SynthCook, "Synth Shark Boost (+320 HP)", 70, 3800, 360,
+     ItemId::ApexSharkBooster, 1, ItemId::RawApexShark, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Plasma Chili Ramen (+540 HP)", 76, 4100, 440,
+     ItemId::PlasmaChiliRamen, 1, ItemId::SynthNoodles, 1, ItemId::PlasmaChili,
+     1},
+    {SkillType::SynthCook, "Synth Leviathan Med (+480 HP)", 85, 4200, 540,
+     ItemId::LeviathanNanomed, 1, ItemId::RawLeviathanCell, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Chrono-Lotus Ramen (+720 HP)", 88, 4400, 620,
+     ItemId::ChronoLotusRamen, 1, ItemId::SynthNoodles, 1, ItemId::ChronoLotus,
+     1},
+    {SkillType::SynthCook, "Cook Truffle Ramen (+860 HP)", 94, 4600, 780,
+     ItemId::TruffleRamen, 1, ItemId::SynthNoodles, 1, ItemId::QuantumTruffle,
+     1},
+    {SkillType::SynthCook, "Synth Kraken Elixir (+680 HP)", 95, 4600, 720,
+     ItemId::KrakenBioElixir, 1, ItemId::RawCyberKraken, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Cook Kraken Ramen (+980 HP)", 97, 4800, 880,
+     ItemId::QuantumKrakenRamen, 1, ItemId::SynthNoodles, 1,
+     ItemId::RawCyberKraken, 1},
 
-    // Deep-Mining (56..66)
-    {56, SkillType::DeepMining, "Mine Copper Vein", 1, 2800, 14, ItemId::CopperOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {57, SkillType::DeepMining, "Mine Silicon Deposit", 1, 2800, 14, ItemId::SiliconOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {58, SkillType::DeepMining, "Mine Titanium Seam", 15, 3200, 35, ItemId::TitaniumOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {59, SkillType::DeepMining, "Mine Carbon Cell Bed", 30, 3500, 55, ItemId::CarbonCell, 1, ItemId::None, 0, ItemId::None, 0},
-    {60, SkillType::DeepMining, "Mine Silver Vein", 35, 3800, 75, ItemId::SilverOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {61, SkillType::DeepMining, "Mine Gold Deposit", 40, 4200, 105, ItemId::GoldOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {62, SkillType::DeepMining, "Mine Cobalt Node", 50, 4800, 150, ItemId::CobaltOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {63, SkillType::DeepMining, "Mine Tungsten Core", 70, 5800, 230, ItemId::TungstenOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {64, SkillType::DeepMining, "Mine Neutronium Rift", 80, 7000, 350, ItemId::NeutroniumOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {65, SkillType::DeepMining, "Mine Chrono-Crystal", 88, 7800, 480, ItemId::ChronoOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {66, SkillType::DeepMining, "Mine Quantum Singularity", 96, 9500, 700, ItemId::QuantumOre, 1, ItemId::None, 0, ItemId::None, 0},
+    // Deep-Mining
+    {SkillType::DeepMining, "Mine Copper Vein", 1, 2800, 14, ItemId::CopperOre,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Silicon Deposit", 1, 2800, 14,
+     ItemId::SiliconOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Titanium Seam", 15, 3200, 35,
+     ItemId::TitaniumOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Carbon Cell Bed", 30, 3500, 55,
+     ItemId::CarbonCell, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Silver Vein", 35, 3800, 75, ItemId::SilverOre,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Gold Deposit", 40, 4200, 105, ItemId::GoldOre,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Cobalt Node", 50, 4800, 150,
+     ItemId::CobaltOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Tungsten Core", 70, 5800, 230,
+     ItemId::TungstenOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Neutronium Rift", 80, 7000, 350,
+     ItemId::NeutroniumOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Chrono-Crystal", 88, 7800, 480,
+     ItemId::ChronoOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Quantum Singularity", 96, 9500, 700,
+     ItemId::QuantumOre, 1, ItemId::None, 0, ItemId::None, 0},
 
-    // Smithing - Smelting Alloy Ingots & Forging Blades / Exo-Suits (67..92)
-    {67, SkillType::Smithing, "Smelt Scrap-Alloy Ingot", 1, 2200, 16, ItemId::ScrapAlloy, 1, ItemId::CopperOre, 1, ItemId::SiliconOre, 1},
-    {68, SkillType::Smithing, "Forge Scrap Vibro-Knife", 1, 2500, 35, ItemId::ScrapBlade, 1, ItemId::ScrapAlloy, 2, ItemId::None, 0},
-    {69, SkillType::Smithing, "Forge Scrap Exo-Harness", 5, 2800, 80, ItemId::ScrapExoSuit, 1, ItemId::ScrapAlloy, 5, ItemId::None, 0},
+    // Smithing - Smelting Alloy Ingots & Forging Gear
+    {SkillType::Smithing, "Smelt Scrap-Alloy Ingot", 1, 2200, 16,
+     ItemId::ScrapAlloy, 1, ItemId::CopperOre, 1, ItemId::SiliconOre, 1},
+    {SkillType::Smithing, "Forge Scrap Vibro-Knife", 1, 2500, 35,
+     ItemId::ScrapBlade, 1, ItemId::ScrapAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Scrap Exo-Harness", 5, 2800, 80,
+     ItemId::ScrapExoSuit, 1, ItemId::ScrapAlloy, 5, ItemId::None, 0},
 
-    {70, SkillType::Smithing, "Smelt Titanium Ingot", 15, 2400, 32, ItemId::TitaniumAlloy, 1, ItemId::TitaniumOre, 1, ItemId::None, 0},
-    {71, SkillType::Smithing, "Forge Titanium Mono-Blade", 15, 2600, 65, ItemId::TitaniumBlade, 1, ItemId::TitaniumAlloy, 2, ItemId::None, 0},
-    {72, SkillType::Smithing, "Forge Titanium Flak-Jacket", 20, 2900, 150, ItemId::TitaniumExoSuit, 1, ItemId::TitaniumAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Titanium Ingot", 15, 2400, 32,
+     ItemId::TitaniumAlloy, 1, ItemId::TitaniumOre, 1, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Titanium Mono-Blade", 15, 2600, 65,
+     ItemId::TitaniumBlade, 1, ItemId::TitaniumAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Titanium Flak-Jacket", 20, 2900, 150,
+     ItemId::TitaniumExoSuit, 1, ItemId::TitaniumAlloy, 5, ItemId::None, 0},
 
-    {73, SkillType::Smithing, "Smelt Durasteel Ingot", 30, 2600, 55, ItemId::DurasteelAlloy, 1, ItemId::TitaniumOre, 1, ItemId::CarbonCell, 2},
-    {74, SkillType::Smithing, "Forge Durasteel Katana", 30, 2800, 110, ItemId::DurasteelBlade, 1, ItemId::DurasteelAlloy, 2, ItemId::None, 0},
-    {75, SkillType::Smithing, "Forge Durasteel Exo-Rig", 36, 3100, 260, ItemId::DurasteelExoSuit, 1, ItemId::DurasteelAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Durasteel Ingot", 30, 2600, 55,
+     ItemId::DurasteelAlloy, 1, ItemId::TitaniumOre, 1, ItemId::CarbonCell, 2},
+    {SkillType::Smithing, "Forge Durasteel Katana", 30, 2800, 110,
+     ItemId::DurasteelBlade, 1, ItemId::DurasteelAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Durasteel Exo-Rig", 36, 3100, 260,
+     ItemId::DurasteelExoSuit, 1, ItemId::DurasteelAlloy, 5, ItemId::None, 0},
 
-    {76, SkillType::Smithing, "Smelt Silver Conductor", 35, 2500, 68, ItemId::SilverConductor, 1, ItemId::SilverOre, 1, ItemId::None, 0},
-    {77, SkillType::Smithing, "Smelt Gold Superconductor", 40, 2600, 95, ItemId::GoldSuperconductor, 1, ItemId::GoldOre, 1, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Silver Conductor", 35, 2500, 68,
+     ItemId::SilverConductor, 1, ItemId::SilverOre, 1, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Gold Superconductor", 40, 2600, 95,
+     ItemId::GoldSuperconductor, 1, ItemId::GoldOre, 1, ItemId::None, 0},
 
-    {78, SkillType::Smithing, "Smelt Cobalt Ingot", 50, 2800, 115, ItemId::CobaltAlloy, 1, ItemId::CobaltOre, 1, ItemId::CarbonCell, 4},
-    {79, SkillType::Smithing, "Forge Cobalt Laser-Edge", 50, 3000, 220, ItemId::CobaltBlade, 1, ItemId::CobaltAlloy, 2, ItemId::None, 0},
-    {80, SkillType::Smithing, "Forge Cobalt Subdermal Rig", 56, 3300, 520, ItemId::CobaltExoSuit, 1, ItemId::CobaltAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Cobalt Ingot", 50, 2800, 115,
+     ItemId::CobaltAlloy, 1, ItemId::CobaltOre, 1, ItemId::CarbonCell, 4},
+    {SkillType::Smithing, "Forge Cobalt Laser-Edge", 50, 3000, 220,
+     ItemId::CobaltBlade, 1, ItemId::CobaltAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Cobalt Subdermal Rig", 56, 3300, 520,
+     ItemId::CobaltExoSuit, 1, ItemId::CobaltAlloy, 5, ItemId::None, 0},
 
-    {81, SkillType::Smithing, "Smelt Tungsten Ingot", 70, 3000, 175, ItemId::TungstenAlloy, 1, ItemId::TungstenOre, 1, ItemId::CarbonCell, 6},
-    {82, SkillType::Smithing, "Forge Tungsten Mantis-Blade", 70, 3200, 340, ItemId::TungstenBlade, 1, ItemId::TungstenAlloy, 2, ItemId::None, 0},
-    {83, SkillType::Smithing, "Forge Tungsten Power-Armor", 76, 3500, 820, ItemId::TungstenExoSuit, 1, ItemId::TungstenAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Tungsten Ingot", 70, 3000, 175,
+     ItemId::TungstenAlloy, 1, ItemId::TungstenOre, 1, ItemId::CarbonCell, 6},
+    {SkillType::Smithing, "Forge Tungsten Mantis-Blade", 70, 3200, 340,
+     ItemId::TungstenBlade, 1, ItemId::TungstenAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Tungsten Power-Armor", 76, 3500, 820,
+     ItemId::TungstenExoSuit, 1, ItemId::TungstenAlloy, 5, ItemId::None, 0},
 
-    {84, SkillType::Smithing, "Smelt Neutronium Ingot", 80, 3200, 260, ItemId::NeutroniumAlloy, 1, ItemId::NeutroniumOre, 1, ItemId::CarbonCell, 8},
-    {85, SkillType::Smithing, "Forge Neutronium Saber", 80, 3400, 520, ItemId::NeutroniumBlade, 1, ItemId::NeutroniumAlloy, 2, ItemId::None, 0},
-    {86, SkillType::Smithing, "Forge Neutronium Nano-Suit", 85, 3700, 1250, ItemId::NeutroniumExoSuit, 1, ItemId::NeutroniumAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Neutronium Ingot", 80, 3200, 260,
+     ItemId::NeutroniumAlloy, 1, ItemId::NeutroniumOre, 1, ItemId::CarbonCell,
+     8},
+    {SkillType::Smithing, "Forge Neutronium Saber", 80, 3400, 520,
+     ItemId::NeutroniumBlade, 1, ItemId::NeutroniumAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Neutronium Nano-Suit", 85, 3700, 1250,
+     ItemId::NeutroniumExoSuit, 1, ItemId::NeutroniumAlloy, 5, ItemId::None, 0},
 
-    {87, SkillType::Smithing, "Smelt Chrono-Alloy Ingot", 88, 3500, 380, ItemId::ChronoAlloy, 1, ItemId::ChronoOre, 1, ItemId::NeutroniumOre, 2},
-    {88, SkillType::Smithing, "Forge Chrono-Edge Katana", 89, 3700, 760, ItemId::ChronoBlade, 1, ItemId::ChronoAlloy, 2, ItemId::None, 0},
-    {89, SkillType::Smithing, "Forge Chrono-Weave Exo-Suit", 93, 4000, 1800, ItemId::ChronoExoSuit, 1, ItemId::ChronoAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Chrono-Alloy Ingot", 88, 3500, 380,
+     ItemId::ChronoAlloy, 1, ItemId::ChronoOre, 1, ItemId::NeutroniumOre, 2},
+    {SkillType::Smithing, "Forge Chrono-Edge Katana", 89, 3700, 760,
+     ItemId::ChronoBlade, 1, ItemId::ChronoAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Chrono-Weave Exo-Suit", 93, 4000, 1800,
+     ItemId::ChronoExoSuit, 1, ItemId::ChronoAlloy, 5, ItemId::None, 0},
 
-    {90, SkillType::Smithing, "Smelt Quantum-Flux Ingot", 95, 3800, 550, ItemId::QuantumAlloy, 1, ItemId::QuantumOre, 1, ItemId::ChronoOre, 2},
-    {91, SkillType::Smithing, "Forge Quantum Blade", 96, 4000, 1150, ItemId::QuantumBlade, 1, ItemId::QuantumAlloy, 2, ItemId::None, 0},
-    {92, SkillType::Smithing, "Forge Quantum Exo-Suit", 99, 4400, 2600, ItemId::QuantumExoSuit, 1, ItemId::QuantumAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Quantum-Flux Ingot", 95, 3800, 550,
+     ItemId::QuantumAlloy, 1, ItemId::QuantumOre, 1, ItemId::ChronoOre, 2},
+    {SkillType::Smithing, "Forge Quantum Blade", 96, 4000, 1150,
+     ItemId::QuantumBlade, 1, ItemId::QuantumAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Quantum Exo-Suit", 99, 4400, 2600,
+     ItemId::QuantumExoSuit, 1, ItemId::QuantumAlloy, 5, ItemId::None, 0},
 
-    // Cyber-Fab - Fabricating Visors, Holo-Shields & Tech Cores from Ingots + Recycled Materials (93..113)
-    {93, SkillType::CyberFab, "Fab Scrap Optic Visor", 1, 2500, 40, ItemId::ScrapVisor, 1, ItemId::ScrapAlloy, 1, ItemId::CopperFilament, 1},
-    {94, SkillType::CyberFab, "Fab Scrap Riot Buckler", 3, 2600, 55, ItemId::ScrapShield, 1, ItemId::ScrapAlloy, 2, ItemId::CopperFilament, 1},
+    // Cyber-Fab - Fabricating Visors, Holo-Shields & Tech Cores from Ingots +
+    // Recycled Materials
+    {SkillType::CyberFab, "Fab Scrap Optic Visor", 1, 2500, 40,
+     ItemId::ScrapVisor, 1, ItemId::ScrapAlloy, 1, ItemId::CopperFilament, 1},
+    {SkillType::CyberFab, "Fab Scrap Riot Buckler", 3, 2600, 55,
+     ItemId::ScrapShield, 1, ItemId::ScrapAlloy, 2, ItemId::CopperFilament, 1},
 
-    {95, SkillType::CyberFab, "Fab Titanium HUD Visor", 15, 2600, 75, ItemId::TitaniumVisor, 1, ItemId::TitaniumAlloy, 1, ItemId::PlasteelPolymer, 1},
-    {96, SkillType::CyberFab, "Fab Titanium Deflector", 18, 2700, 105, ItemId::TitaniumShield, 1, ItemId::TitaniumAlloy, 2, ItemId::PlasteelPolymer, 1},
+    {SkillType::CyberFab, "Fab Titanium HUD Visor", 15, 2600, 75,
+     ItemId::TitaniumVisor, 1, ItemId::TitaniumAlloy, 1,
+     ItemId::PlasteelPolymer, 1},
+    {SkillType::CyberFab, "Fab Titanium Deflector", 18, 2700, 105,
+     ItemId::TitaniumShield, 1, ItemId::TitaniumAlloy, 2,
+     ItemId::PlasteelPolymer, 1},
 
-    {97, SkillType::CyberFab, "Fab Durasteel Tac-Helm", 30, 2800, 125, ItemId::DurasteelVisor, 1, ItemId::DurasteelAlloy, 1, ItemId::CarbonFiberWeave, 1},
-    {98, SkillType::CyberFab, "Fab Durasteel Barrier", 34, 2900, 175, ItemId::DurasteelShield, 1, ItemId::DurasteelAlloy, 2, ItemId::CarbonFiberWeave, 1},
-    {99, SkillType::CyberFab, "Fab Amber Datachip", 38, 2700, 140, ItemId::AmberDatachip, 1, ItemId::SilverConductor, 1, ItemId::OpticSilicaGlass, 1},
+    {SkillType::CyberFab, "Fab Durasteel Tac-Helm", 30, 2800, 125,
+     ItemId::DurasteelVisor, 1, ItemId::DurasteelAlloy, 1,
+     ItemId::CarbonFiberWeave, 1},
+    {SkillType::CyberFab, "Fab Durasteel Barrier", 34, 2900, 175,
+     ItemId::DurasteelShield, 1, ItemId::DurasteelAlloy, 2,
+     ItemId::CarbonFiberWeave, 1},
+    {SkillType::CyberFab, "Fab Amber Datachip", 38, 2700, 140,
+     ItemId::AmberDatachip, 1, ItemId::SilverConductor, 1,
+     ItemId::OpticSilicaGlass, 1},
 
-    {100, SkillType::CyberFab, "Fab Sapphire Cortex", 45, 2900, 190, ItemId::SapphireCortex, 1, ItemId::GoldSuperconductor, 1, ItemId::PositronicWafer, 1},
-    {101, SkillType::CyberFab, "Fab Cobalt Neural Visor", 50, 3000, 240, ItemId::CobaltVisor, 1, ItemId::CobaltAlloy, 1, ItemId::PositronicWafer, 1},
-    {102, SkillType::CyberFab, "Fab Cobalt Holo-Aegis", 54, 3100, 340, ItemId::CobaltShield, 1, ItemId::CobaltAlloy, 2, ItemId::CryoCoolantGel, 1},
+    {SkillType::CyberFab, "Fab Sapphire Cortex", 45, 2900, 190,
+     ItemId::SapphireCortex, 1, ItemId::GoldSuperconductor, 1,
+     ItemId::PositronicWafer, 1},
+    {SkillType::CyberFab, "Fab Cobalt Neural Visor", 50, 3000, 240,
+     ItemId::CobaltVisor, 1, ItemId::CobaltAlloy, 1, ItemId::PositronicWafer,
+     1},
+    {SkillType::CyberFab, "Fab Cobalt Holo-Aegis", 54, 3100, 340,
+     ItemId::CobaltShield, 1, ItemId::CobaltAlloy, 2, ItemId::CryoCoolantGel,
+     1},
 
-    {103, SkillType::CyberFab, "Fab Ruby Laser Core", 62, 3100, 290, ItemId::RubyLaserCore, 1, ItemId::GoldSuperconductor, 1, ItemId::PlasmaCoil, 1},
-    {104, SkillType::CyberFab, "Fab Tungsten Cyber-Helm", 70, 3200, 370, ItemId::TungstenVisor, 1, ItemId::TungstenAlloy, 1, ItemId::PlasmaCoil, 1},
-    {105, SkillType::CyberFab, "Fab Tungsten Pulse-Shield", 74, 3300, 530, ItemId::TungstenShield, 1, ItemId::TungstenAlloy, 2, ItemId::PlasmaCoil, 1},
+    {SkillType::CyberFab, "Fab Ruby Laser Core", 62, 3100, 290,
+     ItemId::RubyLaserCore, 1, ItemId::GoldSuperconductor, 1,
+     ItemId::PlasmaCoil, 1},
+    {SkillType::CyberFab, "Fab Tungsten Cyber-Helm", 70, 3200, 370,
+     ItemId::TungstenVisor, 1, ItemId::TungstenAlloy, 1, ItemId::PlasmaCoil, 1},
+    {SkillType::CyberFab, "Fab Tungsten Pulse-Shield", 74, 3300, 530,
+     ItemId::TungstenShield, 1, ItemId::TungstenAlloy, 2, ItemId::PlasmaCoil,
+     1},
 
-    {106, SkillType::CyberFab, "Fab Emerald Cryptokey", 78, 3300, 450, ItemId::EmeraldCryptokey, 1, ItemId::NeutroniumAlloy, 1, ItemId::QuantumLattice, 1},
-    {107, SkillType::CyberFab, "Fab Neutronium Mind-Crown", 81, 3400, 560, ItemId::NeutroniumVisor, 1, ItemId::NeutroniumAlloy, 1, ItemId::QuantumLattice, 1},
-    {108, SkillType::CyberFab, "Fab Neutronium Forcefield", 83, 3500, 800, ItemId::NeutroniumShield, 1, ItemId::NeutroniumAlloy, 2, ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Emerald Cryptokey", 78, 3300, 450,
+     ItemId::EmeraldCryptokey, 1, ItemId::NeutroniumAlloy, 1,
+     ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Neutronium Mind-Crown", 81, 3400, 560,
+     ItemId::NeutroniumVisor, 1, ItemId::NeutroniumAlloy, 1,
+     ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Neutronium Forcefield", 83, 3500, 800,
+     ItemId::NeutroniumShield, 1, ItemId::NeutroniumAlloy, 2,
+     ItemId::QuantumLattice, 1},
 
-    {109, SkillType::CyberFab, "Fab Chrono-Sync Visor", 89, 3700, 820, ItemId::ChronoVisor, 1, ItemId::ChronoAlloy, 1, ItemId::QuantumLattice, 1},
-    {110, SkillType::CyberFab, "Fab Quantum Diamond", 90, 3600, 700, ItemId::QuantumDiamond, 1, ItemId::ChronoAlloy, 1, ItemId::NeuralMatrix, 1},
-    {111, SkillType::CyberFab, "Fab Chrono-Phase Barrier", 92, 3800, 1180, ItemId::ChronoShield, 1, ItemId::ChronoAlloy, 2, ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Chrono-Sync Visor", 89, 3700, 820,
+     ItemId::ChronoVisor, 1, ItemId::ChronoAlloy, 1, ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Quantum Diamond", 90, 3600, 700,
+     ItemId::QuantumDiamond, 1, ItemId::ChronoAlloy, 1, ItemId::NeuralMatrix,
+     1},
+    {SkillType::CyberFab, "Fab Chrono-Phase Barrier", 92, 3800, 1180,
+     ItemId::ChronoShield, 1, ItemId::ChronoAlloy, 2, ItemId::QuantumLattice,
+     1},
 
-    {112, SkillType::CyberFab, "Fab Quantum Tachyon Visor", 97, 4000, 1200, ItemId::QuantumVisor, 1, ItemId::QuantumAlloy, 1, ItemId::NeuralMatrix, 1},
-    {113, SkillType::CyberFab, "Fab Quantum Shield", 98, 4100, 1750, ItemId::QuantumShield, 1, ItemId::QuantumAlloy, 2, ItemId::NeuralMatrix, 1},
+    {SkillType::CyberFab, "Fab Quantum Tachyon Visor", 97, 4000, 1200,
+     ItemId::QuantumVisor, 1, ItemId::QuantumAlloy, 1, ItemId::NeuralMatrix, 1},
+    {SkillType::CyberFab, "Fab Quantum Shield", 98, 4100, 1750,
+     ItemId::QuantumShield, 1, ItemId::QuantumAlloy, 2, ItemId::NeuralMatrix,
+     1},
 };
 
 const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
-    {0,
-     "Stray Servo-Drone",
+    {"Stray Servo-Drone",
      "Neon Slums",
      1,
      30,
@@ -353,8 +615,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::Microchip, 90, 2, 6},
        {ItemId::ServoParts, 100, 1, 1},
        {ItemId::KrillRation, 25, 1, 2}}}},
-    {1,
-     "Bio-Vat Hound",
+    {"Bio-Vat Hound",
      "Neon Slums",
      4,
      65,
@@ -370,8 +631,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::SynthWeaveHide, 85, 1, 2},
        {ItemId::SynthProteinBar, 70, 1, 2},
        {ItemId::ServoParts, 100, 1, 1}}}},
-    {2,
-     "Street Scavenger",
+    {"Street Scavenger",
      "Neon Slums",
      9,
      110,
@@ -387,8 +647,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::PlasteelShards, 50, 2, 5},
        {ItemId::SynthCarpPack, 40, 1, 2},
        {ItemId::ServoParts, 100, 1, 1}}}},
-    {3,
-     "Chrome Gang Punk",
+    {"Chrome Gang Punk",
      "Back-Alley Sector",
      14,
      160,
@@ -404,8 +663,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::ScrapBlade, 15, 1, 1},
        {ItemId::TitaniumOre, 45, 2, 4},
        {ItemId::ServoParts, 100, 1, 1}}}},
-    {4,
-     "Riot Enforcer Bot",
+    {"Riot Enforcer Bot",
      "Industrial Sector",
      24,
      280,
@@ -421,8 +679,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::HeavyChassis, 100, 1, 2},
        {ItemId::DurasteelBlade, 12, 1, 1},
        {ItemId::CarbonCell, 40, 3, 6}}}},
-    {5,
-     "Chem-Mutant Brute",
+    {"Chem-Mutant Brute",
      "Industrial Sector",
      36,
      450,
@@ -438,8 +695,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::HeavyChassis, 100, 1, 2},
        {ItemId::CobaltOre, 45, 2, 5},
        {ItemId::CyberLobsterMeal, 35, 2, 4}}}},
-    {6,
-     "Cryo-Sec Mech",
+    {"Cryo-Sec Mech",
      "Industrial Sector",
      48,
      650,
@@ -455,8 +711,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::HeavyChassis, 100, 2, 3},
        {ItemId::CobaltExoSuit, 10, 1, 1},
        {ItemId::SapphireCortex, 25, 1, 2}}}},
-    {7,
-     "Corp Shadow-Op",
+    {"Corp Shadow-Op",
      "Megacorp Plaza",
      60,
      880,
@@ -472,8 +727,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::TungstenBlade, 12, 1, 1},
        {ItemId::TungstenOre, 45, 2, 5},
        {ItemId::PlasmaRayInfusion, 40, 2, 4}}}},
-    {8,
-     "Cobalt Cyber-Ninja",
+    {"Cobalt Cyber-Ninja",
      "Megacorp Plaza",
      74,
      1150,
@@ -489,8 +743,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::TungstenExoSuit, 10, 1, 1},
        {ItemId::RubyLaserCore, 30, 1, 2},
        {ItemId::ApexSharkBooster, 35, 2, 4}}}},
-    {9,
-     "Neutronium Cyborg",
+    {"Neutronium Cyborg",
      "Megacorp Plaza",
      88,
      1500,
@@ -506,8 +759,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::NeutroniumBlade, 10, 1, 1},
        {ItemId::NeutroniumExoSuit, 8, 1, 1},
        {ItemId::EmeraldCryptokey, 30, 1, 2}}}},
-    {10,
-     "Apex Cyber-Wyrm",
+    {"Apex Cyber-Wyrm",
      "Orbital Spire",
      110,
      2150,
@@ -523,8 +775,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      {{{ItemId::ApexCyberCore, 100, 1, 2},
        {ItemId::ChronoBlade, 15, 1, 1},
        {ItemId::QuantumOre, 30, 1, 3}}}},
-    {11,
-     "NEXUS-9, Rogue Overmind",
+    {"NEXUS-9, Rogue Overmind",
      "Mainframe Core [BOSS]",
      150,
      3500,
@@ -703,13 +954,13 @@ std::string equip_slot_name(EquipSlot slot) {
   return "None";
 }
 
-std::string attack_style_name(AttackStyle style) {
+std::string attack_style_name(CombatStyle style) {
   switch (style) {
-    case AttackStyle::Accurate:
+    case CombatStyle::Accurate:
       return "Precision (Attack)";
-    case AttackStyle::Aggressive:
+    case CombatStyle::Aggressive:
       return "Overdrive (Strength)";
-    case AttackStyle::Defensive:
+    case CombatStyle::Defensive:
       return "Evasive (Defence)";
   }
   return "Precision";
@@ -738,7 +989,7 @@ std::string money_string(long long value) {
 
 int xp_for_level(int level) {
   const auto& tbl = xp_table();
-  int clamped = std::clamp(level, 1, MAX_SKILL_LEVEL);
+  int clamped = std::clamp(level, 1, (int)MAX_SKILL_LEVEL);
   return tbl[clamped];
 }
 
@@ -763,8 +1014,8 @@ double level_progress_ratio(long long xp) {
 
 std::vector<int> actions_for_skill(SkillType skill) {
   std::vector<int> res;
-  for (const auto& act : skill_actions) {
-    if (act.skill == skill) res.push_back(act.id);
+  for (int i = 0; i < static_cast<int>(skill_actions.size()); ++i) {
+    if (skill_actions[i].skill == skill) res.push_back(i);
   }
   return res;
 }
@@ -809,7 +1060,7 @@ void GameState::new_game() {
   active_progress_ms = 0;
   active_target_ms = action_effective_interval_ms(0);
 
-  attack_style = AttackStyle::Accurate;
+  attack_style = CombatStyle::Accurate;
   player_hp = max_hp();
   active_monster_id = 0;
   monster_hp = monster_info[0].max_hp;
@@ -1208,9 +1459,9 @@ void GameState::step_combat_tick(int elapsed_ms) {
 
       // Grant combat XP based on damage dealt
       long long c_xp = std::max(4, dmg / 2);
-      if (attack_style == AttackStyle::Accurate) {
+      if (attack_style == CombatStyle::Accurate) {
         gain_xp(SkillType::Attack, c_xp);
-      } else if (attack_style == AttackStyle::Aggressive) {
+      } else if (attack_style == CombatStyle::Aggressive) {
         gain_xp(SkillType::Strength, c_xp);
       } else {
         gain_xp(SkillType::Defence, c_xp);
@@ -1252,9 +1503,9 @@ void GameState::on_monster_defeated(int monster_id) {
   total_credits_earned += cr_drop;
 
   // Bonus XP on kill
-  if (attack_style == AttackStyle::Accurate) {
+  if (attack_style == CombatStyle::Accurate) {
     gain_xp(SkillType::Attack, mon.xp_reward);
-  } else if (attack_style == AttackStyle::Aggressive) {
+  } else if (attack_style == CombatStyle::Aggressive) {
     gain_xp(SkillType::Strength, mon.xp_reward);
   } else {
     gain_xp(SkillType::Defence, mon.xp_reward);
@@ -1686,7 +1937,7 @@ int GameState::player_attack_interval_ms() const {
 
 int GameState::player_max_hit() const {
   int str_lvl = skill_level(SkillType::Strength);
-  if (attack_style == AttackStyle::Aggressive) str_lvl += 3;
+  if (attack_style == CombatStyle::Aggressive) str_lvl += 3;
   int str_bonus = 0;
   for (ItemId id : equipped_items) {
     if (is_valid_item(id)) str_bonus += get_item_info(id).strength_bonus;
@@ -1696,7 +1947,7 @@ int GameState::player_max_hit() const {
 
 int GameState::player_accuracy() const {
   int atk_lvl = skill_level(SkillType::Attack);
-  if (attack_style == AttackStyle::Accurate) atk_lvl += 3;
+  if (attack_style == CombatStyle::Accurate) atk_lvl += 3;
   int atk_bonus = 0;
   for (ItemId id : equipped_items) {
     if (is_valid_item(id)) atk_bonus += get_item_info(id).attack_bonus;
@@ -1706,7 +1957,7 @@ int GameState::player_accuracy() const {
 
 int GameState::player_evasion() const {
   int def_lvl = skill_level(SkillType::Defence);
-  if (attack_style == AttackStyle::Defensive) def_lvl += 3;
+  if (attack_style == CombatStyle::Defensive) def_lvl += 3;
   int def_bonus = 0;
   for (ItemId id : equipped_items) {
     if (is_valid_item(id)) def_bonus += get_item_info(id).defence_bonus;
@@ -1843,7 +2094,7 @@ bool GameState::load_from_file(const std::string& path) {
   in >> act_t >> active_action_id >> active_monster_id >> player_hp >>
       monster_hp >> style_t;
   active_type = static_cast<ActiveActivityType>(std::clamp(act_t, 0, 2));
-  attack_style = static_cast<AttackStyle>(std::clamp(style_t, 0, 2));
+  attack_style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
 
   in >> bounty_target_id >> bounty_remaining >> bounties_completed;
   in >> total_items_gathered >> total_monsters_killed >>

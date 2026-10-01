@@ -64,21 +64,21 @@ flowchart LR
 
 ## Skill Overview
 
-| ID | Skill | Short | Category | Primary Role | Tool / Shop Upgrade |
-|---:|-------|:-----:|----------|--------------|---------------------|
-| 0 | **Salvaging** | `SLV` | Extraction | Strip tech scrap, optic fibers, plasma conduits, and AI cores | Salvaging Cutter (T1–T7) |
-| 1 | **Bio-Harvest** | `BIO` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
-| 2 | **Farming** | `FRM` | Extraction | Cultivate hydroponic crops, mill Synth-Noodles (+20% bonus Hydro-Wheat proc) | Bio-Harvester (T1–T7) |
-| 3 | **Recycling** | `REC` | Processing | Recycle scrap into Raw Materials (+25% Carbon Cell proc & Credits) | Synth-Reactor (T1–T7) |
-| 4 | **Synth-Cook** | `SYN` | Culinary | Prep Synth-Noodles, cook Cyber-Ramen bowls, and synthesize Biota Stims | Synth-Reactor (T1–T7) |
-| 5 | **Deep-Mining** | `MIN` | Extraction | Mine industrial ores and Carbon Cells (+8% rare Data Crystal proc) | Mining Drill (T1–T7) |
-| 6 | **Smithing** | `SMT` | Fabrication | Smelt ores into Alloy Ingots; forge Mono-Blades and Exo-Suits | Mastery Preservation & Speed |
-| 7 | **Cyber-Fab** | `FAB` | Fabrication | Combine Alloy Ingots + Recycled Raw Materials into Visors, Shields & Crystals | Mastery Preservation & Speed |
-| 8 | **Attack** | `ATK` | Combat | Increases melee Accuracy rating and unlocks higher weapon tiers | Mono-Blades (T1–T8) |
-| 9 | **Strength** | `STR` | Combat | Increases maximum hit damage per weapon cycle | Mono-Blades (T1–T8) |
-| 10 | **Defence** | `DEF` | Combat | Increases Evasion rating and unlocks higher cyber-armor tiers | Visors, Exo-Suits, Shields (T1–T8) |
-| 11 | **Hitpoints** | `HP` | Combat | Determines max HP (`Level × 10`) and passive nanite regeneration | Auto-Stim Injector (Mk I–III) |
-| 12 | **Bounty** | `BNT` | Combat | Unlocks high-security hostile targets and awards Bounty Tokens (`BT`) | Bounty Contracts |
+| Skill | Short | Category | Primary Role | Tool / Shop Upgrade |
+|-------|:-----:|----------|--------------|---------------------|
+| **Salvaging** | `SLV` | Extraction | Strip tech scrap, optic fibers, plasma conduits, and AI cores | Salvaging Cutter (T1–T7) |
+| **Bio-Harvest** | `BIO` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
+| **Farming** | `FRM` | Extraction | Cultivate hydroponic crops, mill Synth-Noodles (+20% bonus Hydro-Wheat proc) | Bio-Harvester (T1–T7) |
+| **Recycling** | `REC` | Processing | Recycle scrap into Raw Materials (+25% Carbon Cell proc & Credits) | Synth-Reactor (T1–T7) |
+| **Synth-Cook** | `SYN` | Culinary | Prep Synth-Noodles, cook Cyber-Ramen bowls, and synthesize Biota Stims | Synth-Reactor (T1–T7) |
+| **Deep-Mining** | `MIN` | Extraction | Mine industrial ores and Carbon Cells (+8% rare Data Crystal proc) | Mining Drill (T1–T7) |
+| **Smithing** | `SMT` | Fabrication | Smelt ores into Alloy Ingots; forge Mono-Blades and Exo-Suits | Mastery Preservation & Speed |
+| **Cyber-Fab** | `FAB` | Fabrication | Combine Alloy Ingots + Recycled Raw Materials into Visors, Shields & Crystals | Mastery Preservation & Speed |
+| **Attack** | `ATK` | Combat | Increases melee Accuracy rating and unlocks higher weapon tiers | Mono-Blades (T1–T8) |
+| **Strength** | `STR` | Combat | Increases maximum hit damage per weapon cycle | Mono-Blades (T1–T8) |
+| **Defence** | `DEF` | Combat | Increases Evasion rating and unlocks higher cyber-armor tiers | Visors, Exo-Suits, Shields (T1–T8) |
+| **Hitpoints** | `HP` | Combat | Determines max HP (`Level × 10`) and passive nanite regeneration | Auto-Stim Injector (Mk I–III) |
+| **Bounty** | `BNT` | Combat | Unlocks high-security hostile targets and awards Bounty Tokens (`BT`) | Bounty Contracts |
 
 ---
 

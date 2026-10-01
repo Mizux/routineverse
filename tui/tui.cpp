@@ -737,16 +737,16 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
       std::string io_str;
-      if (is_valid_item(act.input_item_1)) {
+      if (is_valid_item(act.input_item_1) && act.input_item_1 != ItemId::None) {
         io_str += std::format("{}x{}", act.input_qty_1,
                               get_item_info(act.input_item_1).name);
       }
-      if (is_valid_item(act.input_item_2)) {
-        io_str += std::format("+{}x{}", act.input_qty_2,
+      if (is_valid_item(act.input_item_2) && act.input_item_2 != ItemId::None) {
+        io_str += std::format(" + {}x{}", act.input_qty_2,
                               get_item_info(act.input_item_2).name);
       }
-      if (is_valid_item(act.product_item)) {
-        if (!io_str.empty()) io_str += "->";
+      if (is_valid_item(act.product_item) && act.product_item != ItemId::None) {
+        if (!io_str.empty()) io_str += " -> ";
         io_str += std::format("{}", get_item_info(act.product_item).name);
       } else if (io_str.empty()) {
         io_str = "XP+Cell+Cr";
@@ -1145,7 +1145,7 @@ void TuiApp::actionSellAllBank() {
 
 void TuiApp::actionCycleAttackStyle() {
   int next = (static_cast<int>(_gameState.attack_style) + 1) % 3;
-  _gameState.attack_style = static_cast<AttackStyle>(next);
+  _gameState.attack_style = static_cast<CombatStyle>(next);
   _gameState.add_log(std::format("Switched combat mode to {}.",
                                  attack_style_name(_gameState.attack_style)));
 }

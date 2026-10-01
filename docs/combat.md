@@ -64,17 +64,17 @@ flowchart LR
 
 ## 3. Hostile Sectors & Salvage Drop Tables
 
-| ID | Hostile Target | Sector | Combat Lv | Bounty Req | HP | Max Hit | Credits | Notable Salvage & Gear Drops |
-|---:|----------------|--------|----------:|-----------:|---:|--------:|--------:|------------------------------|
-| 0 | **Stray Servo-Drone** | Neon Slums | 1 | Lv 1 | 30 | 6 | 3–10 Cr | `Microchip` (90%), `Servo Parts` (100%), `Krill Ration` (25%) |
-| 1 | **Bio-Vat Hound** | Neon Slums | 4 | Lv 1 | 65 | 12 | 8–22 Cr | `Synth-Weave Hide` (85%), `Synth-Protein Bar` (70%), `Servo Parts` (100%) |
-| 2 | **Street Scavenger** | Neon Slums | 9 | Lv 1 | 110 | 20 | 18–45 Cr | `Plasteel Shards` (50%), `Synth-Carp Pack` (40%), `Servo Parts` (100%) |
-| 3 | **Chrome Gang Punk** | Back-Alley Sector | 14 | Lv 1 | 160 | 28 | 28–70 Cr | `Scrap Vibro-Knife` (15%), `Titanium Ore` (45%), `Servo Parts` (100%) |
-| 4 | **Riot Enforcer Bot** | Industrial Sector | 24 | Lv 10 | 280 | 45 | 55–130 Cr | `Heavy Mech Chassis` (100%), `Durasteel Katana` (12%), `Carbon Cell` (40%) |
-| 5 | **Chem-Mutant Brute** | Industrial Sector | 36 | Lv 20 | 450 | 68 | 95–220 Cr | `Heavy Mech Chassis` (100%), `Cobalt Ore` (45%), `Cyber-Lobster Meal` (35%) |
-| 6 | **Cryo-Sec Mech** | Industrial Sector | 48 | Lv 30 | 650 | 92 | 150–340 Cr | `Heavy Mech Chassis` (100%), `Cobalt Subdermal Rig` (10%), `Sapphire Cortex` (25%) |
-| 7 | **Corp Shadow-Op** | Megacorp Plaza | 60 | Lv 40 | 880 | 125 | 230–520 Cr | `Tungsten Mantis-Blade` (12%), `Tungsten Ore` (45%), `Plasma Ray Infusion` (40%) |
-| 8 | **Cobalt Cyber-Ninja** | Megacorp Plaza | 74 | Lv 50 | 1,150 | 160 | 350–780 Cr | `Tungsten Power-Armor` (10%), `Ruby Laser Core` (30%), `Apex Shark Booster` (35%) |
-| 9 | **Neutronium Cyborg** | Megacorp Plaza | 88 | Lv 65 | 1,500 | 205 | 550–1,200 Cr | `Neutronium Phase-Saber` (10%), `Neutronium Nano-Suit` (8%), `Emerald Cryptokey` (30%) |
-| 10 | **Apex Cyber-Wyrm** | Orbital Spire | 110 | Lv 75 | 2,150 | 270 | 900–2,000 Cr | `Apex Cyber-Core` (100%), `Chrono-Edge Katana` (15%), `Quantum Singularity Ore` (30%) |
-| 11 | **NEXUS-9, Rogue Overmind** | Mainframe Core `[BOSS]` | 150 | Lv 85 | 3,500 | 360 | 2,500–5,500 Cr | `Quantum Singularity Blade` (15%), `Quantum Phase Exo-Suit` (12%), `Kraken Bio-Elixir` (60%) |
+| Hostile Target | Sector | Combat Lv | Bounty Req | HP | Max Hit | Credits | Notable Salvage & Gear Drops |
+|----------------|--------|----------:|-----------:|---:|--------:|--------:|------------------------------|
+| **Stray Servo-Drone** | Neon Slums | 1 | Lv 1 | 30 | 6 | 3–10 Cr | `Microchip` (90%), `Servo Parts` (100%), `Krill Ration` (25%) |
+| **Bio-Vat Hound** | Neon Slums | 4 | Lv 1 | 65 | 12 | 8–22 Cr | `Synth-Weave Hide` (85%), `Synth-Protein Bar` (70%), `Servo Parts` (100%) |
+| **Street Scavenger** | Neon Slums | 9 | Lv 1 | 110 | 20 | 18–45 Cr | `Plasteel Shards` (50%), `Synth-Carp Pack` (40%), `Servo Parts` (100%) |
+| **Chrome Gang Punk** | Back-Alley Sector | 14 | Lv 1 | 160 | 28 | 28–70 Cr | `Scrap Vibro-Knife` (15%), `Titanium Ore` (45%), `Servo Parts` (100%) |
+| **Riot Enforcer Bot** | Industrial Sector | 24 | Lv 10 | 280 | 45 | 55–130 Cr | `Heavy Mech Chassis` (100%), `Durasteel Katana` (12%), `Carbon Cell` (40%) |
+| **Chem-Mutant Brute** | Industrial Sector | 36 | Lv 20 | 450 | 68 | 95–220 Cr | `Heavy Mech Chassis` (100%), `Cobalt Ore` (45%), `Cyber-Lobster Meal` (35%) |
+| **Cryo-Sec Mech** | Industrial Sector | 48 | Lv 30 | 650 | 92 | 150–340 Cr | `Heavy Mech Chassis` (100%), `Cobalt Subdermal Rig` (10%), `Sapphire Cortex` (25%) |
+| **Corp Shadow-Op** | Megacorp Plaza | 60 | Lv 40 | 880 | 125 | 230–520 Cr | `Tungsten Mantis-Blade` (12%), `Tungsten Ore` (45%), `Plasma Ray Infusion` (40%) |
+| **Cobalt Cyber-Ninja** | Megacorp Plaza | 74 | Lv 50 | 1,150 | 160 | 350–780 Cr | `Tungsten Power-Armor` (10%), `Ruby Laser Core` (30%), `Apex Shark Booster` (35%) |
+| **Neutronium Cyborg** | Megacorp Plaza | 88 | Lv 65 | 1,500 | 205 | 550–1,200 Cr | `Neutronium Phase-Saber` (10%), `Neutronium Nano-Suit` (8%), `Emerald Cryptokey` (30%) |
+| **Apex Cyber-Wyrm** | Orbital Spire | 110 | Lv 75 | 2,150 | 270 | 900–2,000 Cr | `Apex Cyber-Core` (100%), `Chrono-Edge Katana` (15%), `Quantum Singularity Ore` (30%) |
+| **NEXUS-9, Rogue Overmind** | Mainframe Core `[BOSS]` | 150 | Lv 85 | 3,500 | 360 | 2,500–5,500 Cr | `Quantum Singularity Blade` (15%), `Quantum Phase Exo-Suit` (12%), `Kraken Bio-Elixir` (60%) |

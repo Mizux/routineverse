@@ -279,7 +279,7 @@ void MainWindow::_setupWidget() {
 
   _textview_information = new QTextEdit(frame_info);
   _textview_information->setReadOnly(true);
-  _textview_information->setFixedHeight(80);
+  _textview_information->setMinimumHeight(80);
   vbox_info->addWidget(_textview_information);
   vbox_main->addWidget(frame_info);
 
@@ -827,17 +827,17 @@ void MainWindow::_fillTreeviewActions() {
     }
 
     QString io_str;
-    if (is_valid_item(act.input_item_1)) {
+    if (is_valid_item(act.input_item_1) && act.input_item_1 != ItemId::None) {
       io_str += QString("%1x %2")
                     .arg(act.input_qty_1)
                     .arg(get_item_info(act.input_item_1).name);
     }
-    if (is_valid_item(act.input_item_2)) {
+    if (is_valid_item(act.input_item_2) && act.input_item_2 != ItemId::None) {
       io_str += QString(" + %1x %2")
                     .arg(act.input_qty_2)
                     .arg(get_item_info(act.input_item_2).name);
     }
-    if (is_valid_item(act.product_item)) {
+    if (is_valid_item(act.product_item) && act.product_item != ItemId::None) {
       if (!io_str.isEmpty()) io_str += " -> ";
       io_str += QString("%1x %2")
                     .arg(act.product_qty)
@@ -999,7 +999,7 @@ void MainWindow::onBankDoubleClicked() {
 }
 
 void MainWindow::onAttackStyleChanged(int idx) {
-  _gameState.attack_style = static_cast<AttackStyle>(std::clamp(idx, 0, 2));
+  _gameState.attack_style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
   updateAllUi();
 }
 

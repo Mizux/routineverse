@@ -3,33 +3,32 @@
 #include <array>
 #include <cstdint>
 #include <string>
-#include <string_view>
 #include <vector>
 
-inline constexpr int MAX_HISTORY_POINTS = 60;
-inline constexpr int MAX_SKILL_LEVEL = 99;
+inline constexpr uint8_t MAX_HISTORY_POINTS = 60;
+inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 
-enum class SkillType : int {
-  Salvaging = 0,
-  BioHarvest = 1,
-  Farming = 2,
-  Recycling = 3,
-  SynthCook = 4,
-  DeepMining = 5,
-  Smithing = 6,
-  CyberFab = 7,
-  Attack = 8,
-  Strength = 9,
-  Defence = 10,
-  Hitpoints = 11,
-  Bounty = 12,
+enum class SkillType : uint8_t {
+  Salvaging,
+  BioHarvest,
+  Farming,
+  Recycling,
+  SynthCook,
+  DeepMining,
+  Smithing,
+  CyberFab,
+  Attack,
+  Strength,
+  Defence,
+  Hitpoints,
+  Bounty,
 };
 
-inline constexpr int SKILL_COUNT = 13;
-inline constexpr int NON_COMBAT_SKILL_COUNT = 8;
+inline constexpr uint8_t SKILL_COUNT = 13;
+inline constexpr uint8_t NON_COMBAT_SKILL_COUNT = 8;
 
-enum class ItemCategory : int {
-  Scrap = 0,
+enum class ItemCategory : uint8_t {
+  Scrap,
   RawMaterial,
   RawBiota,
   Crop,
@@ -45,179 +44,178 @@ enum class ItemCategory : int {
   CyberLoot,
 };
 
-enum class EquipSlot : int {
-  None = -1,
-  Weapon = 0,
-  Visor = 1,
-  ExoSuit = 2,
-  HoloShield = 3,
+enum class EquipSlot : uint8_t {
+  None,
+  Weapon,
+  Visor,
+  ExoSuit,
+  HoloShield,
 };
 
-inline constexpr int EQUIP_SLOT_COUNT = 4;
+inline constexpr uint8_t EQUIP_SLOT_COUNT = 4;
 
-enum class AttackStyle : int {
-  Accurate = 0,    // Trains Attack (+accuracy)
-  Aggressive = 1,  // Trains Strength (+max hit)
-  Defensive = 2,   // Trains Defence (+evasion)
+enum class CombatStyle : uint8_t {
+  Accurate,    // Trains Attack (+accuracy)
+  Aggressive,  // Trains Strength (+max hit)
+  Defensive,   // Trains Defence (+evasion)
 };
 
-enum class ActiveActivityType : int {
-  None = 0,
-  Skill = 1,
-  Combat = 2,
+enum class ActiveActivityType : uint8_t {
+  None,
+  Skill,
+  Combat,
 };
 
-enum class ItemId : int {
-  None = -1,
+enum class ItemId : uint16_t {
+  None,
+  // Scrap & Tech Nodes
+  CopperWireScrap,
+  PlasteelShards,
+  CarbonNanotubes,
+  OpticFiberBundle,
+  PositronicRelays,
+  CryoCellCore,
+  PlasmaConduit,
+  QuantumNode,
+  AiMainframeCore,
 
-  // Scrap & Tech Nodes (0..8)
-  CopperWireScrap = 0,
-  PlasteelShards = 1,
-  CarbonNanotubes = 2,
-  OpticFiberBundle = 3,
-  PositronicRelays = 4,
-  CryoCellCore = 5,
-  PlasmaConduit = 6,
-  QuantumNode = 7,
-  AiMainframeCore = 8,
+  // Recycled Basic / Raw Materials
+  CopperFilament,
+  PlasteelPolymer,
+  CarbonFiberWeave,
+  OpticSilicaGlass,
+  PositronicWafer,
+  CryoCoolantGel,
+  PlasmaCoil,
+  QuantumLattice,
+  NeuralMatrix,
 
-  // Recycled Basic / Raw Materials (9..17)
-  CopperFilament = 9,
-  PlasteelPolymer = 10,
-  CarbonFiberWeave = 11,
-  OpticSilicaGlass = 12,
-  PositronicWafer = 13,
-  CryoCoolantGel = 14,
-  PlasmaCoil = 15,
-  QuantumLattice = 16,
-  NeuralMatrix = 17,
+  // Raw Synth-Biota
+  RawKrillBiomass,
+  RawNeonEel,
+  RawSynthCarp,
+  RawChromeSalmon,
+  RawCyberLobster,
+  RawPlasmaRay,
+  RawApexShark,
+  RawLeviathanCell,
+  RawCyberKraken,
 
-  // Raw Synth-Biota (18..26)
-  RawKrillBiomass = 18,
-  RawNeonEel = 19,
-  RawSynthCarp = 20,
-  RawChromeSalmon = 21,
-  RawCyberLobster = 22,
-  RawPlasmaRay = 23,
-  RawApexShark = 24,
-  RawLeviathanCell = 25,
-  RawCyberKraken = 26,
+  // Hydro-Farmed Crops & Synth-Noodles
+  HydroWheat,
+  SoyPods,
+  NeonScallion,
+  GlowNori,
+  BioBamboo,
+  CyberShiitake,
+  PlasmaChili,
+  ChronoLotus,
+  QuantumTruffle,
+  SynthNoodles,
 
-  // Hydro-Farmed Crops & Synth-Noodles (27..36)
-  HydroWheat = 27,
-  SoyPods = 28,
-  NeonScallion = 29,
-  GlowNori = 30,
-  BioBamboo = 31,
-  CyberShiitake = 32,
-  PlasmaChili = 33,
-  ChronoLotus = 34,
-  QuantumTruffle = 35,
-  SynthNoodles = 36,
+  // Synthesized Stims, Cyber-Ramen & Toxic Slag
+  KrillRation,
+  NeonEelSkewer,
+  SynthCarpPack,
+  ChromeSalmonStim,
+  CyberLobsterMeal,
+  PlasmaRayInfusion,
+  ApexSharkBooster,
+  LeviathanNanomed,
+  KrakenBioElixir,
+  ShoyuRamen,
+  ScallionRamen,
+  NoriRamen,
+  BambooRamen,
+  ShiitakeRamen,
+  PlasmaChiliRamen,
+  ChronoLotusRamen,
+  TruffleRamen,
+  QuantumKrakenRamen,
+  SynthProteinBar,
+  ToxicSlag,
 
-  // Synthesized Stims, Cyber-Ramen & Toxic Slag (37..56)
-  KrillRation = 37,
-  NeonEelSkewer = 38,
-  SynthCarpPack = 39,
-  ChromeSalmonStim = 40,
-  CyberLobsterMeal = 41,
-  PlasmaRayInfusion = 42,
-  ApexSharkBooster = 43,
-  LeviathanNanomed = 44,
-  KrakenBioElixir = 45,
-  ShoyuRamen = 46,
-  ScallionRamen = 47,
-  NoriRamen = 48,
-  BambooRamen = 49,
-  ShiitakeRamen = 50,
-  PlasmaChiliRamen = 51,
-  ChronoLotusRamen = 52,
-  TruffleRamen = 53,
-  QuantumKrakenRamen = 54,
-  SynthProteinBar = 55,
-  ToxicSlag = 56,
+  // Deep-Mined Ores & Cells
+  CopperOre,
+  SiliconOre,
+  TitaniumOre,
+  CarbonCell,
+  SilverOre,
+  GoldOre,
+  CobaltOre,
+  TungstenOre,
+  NeutroniumOre,
+  ChronoOre,
+  QuantumOre,
 
-  // Deep-Mined Ores & Cells (57..67)
-  CopperOre = 57,
-  SiliconOre = 58,
-  TitaniumOre = 59,
-  CarbonCell = 60,
-  SilverOre = 61,
-  GoldOre = 62,
-  CobaltOre = 63,
-  TungstenOre = 64,
-  NeutroniumOre = 65,
-  ChronoOre = 66,
-  QuantumOre = 67,
+  // Refined Alloys & Conductors
+  ScrapAlloy,
+  TitaniumAlloy,
+  DurasteelAlloy,
+  SilverConductor,
+  GoldSuperconductor,
+  CobaltAlloy,
+  TungstenAlloy,
+  NeutroniumAlloy,
+  ChronoAlloy,
+  QuantumAlloy,
 
-  // Refined Alloys & Conductors (68..77)
-  ScrapAlloy = 68,
-  TitaniumAlloy = 69,
-  DurasteelAlloy = 70,
-  SilverConductor = 71,
-  GoldSuperconductor = 72,
-  CobaltAlloy = 73,
-  TungstenAlloy = 74,
-  NeutroniumAlloy = 75,
-  ChronoAlloy = 76,
-  QuantumAlloy = 77,
+  // Data Crystals
+  AmberDatachip,
+  SapphireCortex,
+  RubyLaserCore,
+  EmeraldCryptokey,
+  QuantumDiamond,
 
-  // Data Crystals (78..82)
-  AmberDatachip = 78,
-  SapphireCortex = 79,
-  RubyLaserCore = 80,
-  EmeraldCryptokey = 81,
-  QuantumDiamond = 82,
+  // Weapons - Mono-Blades
+  ScrapBlade,
+  TitaniumBlade,
+  DurasteelBlade,
+  CobaltBlade,
+  TungstenBlade,
+  NeutroniumBlade,
+  ChronoBlade,
+  QuantumBlade,
 
-  // Weapons - Mono-Blades (83..90)
-  ScrapBlade = 83,
-  TitaniumBlade = 84,
-  DurasteelBlade = 85,
-  CobaltBlade = 86,
-  TungstenBlade = 87,
-  NeutroniumBlade = 88,
-  ChronoBlade = 89,
-  QuantumBlade = 90,
+  // Visors
+  ScrapVisor,
+  TitaniumVisor,
+  DurasteelVisor,
+  CobaltVisor,
+  TungstenVisor,
+  NeutroniumVisor,
+  ChronoVisor,
+  QuantumVisor,
 
-  // Visors (91..98)
-  ScrapVisor = 91,
-  TitaniumVisor = 92,
-  DurasteelVisor = 93,
-  CobaltVisor = 94,
-  TungstenVisor = 95,
-  NeutroniumVisor = 96,
-  ChronoVisor = 97,
-  QuantumVisor = 98,
+  // Exo-Suits
+  ScrapExoSuit,
+  TitaniumExoSuit,
+  DurasteelExoSuit,
+  CobaltExoSuit,
+  TungstenExoSuit,
+  NeutroniumExoSuit,
+  ChronoExoSuit,
+  QuantumExoSuit,
 
-  // Exo-Suits (99..106)
-  ScrapExoSuit = 99,
-  TitaniumExoSuit = 100,
-  DurasteelExoSuit = 101,
-  CobaltExoSuit = 102,
-  TungstenExoSuit = 103,
-  NeutroniumExoSuit = 104,
-  ChronoExoSuit = 105,
-  QuantumExoSuit = 106,
+  // Holo-Shields
+  ScrapShield,
+  TitaniumShield,
+  DurasteelShield,
+  CobaltShield,
+  TungstenShield,
+  NeutroniumShield,
+  ChronoShield,
+  QuantumShield,
 
-  // Holo-Shields (107..114)
-  ScrapShield = 107,
-  TitaniumShield = 108,
-  DurasteelShield = 109,
-  CobaltShield = 110,
-  TungstenShield = 111,
-  NeutroniumShield = 112,
-  ChronoShield = 113,
-  QuantumShield = 114,
-
-  // Enemy Salvage Loot (115..119)
-  ServoParts = 115,
-  HeavyChassis = 116,
-  ApexCyberCore = 117,
-  Microchip = 118,
-  SynthWeaveHide = 119,
+  // Enemy Salvage Loot
+  ServoParts,
+  HeavyChassis,
+  ApexCyberCore,
+  Microchip,
+  SynthWeaveHide,
 };
 
-inline constexpr int ITEM_COUNT = 120;
+inline constexpr uint16_t ITEM_COUNT = 121;
 
 struct ItemInfo {
   ItemId id;
@@ -234,7 +232,6 @@ struct ItemInfo {
 };
 
 struct SkillAction {
-  int id;
   SkillType skill;
   const char* name;
   int req_level;
@@ -256,7 +253,6 @@ struct MonsterDrop {
 };
 
 struct MonsterInfo {
-  int id;
   const char* name;
   const char* zone_name;
   int combat_level;
@@ -274,12 +270,12 @@ struct MonsterInfo {
 };
 
 struct ShopUpgradeInfo {
-  int tier;
+  uint8_t tier;
   const char* name;
   const char* description;
-  int req_skill_level;
-  int cost_credits;
-  int speed_bonus_pct;
+  uint8_t req_skill_level;
+  uint64_t cost_credits;
+  uint8_t speed_bonus_pct;
 };
 
 struct BankSlot {
@@ -314,7 +310,7 @@ std::string skill_name(SkillType skill);
 std::string skill_short_name(SkillType skill);
 std::string item_category_name(ItemCategory cat);
 std::string equip_slot_name(EquipSlot slot);
-std::string attack_style_name(AttackStyle style);
+std::string attack_style_name(CombatStyle style);
 std::string money_string(long long value);
 std::string number_string(long long value);
 
@@ -428,7 +424,7 @@ class GameState {
   int active_target_ms = 2000;
 
   // Combat state
-  AttackStyle attack_style = AttackStyle::Accurate;
+  CombatStyle attack_style = CombatStyle::Accurate;
   int player_hp = 100;
   int active_monster_id = 0;
   int monster_hp = 30;
@@ -437,16 +433,16 @@ class GameState {
   int hp_regen_timer_ms = 0;
 
   // Bounty contract
-  int bounty_target_id = 0;
-  int bounty_remaining = 10;
-  int bounties_completed = 0;
+  uint8_t bounty_target_id = 0;
+  uint8_t bounty_remaining = 10;
+  uint16_t bounties_completed = 0;
 
   // Statistics
-  std::array<int, MONSTER_COUNT> monster_kills{};
-  long long total_items_gathered = 0;
-  long long total_monsters_killed = 0;
-  long long total_credits_earned = 250;
-  int player_deaths = 0;
+  std::array<uint16_t, MONSTER_COUNT> monster_kills{};
+  uint64_t total_items_gathered = 0;
+  uint64_t total_monsters_killed = 0;
+  uint64_t total_credits_earned = 250;
+  uint16_t player_deaths = 0;
 
   bool sound_enabled = false;
   std::string status_banner;
