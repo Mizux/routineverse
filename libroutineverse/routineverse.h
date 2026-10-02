@@ -1,7 +1,10 @@
 #pragma once
 
+#include <sys/types.h>
+
 #include <array>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -24,8 +27,8 @@ enum class SkillType : uint8_t {
   Bounty,
 };
 
-inline constexpr uint8_t SKILL_COUNT = 13;
-inline constexpr uint8_t NON_COMBAT_SKILL_COUNT = 8;
+inline constexpr ssize_t SKILL_COUNT = 13;
+inline constexpr ssize_t NON_COMBAT_SKILL_COUNT = 8;
 
 enum class ItemCategory : uint8_t {
   Scrap,
@@ -44,15 +47,13 @@ enum class ItemCategory : uint8_t {
   CyberLoot,
 };
 
-enum class EquipSlot : uint8_t {
-  None,
+enum class EquipSlot : int8_t {
+  None = -1,
   Weapon,
   Visor,
   ExoSuit,
   HoloShield,
 };
-
-inline constexpr uint8_t EQUIP_SLOT_COUNT = 4;
 
 enum class CombatStyle : uint8_t {
   Accurate,    // Trains Attack (+accuracy)
@@ -215,7 +216,7 @@ enum class ItemId : uint16_t {
   SynthWeaveHide,
 };
 
-inline constexpr uint16_t ITEM_COUNT = 121;
+inline constexpr ssize_t ITEM_COUNT = 121;
 
 struct ItemInfo {
   ItemId id;
@@ -262,8 +263,8 @@ struct MonsterInfo {
   int accuracy;
   int evasion;
   int xp_reward;
-  int credits_min;
-  int credits_max;
+  uint64_t credits_min;
+  uint64_t credits_max;
   int bounty_req;
   bool is_boss;
   std::array<MonsterDrop, 3> drops;
@@ -311,12 +312,13 @@ std::string skill_short_name(SkillType skill);
 std::string item_category_name(ItemCategory cat);
 std::string equip_slot_name(EquipSlot slot);
 std::string attack_style_name(CombatStyle style);
-std::string money_string(long long value);
-std::string number_string(long long value);
+std::string money_string(uint64_t value);
+std::string number_string(uint64_t value);
 
-int xp_for_level(int level);
-int level_for_xp(long long xp);
-double level_progress_ratio(long long xp);
+// XP & Level utility
+uint64_t xp_for_level(int level);
+int level_for_xp(uint64_t xp);
+double level_progress_ratio(uint64_t xp);
 
 std::vector<int> actions_for_skill(SkillType skill);
 
@@ -338,12 +340,12 @@ class GameState {
   // Inventory / Bank management
   int item_qty(ItemId item_id) const;
   int used_bank_slots() const;
-  long long total_bank_value() const;
+  uint64_t total_bank_value() const;
   bool can_store_item(ItemId item_id) const;
   bool add_item(ItemId item_id, int qty, bool log_drop = false);
   bool remove_item(ItemId item_id, int qty);
   bool sell_item(ItemId item_id, int qty);
-  long long sell_all_non_equipped();
+  uint64_t sell_all_non_equipped();
 
   // Equipment & Stims
   bool equip_item(ItemId item_id);
@@ -366,9 +368,9 @@ class GameState {
 
   // Computed Stats
   int skill_level(SkillType skill) const;
-  long long skill_xp(SkillType skill) const;
+  uint64_t skill_xp(SkillType skill) const;
   int total_skill_level() const;
-  long long total_skill_xp() const;
+  uint64_t total_skill_xp() const;
   int mastery_level(int global_action_id) const;
 
   int action_effective_interval_ms(int global_action_id) const;
@@ -395,18 +397,21 @@ class GameState {
   bool load_from_file(const std::string& path = default_save_path());
 
   // Persistent Game State
-  long long credits = 250;
-  long long bounty_tokens = 0;
-  long long total_ticks_ms = 0;
+  uint64_t credits = 250;
+  uint64_t bounty_tokens = 0;
+  uint64_t total_ticks_ms = 0;
 
-  std::array<long long, SKILL_COUNT> xp{};
-  std::vector<long long> action_mastery_xp;
+  std::array<uint64_t, SKILL_COUNT> xp{};
+  std::vector<uint64_t> action_mastery_xp;
 
   int bank_capacity = 24;
   std::vector<BankSlot> bank;
 
-  std::array<ItemId, EQUIP_SLOT_COUNT> equipped_items{
-      ItemId::None, ItemId::None, ItemId::None, ItemId::None};
+  std::map<EquipSlot, ItemId> equipped_items = {
+      {EquipSlot::Weapon, ItemId::None},
+      {EquipSlot::Visor, ItemId::None},
+      {EquipSlot::ExoSuit, ItemId::None},
+      {EquipSlot::HoloShield, ItemId::None}};
   ItemId equipped_food_item = ItemId::None;
   int equipped_food_qty = 0;
 
@@ -449,19 +454,19 @@ class GameState {
   std::vector<std::string> game_log;
 
   // History for Charts
-  std::vector<long long> credits_history;
-  std::vector<long long> bank_value_history;
+  std::vector<uint64_t> credits_history;
+  std::vector<uint64_t> bank_value_history;
   std::vector<int> total_level_history;
-  std::vector<long long> total_xp_history;
+  std::vector<uint64_t> total_xp_history;
   std::vector<int> hp_history;
-  std::array<std::vector<long long>, SKILL_COUNT> skill_xp_history{};
+  std::array<std::vector<uint64_t>, SKILL_COUNT> skill_xp_history{};
 
  private:
   void complete_skill_action(int global_action_id);
   void step_combat_tick(int elapsed_ms);
   void on_monster_defeated(int monster_id);
   void on_player_defeated();
-  void gain_xp(SkillType skill, long long amount);
+  void gain_xp(SkillType skill, uint64_t amount);
 
   int history_timer_ms_ = 0;
 };

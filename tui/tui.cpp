@@ -220,7 +220,7 @@ bool TuiApp::isCombatView() const {
 }
 
 void TuiApp::clampCursors() {
-  _skillCursor = std::clamp(_skillCursor, 0, SKILL_COUNT - 1);
+  _skillCursor = std::clamp(_skillCursor, 0, int{SKILL_COUNT} - 1);
   if (!isCombatView()) {
     auto acts = actions_for_skill(static_cast<SkillType>(_skillCursor));
     if (acts.empty()) {
@@ -683,7 +683,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
   if (!isCombatView()) {
     auto sk = static_cast<SkillType>(
-        std::clamp(_skillCursor, 0, NON_COMBAT_SKILL_COUNT - 1));
+        std::clamp(_skillCursor, 0, int{NON_COMBAT_SKILL_COUNT} - 1));
     std::string title = skill_name(sk) + " Protocols";
     draw_btop_box(y, x, h, w, title, "[Enter]Execute [x]Stop", active);
 
@@ -915,7 +915,7 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
   int row = y + 1;
 
-  ItemId w_id = _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
+  ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
   std::string w_str =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
   std::string food_str =
@@ -981,7 +981,8 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
     for (int v : _gameState.hp_history) values.push_back(v);
     values.push_back(_gameState.player_hp);
   } else {
-    int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0, SKILL_COUNT - 1);
+    int s_idx =
+        std::clamp(item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
     for (long long v : _gameState.skill_xp_history[s_idx]) values.push_back(v);
     values.push_back(_gameState.xp[s_idx]);
   }
@@ -1265,9 +1266,12 @@ void TuiApp::showEquipmentDialog() {
     draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
-    for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-      auto slot = static_cast<EquipSlot>(i);
-      ItemId id = _gameState.equipped_items[i];
+    const std::array<EquipSlot, 4> slots = {EquipSlot::Weapon, EquipSlot::Visor,
+                                            EquipSlot::ExoSuit,
+                                            EquipSlot::HoloShield};
+    for (int idx = 0; idx < 4; ++idx) {
+      EquipSlot slot = slots[idx];
+      ItemId id = _gameState.equipped_items.at(slot);
       std::string desc = "Empty";
       if (is_valid_item(id)) {
         const auto& info = get_item_info(id);
@@ -1275,11 +1279,11 @@ void TuiApp::showEquipmentDialog() {
                            info.attack_bonus, info.strength_bonus,
                            info.defence_bonus, info.damage_reduction);
       }
-      bool sel = (i == cursor);
+      bool sel = (idx == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
              (sel ? A_BOLD : A_NORMAL));
-      for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + i, x + 3 + c, ' ');
-      mvprintw(y + 2 + i, x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
+      for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + idx, x + 3 + c, ' ');
+      mvprintw(y + 2 + idx, x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
                desc.c_str());
       attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
               (sel ? A_BOLD : A_NORMAL));
@@ -1303,9 +1307,10 @@ void TuiApp::showEquipmentDialog() {
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
+    int slot_count = _gameState.equipped_items.size();
     if (ch == KEY_UP || ch == 'k')
-      cursor = (cursor + EQUIP_SLOT_COUNT - 1) % EQUIP_SLOT_COUNT;
-    if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % EQUIP_SLOT_COUNT;
+      cursor = (cursor + slot_count - 1) % slot_count;
+    if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
       _gameState.unequip_slot(static_cast<EquipSlot>(cursor));
     }

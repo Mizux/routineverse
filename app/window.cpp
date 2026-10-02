@@ -27,6 +27,7 @@
 #include <QWidget>
 #include <algorithm>
 #include <array>
+#include <cstdint>
 #include <format>
 #include <string>
 
@@ -179,7 +180,8 @@ void HistoryChartView::updateChart(const GameState& gameState) {
     for (int v : gameState.hp_history) values.push_back(v);
     values.push_back(gameState.player_hp);
   } else {
-    int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0, SKILL_COUNT - 1);
+    int s_idx =
+        std::clamp(_item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
     for (long long v : gameState.skill_xp_history[s_idx]) values.push_back(v);
     values.push_back(gameState.xp[s_idx]);
   }
@@ -697,8 +699,7 @@ void MainWindow::updateAllUi() {
             .arg(_gameState.reactor_tier + 1));
   }
   if (_label_equipped_weapon) {
-    ItemId w_id =
-        _gameState.equipped_items[static_cast<int>(EquipSlot::Weapon)];
+    ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
     _label_equipped_weapon->setText(
         is_valid_item(w_id) ? QString("%1 (Max Hit: %2)")
                                   .arg(get_item_info(w_id).name)
@@ -955,8 +956,8 @@ void MainWindow::_fillTreeviewBank() {
 }
 
 void MainWindow::onTickTimer() {
-  long long prev_xp = _gameState.total_skill_xp();
-  long long prev_kills = _gameState.total_monsters_killed;
+  uint64_t prev_xp = _gameState.total_skill_xp();
+  uint64_t prev_kills = _gameState.total_monsters_killed;
   std::size_t prev_logs = _gameState.game_log.size();
 
   _gameState.tick(100);
@@ -975,7 +976,8 @@ void MainWindow::onSkillSelectionChanged() {
   auto* item = _treeview_skills->currentItem();
   if (!item) return;
   int sk_idx = item->data(0, Qt::UserRole).toInt();
-  setSelectedSkill(static_cast<SkillType>(std::clamp(sk_idx, 0, SKILL_COUNT - 1)));
+  setSelectedSkill(
+      static_cast<SkillType>(std::clamp(sk_idx, 0, int{SKILL_COUNT} - 1)));
 }
 
 void MainWindow::onActionDoubleClicked() {
@@ -1218,26 +1220,28 @@ void WindowEquipment::_setupWidget() {
   QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
-  for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-    auto slot = static_cast<EquipSlot>(i);
+  const std::array<EquipSlot, 4> equip_slots = {
+      EquipSlot::Weapon, EquipSlot::Visor, EquipSlot::ExoSuit,
+      EquipSlot::HoloShield};
+  for (int idx = 0; idx < 4; ++idx) {
+    EquipSlot slot = equip_slots[idx];
     grid->addWidget(
-        new QLabel(
-            QString("<b>%1:</b>")
-                .arg(QString::fromStdString(equip_slot_name(slot))),
-            grp_gear),
-        i, 0);
-    _slot_labels[i] = new QLabel(grp_gear);
-    grid->addWidget(_slot_labels[i], i, 1);
-    _slot_buttons[i] = new QPushButton("Unequip", grp_gear);
-    connect(_slot_buttons[i], &QPushButton::clicked, this,
-            [this, i]() { onUnequipSlot(i); });
-    grid->addWidget(_slot_buttons[i], i, 2);
+        new QLabel(QString("<b>%1:</b>")
+                       .arg(QString::fromStdString(equip_slot_name(slot))),
+                   grp_gear),
+        idx, 0);
+    _slot_labels[idx] = new QLabel(grp_gear);
+    grid->addWidget(_slot_labels[idx], idx, 1);
+    _slot_buttons[idx] = new QPushButton("Unequip", grp_gear);
+    connect(_slot_buttons[idx], &QPushButton::clicked, this,
+            [this, idx]() { onUnequipSlot(idx); });
+    grid->addWidget(_slot_buttons[idx], idx, 2);
   }
 
   grid->addWidget(new QLabel("<b>Stim-Injector:</b>", grp_gear),
-                  EQUIP_SLOT_COUNT, 0);
+                  _gameState.equipped_items.size(), 0);
   _label_food = new QLabel(grp_gear);
-  grid->addWidget(_label_food, EQUIP_SLOT_COUNT, 1, 1, 2);
+  grid->addWidget(_label_food, _gameState.equipped_items.size(), 1, 1, 2);
   vbox->addWidget(grp_gear);
 
   QGroupBox* grp_stats = new QGroupBox("Effective Combat Telemetry", this);
@@ -1252,21 +1256,24 @@ void WindowEquipment::_setupWidget() {
 }
 
 void WindowEquipment::updateEquipmentUi() {
-  for (int i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-    ItemId id = _gameState.equipped_items[i];
-    if (is_valid_item(id)) {
+  const std::array<EquipSlot, 4> equip_slots = {
+      EquipSlot::Weapon, EquipSlot::Visor, EquipSlot::ExoSuit,
+      EquipSlot::HoloShield};
+  for (int idx = 0; idx < 4; ++idx) {
+    ItemId id = _gameState.equipped_items.at(equip_slots[idx]);
+    if (is_valid_item(id) && id != ItemId::None) {
       const auto& info = get_item_info(id);
-      _slot_labels[i]->setText(
+      _slot_labels[idx]->setText(
           QString("%1 (+%2 Atk, +%3 Str, +%4 Def, %5% DR)")
               .arg(info.name)
               .arg(info.attack_bonus)
               .arg(info.strength_bonus)
               .arg(info.defence_bonus)
               .arg(info.damage_reduction));
-      _slot_buttons[i]->setEnabled(true);
+      _slot_buttons[idx]->setEnabled(true);
     } else {
-      _slot_labels[i]->setText("Empty");
-      _slot_buttons[i]->setEnabled(false);
+      _slot_labels[idx]->setText("Empty");
+      _slot_buttons[idx]->setEnabled(false);
     }
   }
 
