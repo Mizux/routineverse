@@ -218,6 +218,8 @@ enum class ItemId : uint16_t {
 
 inline constexpr ssize_t ITEM_COUNT = 121;
 
+//! @todo remove equip_slop since ItemCategory already have the information
+//! @todo move all bonus in a struct
 struct ItemInfo {
   ItemId id;
   const char* name;
@@ -429,7 +431,7 @@ class GameState {
   int active_target_ms = 2000;
 
   // Combat state
-  CombatStyle attack_style = CombatStyle::Accurate;
+  CombatStyle combat_style = CombatStyle::Accurate;
   int player_hp = 100;
   int active_monster_id = 0;
   int monster_hp = 30;
@@ -454,6 +456,7 @@ class GameState {
   std::vector<std::string> game_log;
 
   // History for Charts
+  //! @todo use an History struct with all this fields
   std::vector<uint64_t> credits_history;
   std::vector<uint64_t> bank_value_history;
   std::vector<int> total_level_history;

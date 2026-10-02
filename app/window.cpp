@@ -1001,7 +1001,7 @@ void MainWindow::onBankDoubleClicked() {
 }
 
 void MainWindow::onAttackStyleChanged(int idx) {
-  _gameState.attack_style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
+  _gameState.combat_style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
   updateAllUi();
 }
 
@@ -1299,7 +1299,7 @@ void WindowEquipment::updateEquipmentUi() {
       "Damage Reduction: {}%\n"
       "Auto-Stim Threshold: {} HP",
       _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp(),
-      attack_style_name(_gameState.attack_style),
+      attack_style_name(_gameState.combat_style),
       _gameState.player_attack_interval_ms() / 1000.0,
       _gameState.player_max_hit(), _gameState.player_accuracy(),
       _gameState.player_evasion(), _gameState.player_damage_reduction(),

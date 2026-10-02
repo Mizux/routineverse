@@ -1060,7 +1060,7 @@ void GameState::new_game() {
   active_progress_ms = 0;
   active_target_ms = action_effective_interval_ms(0);
 
-  attack_style = CombatStyle::Accurate;
+  combat_style = CombatStyle::Accurate;
   player_hp = max_hp();
   active_monster_id = 0;
   monster_hp = monster_info[0].max_hp;
@@ -1459,9 +1459,9 @@ void GameState::step_combat_tick(int elapsed_ms) {
 
       // Grant combat XP based on damage dealt
       uint64_t c_xp = std::max(4, dmg / 2);
-      if (attack_style == CombatStyle::Accurate) {
+      if (combat_style == CombatStyle::Accurate) {
         gain_xp(SkillType::Attack, c_xp);
-      } else if (attack_style == CombatStyle::Aggressive) {
+      } else if (combat_style == CombatStyle::Aggressive) {
         gain_xp(SkillType::Strength, c_xp);
       } else {
         gain_xp(SkillType::Defence, c_xp);
@@ -1503,9 +1503,9 @@ void GameState::on_monster_defeated(int monster_id) {
   total_credits_earned += cr_drop;
 
   // Bonus XP on kill
-  if (attack_style == CombatStyle::Accurate) {
+  if (combat_style == CombatStyle::Accurate) {
     gain_xp(SkillType::Attack, mon.xp_reward);
-  } else if (attack_style == CombatStyle::Aggressive) {
+  } else if (combat_style == CombatStyle::Aggressive) {
     gain_xp(SkillType::Strength, mon.xp_reward);
   } else {
     gain_xp(SkillType::Defence, mon.xp_reward);
@@ -1934,7 +1934,7 @@ int GameState::player_attack_interval_ms() const {
 
 int GameState::player_max_hit() const {
   int str_lvl = skill_level(SkillType::Strength);
-  if (attack_style == CombatStyle::Aggressive) str_lvl += 3;
+  if (combat_style == CombatStyle::Aggressive) str_lvl += 3;
   int str_bonus = 0;
   for (const auto& [slot, id] : equipped_items) {
     if (is_valid_item(id)) str_bonus += get_item_info(id).strength_bonus;
@@ -1944,7 +1944,7 @@ int GameState::player_max_hit() const {
 
 int GameState::player_accuracy() const {
   int atk_lvl = skill_level(SkillType::Attack);
-  if (attack_style == CombatStyle::Accurate) atk_lvl += 3;
+  if (combat_style == CombatStyle::Accurate) atk_lvl += 3;
   int atk_bonus = 0;
   for (const auto& [slot, id] : equipped_items) {
     if (is_valid_item(id)) atk_bonus += get_item_info(id).attack_bonus;
@@ -1954,7 +1954,7 @@ int GameState::player_accuracy() const {
 
 int GameState::player_evasion() const {
   int def_lvl = skill_level(SkillType::Defence);
-  if (attack_style == CombatStyle::Defensive) def_lvl += 3;
+  if (combat_style == CombatStyle::Defensive) def_lvl += 3;
   int def_bonus = 0;
   for (const auto& [slot, id] : equipped_items) {
     if (is_valid_item(id)) def_bonus += get_item_info(id).defence_bonus;
@@ -2032,7 +2032,7 @@ bool GameState::save_to_file(const std::string& path) const {
       << reactor_tier << " " << auto_stim_tier << "\n";
   out << static_cast<int>(active_type) << " " << active_action_id << " "
       << active_monster_id << " " << player_hp << " " << monster_hp << " "
-      << static_cast<int>(attack_style) << "\n";
+      << static_cast<int>(combat_style) << "\n";
   out << bounty_target_id << " " << bounty_remaining << " "
       << bounties_completed << "\n";
   out << total_items_gathered << " " << total_monsters_killed << " "
@@ -2093,7 +2093,7 @@ bool GameState::load_from_file(const std::string& path) {
   in >> act_t >> active_action_id >> active_monster_id >> player_hp >>
       monster_hp >> style_t;
   active_type = static_cast<ActiveActivityType>(std::clamp(act_t, 0, 2));
-  attack_style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
+  combat_style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
 
   in >> bounty_target_id >> bounty_remaining >> bounties_completed;
   in >> total_items_gathered >> total_monsters_killed >>

@@ -801,8 +801,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
-        "Mode: {} │ Bounty: {}x {}",
-        attack_style_name(_gameState.attack_style),
+        "Mode: {} │ Bounty: {}x {}", attack_style_name(_gameState.combat_style),
         _gameState.bounty_remaining,
         monster_info[_gameState.bounty_target_id].name);
     if (static_cast<int>(style_task.size()) > inner_w) {
@@ -1145,10 +1144,10 @@ void TuiApp::actionSellAllBank() {
 }
 
 void TuiApp::actionCycleAttackStyle() {
-  int next = (static_cast<int>(_gameState.attack_style) + 1) % 3;
-  _gameState.attack_style = static_cast<CombatStyle>(next);
+  int next = (static_cast<int>(_gameState.combat_style) + 1) % 3;
+  _gameState.combat_style = static_cast<CombatStyle>(next);
   _gameState.add_log(std::format("Switched combat mode to {}.",
-                                 attack_style_name(_gameState.attack_style)));
+                                 attack_style_name(_gameState.combat_style)));
 }
 
 void TuiApp::actionNewBountyContract() {
@@ -1294,7 +1293,7 @@ void TuiApp::showEquipmentDialog() {
              _gameState.combat_level(), _gameState.player_hp,
              _gameState.max_hp());
     mvprintw(y + 8, x + 3, "Combat Mode: %s",
-             attack_style_name(_gameState.attack_style).c_str());
+             attack_style_name(_gameState.combat_style).c_str());
     mvprintw(y + 9, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
              _gameState.player_max_hit(), _gameState.player_accuracy(),
              _gameState.player_evasion());
