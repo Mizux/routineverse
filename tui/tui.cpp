@@ -917,6 +917,19 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
   std::string w_str =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
+
+  w_id = _gameState.equipped_items.at(EquipSlot::HoloShield);
+  std::string w_shield =
+      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+
+  w_id = _gameState.equipped_items.at(EquipSlot::Visor);
+  std::string w_visor =
+      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+
+  w_id = _gameState.equipped_items.at(EquipSlot::ExoSuit);
+  std::string w_armor =
+      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+
   std::string food_str =
       (is_valid_item(_gameState.equipped_food_item) &&
        _gameState.equipped_food_qty > 0)
@@ -934,8 +947,11 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(cp));
   };
 
-  print_line(CP_CYAN, std::format("Weapon: {} (MaxHit {})", w_str,
+  print_line(CP_RED, std::format("Weapon: {} (MaxHit {})", w_str,
                                   _gameState.player_max_hit()));
+  print_line(CP_MAGENTA, std::format("Shield: {}", w_shield));
+  print_line(CP_CYAN, std::format("Visor: {}", w_visor));
+  print_line(CP_BORDER, std::format("Armor: {}", w_armor));
   print_line(CP_GREEN, std::format("Stim [f]: {}", food_str));
   print_line(CP_YELLOW,
              std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoStim: Mk{}",
