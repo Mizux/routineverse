@@ -954,16 +954,16 @@ std::string equip_slot_name(EquipSlot slot) {
   return "None";
 }
 
-std::string attack_style_name(CombatStyle style) {
+std::string combat_style_name(CombatStyle style) {
   switch (style) {
     case CombatStyle::Accurate:
-      return "Precision (Attack)";
+      return "Precision (Accuracy)";
     case CombatStyle::Aggressive:
       return "Overdrive (Strength)";
     case CombatStyle::Defensive:
       return "Evasive (Defence)";
   }
-  return "Precision";
+  return "Unknown";
 }
 
 std::string money_string(uint64_t value) {
@@ -1804,7 +1804,7 @@ void GameState::check_auto_eat() {
   }
 }
 
-int GameState::next_bank_slot_cost() const {
+uint64_t GameState::next_bank_slot_cost() const {
   int extra = std::max(0, (bank_capacity - 24) / 4);
   return 150 + extra * extra * 120 + extra * 150;
 }
@@ -1901,7 +1901,7 @@ bool GameState::buy_auto_stim_upgrade() {
 }
 
 bool GameState::buy_bank_slot() {
-  int cost = next_bank_slot_cost();
+  uint64_t cost = next_bank_slot_cost();
   if (credits < cost) {
     add_log(std::format("Not enough Credits for +4 Vault Slots (need {}).",
                         money_string(cost)));

@@ -196,7 +196,7 @@ void window_main_button_docs_clicked_cb(MainWindow& window) {
           "Visors, Holo-Shields, and high-tier Data Crystals.\n\n"
           "• Combat & Bounty Hunting:\n"
           "  - Equip fabricated weapons, cyber-armor, and stims from your Cyber-Vault.\n"
-          "  - Choose your Combat Mode (Precision = Attack, Overdrive = "
+          "  - Choose your Combat Mode (Precision = Accuracy, Overdrive = "
           "Strength, Evasive = Defence).\n"
           "  - Neutralize Bounty Contract targets to earn Bounty XP and Bounty Tokens.\n"
           "  - Unlock the Auto-Stim Injector in the Cyber-Shop to automatically heal during "

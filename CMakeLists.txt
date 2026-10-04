@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24...3.31)
+cmake_minimum_required(VERSION 3.25...4.4)
 
 # Enable output of compile commands during generation.
 option(CMAKE_EXPORT_COMPILE_COMMANDS "Export compile command" ON)

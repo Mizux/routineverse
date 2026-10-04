@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sys/types.h>
-
 #include <array>
 #include <cstdint>
 #include <map>
@@ -9,9 +7,18 @@
 #include <vector>
 
 inline constexpr uint8_t MAX_HISTORY_POINTS = 60;
+
+enum class ActiveActivityType : uint8_t {
+  None,
+  Skill,
+  Combat,
+};
+
+// Skills
 inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 
 enum class SkillType : uint8_t {
+  // Logistic Skill
   Salvaging,
   BioHarvest,
   Farming,
@@ -20,16 +27,38 @@ enum class SkillType : uint8_t {
   DeepMining,
   Smithing,
   CyberFab,
+  // Combat Skill
   Attack,
   Strength,
   Defence,
   Hitpoints,
   Bounty,
+  // Hacking Skill
 };
+std::string skill_name(SkillType skill);
+std::string skill_short_name(SkillType skill);
 
-inline constexpr ssize_t SKILL_COUNT = 13;
-inline constexpr ssize_t NON_COMBAT_SKILL_COUNT = 8;
+inline constexpr size_t SKILL_COUNT = 13;
+inline constexpr size_t NON_COMBAT_SKILL_COUNT = 8;
 
+// Gears
+enum class EquipSlot : int8_t {
+  None = -1,
+  Weapon,
+  Visor,
+  ExoSuit,
+  HoloShield,
+};
+std::string equip_slot_name(EquipSlot slot);
+
+enum class CombatStyle : uint8_t {
+  Accurate,    // Trains Precision (+accuracy)
+  Aggressive,  // Trains Strength (+max hit)
+  Defensive,   // Trains Defence (+evasion)
+};
+std::string combat_style_name(CombatStyle style);
+
+// Items
 enum class ItemCategory : uint8_t {
   Scrap,
   RawMaterial,
@@ -46,26 +75,7 @@ enum class ItemCategory : uint8_t {
   HoloShield,
   CyberLoot,
 };
-
-enum class EquipSlot : int8_t {
-  None = -1,
-  Weapon,
-  Visor,
-  ExoSuit,
-  HoloShield,
-};
-
-enum class CombatStyle : uint8_t {
-  Accurate,    // Trains Attack (+accuracy)
-  Aggressive,  // Trains Strength (+max hit)
-  Defensive,   // Trains Defence (+evasion)
-};
-
-enum class ActiveActivityType : uint8_t {
-  None,
-  Skill,
-  Combat,
-};
+std::string item_category_name(ItemCategory cat);
 
 enum class ItemId : uint16_t {
   None,
@@ -215,8 +225,10 @@ enum class ItemId : uint16_t {
   Microchip,
   SynthWeaveHide,
 };
-
-inline constexpr ssize_t ITEM_COUNT = 121;
+inline constexpr size_t ITEM_COUNT = 121;
+inline constexpr bool is_valid_item(ItemId id) {
+  return id == ItemId::None ? false: true;
+}
 
 //! @todo remove equip_slop since ItemCategory already have the information
 //! @todo move all bonus in a struct
@@ -233,6 +245,10 @@ struct ItemInfo {
   int defence_bonus;     // Evasion bonus
   int damage_reduction;  // Damage reduction %
 };
+extern const std::array<ItemInfo, ITEM_COUNT> item_info;
+inline const ItemInfo& get_item_info(ItemId id) {
+  return item_info[static_cast<int>(id)];
+}
 
 struct SkillAction {
   SkillType skill;
@@ -247,7 +263,9 @@ struct SkillAction {
   ItemId input_item_2;
   int input_qty_2;
 };
+extern const std::vector<SkillAction> skill_actions;
 
+// Monsters
 struct MonsterDrop {
   ItemId item_id;
   int chance_pct;  // 1..100
@@ -271,6 +289,8 @@ struct MonsterInfo {
   bool is_boss;
   std::array<MonsterDrop, 3> drops;
 };
+inline constexpr int MONSTER_COUNT = 12;
+extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
 
 struct ShopUpgradeInfo {
   uint8_t tier;
@@ -280,40 +300,21 @@ struct ShopUpgradeInfo {
   uint64_t cost_credits;
   uint8_t speed_bonus_pct;
 };
+inline constexpr int TOOL_TIER_COUNT = 7;
+extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades;
+extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
+extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
+extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
+inline constexpr int AUTO_STIM_TIER_COUNT = 4;
+extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
 
 struct BankSlot {
   ItemId item_id = ItemId::None;
   int qty = 0;
 };
 
-inline constexpr int MONSTER_COUNT = 12;
-inline constexpr int TOOL_TIER_COUNT = 7;
-inline constexpr int AUTO_STIM_TIER_COUNT = 4;
-
-extern const std::array<ItemInfo, ITEM_COUNT> item_info;
-extern const std::vector<SkillAction> skill_actions;
-extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
-extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
-
-inline constexpr bool is_valid_item(ItemId id) {
-  int idx = static_cast<int>(id);
-  return idx >= 0 && idx < ITEM_COUNT;
-}
-
-inline const ItemInfo& get_item_info(ItemId id) {
-  return item_info[static_cast<int>(id)];
-}
 
 // Utility & Formatting functions
-std::string skill_name(SkillType skill);
-std::string skill_short_name(SkillType skill);
-std::string item_category_name(ItemCategory cat);
-std::string equip_slot_name(EquipSlot slot);
-std::string attack_style_name(CombatStyle style);
 std::string money_string(uint64_t value);
 std::string number_string(uint64_t value);
 
@@ -360,7 +361,7 @@ class GameState {
   void assign_new_bounty_contract();
 
   // Black Market / Cyber-Shop upgrades
-  int next_bank_slot_cost() const;
+  uint64_t next_bank_slot_cost() const;
   bool buy_cutter_upgrade();
   bool buy_harvester_upgrade();
   bool buy_drill_upgrade();

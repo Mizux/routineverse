@@ -347,7 +347,7 @@ void MainWindow::_setupWidget() {
   QHBoxLayout* hbox_combat_top = new QHBoxLayout();
   hbox_combat_top->addWidget(new QLabel("Mode:", tab_combat));
   _combo_attack_style = new QComboBox(tab_combat);
-  _combo_attack_style->addItem("Precision (Trains Attack)");
+  _combo_attack_style->addItem("Precision (Trains Accuracy)");
   _combo_attack_style->addItem("Overdrive (Trains Strength)");
   _combo_attack_style->addItem("Evasive (Trains Defence)");
   connect(_combo_attack_style,
@@ -1299,7 +1299,7 @@ void WindowEquipment::updateEquipmentUi() {
       "Damage Reduction: {}%\n"
       "Auto-Stim Threshold: {} HP",
       _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp(),
-      attack_style_name(_gameState.combat_style),
+      combat_style_name(_gameState.combat_style),
       _gameState.player_attack_interval_ms() / 1000.0,
       _gameState.player_max_hit(), _gameState.player_accuracy(),
       _gameState.player_evasion(), _gameState.player_damage_reduction(),
