@@ -34,7 +34,7 @@ flowchart TD
 
 ## 2. 8-Tier Weapon & Cyber-Armor Progression
 
-Weapons (`EquipSlot::Weapon`) and Exo-Suits (`EquipSlot::ExoSuit`) are forged via **Smithing**, while Visors (`EquipSlot::Visor`) and Holo-Shields (`EquipSlot::HoloShield`) are fabricated via **Cyber-Fab**.
+Weapons (`EquipSlot::Weapon`) and Exo-Suits (`EquipSlot::Armor`) are forged via **Smithing**, while Visors (`EquipSlot::Head`) and Holo-Shields (`EquipSlot::Shield`) are fabricated via **Cyber-Fab**.
 
 ```mermaid
 flowchart LR

@@ -213,9 +213,9 @@ enum class ItemCategory : uint8_t {
   Alloy,
   DataCrystal,
   Weapon,
-  Visor,
-  ExoSuit,
-  HoloShield,
+  Head,
+  Armor,
+  Shield,
   Cutter,
   Harvester,
   Drill,
@@ -279,9 +279,9 @@ extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
 enum class EquipSlot : int8_t {
   None = -1,
   Weapon,
-  Visor,
-  ExoSuit,
-  HoloShield,
+  Head,
+  Armor,
+  Shield,
   Cutter,
   Harvester,
   Drill,
@@ -294,12 +294,12 @@ inline constexpr EquipSlot equip_slot(ItemCategory cat) {
   switch (cat) {
     case ItemCategory::Weapon:
       return EquipSlot::Weapon;
-    case ItemCategory::Visor:
-      return EquipSlot::Visor;
-    case ItemCategory::ExoSuit:
-      return EquipSlot::ExoSuit;
-    case ItemCategory::HoloShield:
-      return EquipSlot::HoloShield;
+    case ItemCategory::Head:
+      return EquipSlot::Head;
+    case ItemCategory::Armor:
+      return EquipSlot::Armor;
+    case ItemCategory::Shield:
+      return EquipSlot::Shield;
     case ItemCategory::Cutter:
       return EquipSlot::Cutter;
     case ItemCategory::Harvester:
@@ -524,9 +524,9 @@ class GameState {
 
   std::map<EquipSlot, ItemId> equipped_items = {
       {EquipSlot::Weapon, ItemId::None},
-      {EquipSlot::Visor, ItemId::None},
-      {EquipSlot::ExoSuit, ItemId::None},
-      {EquipSlot::HoloShield, ItemId::None},
+      {EquipSlot::Head, ItemId::None},
+      {EquipSlot::Armor, ItemId::None},
+      {EquipSlot::Shield, ItemId::None},
       {EquipSlot::Cutter, ItemId::None},
       {EquipSlot::Harvester, ItemId::None},
       {EquipSlot::Drill, ItemId::None},

@@ -904,15 +904,15 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   std::string w_str =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::HoloShield);
+  w_id = _gameState.equipped_items.at(EquipSlot::Shield);
   std::string w_shield =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::Visor);
+  w_id = _gameState.equipped_items.at(EquipSlot::Head);
   std::string w_visor =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::ExoSuit);
+  w_id = _gameState.equipped_items.at(EquipSlot::Armor);
   std::string w_armor =
       is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 

@@ -245,58 +245,58 @@ const std::array<ItemInfo, ITEM_COUNT> item_info = {{
      12000, 0, 75, {165, 180, 0, 0}},
 
     // Visors
-    {ItemId::ScrapVisor, "Scrap Optic Visor", ItemCategory::Visor, 40, 0, 1,
+    {ItemId::ScrapVisor, "Scrap Optic Visor", ItemCategory::Head, 40, 0, 1,
      {0, 0, 6, 1}},
-    {ItemId::TitaniumVisor, "Titanium HUD Visor", ItemCategory::Visor, 90, 0, 5,
+    {ItemId::TitaniumVisor, "Titanium HUD Visor", ItemCategory::Head, 90, 0, 5,
      {0, 0, 11, 2}},
-    {ItemId::DurasteelVisor, "Durasteel Tac-Helm", ItemCategory::Visor, 200, 0,
+    {ItemId::DurasteelVisor, "Durasteel Tac-Helm", ItemCategory::Head, 200, 0,
      10, {0, 0, 18, 3}},
-    {ItemId::CobaltVisor, "Cobalt Neural Visor", ItemCategory::Visor, 500, 0,
+    {ItemId::CobaltVisor, "Cobalt Neural Visor", ItemCategory::Head, 500, 0,
      20, {0, 0, 27, 4}},
-    {ItemId::TungstenVisor, "Tungsten Cyber-Helm", ItemCategory::Visor, 950, 0,
+    {ItemId::TungstenVisor, "Tungsten Cyber-Helm", ItemCategory::Head, 950, 0,
      30, {0, 0, 38, 5}},
-    {ItemId::NeutroniumVisor, "Neutronium Mind-Crown", ItemCategory::Visor,
+    {ItemId::NeutroniumVisor, "Neutronium Mind-Crown", ItemCategory::Head,
      2100, 0, 40, {0, 0, 52, 7}},
-    {ItemId::ChronoVisor, "Chrono-Sync Visor", ItemCategory::Visor, 5200, 0, 60,
+    {ItemId::ChronoVisor, "Chrono-Sync Visor", ItemCategory::Head, 5200, 0, 60,
      {0, 0, 72, 10}},
-    {ItemId::QuantumVisor, "Quantum Tachyon Visor", ItemCategory::Visor, 10500,
+    {ItemId::QuantumVisor, "Quantum Tachyon Visor", ItemCategory::Head, 10500,
      0, 75, {0, 0, 98, 13}},
 
     // Exo-Suits
-    {ItemId::ScrapExoSuit, "Scrap Exo-Harness", ItemCategory::ExoSuit, 85, 0, 1,
+    {ItemId::ScrapExoSuit, "Scrap Exo-Harness", ItemCategory::Armor, 85, 0, 1,
      {0, 0, 14, 2}},
-    {ItemId::TitaniumExoSuit, "Titanium Flak-Jacket", ItemCategory::ExoSuit,
+    {ItemId::TitaniumExoSuit, "Titanium Flak-Jacket", ItemCategory::Armor,
      180, 0, 5, {0, 0, 24, 3}},
-    {ItemId::DurasteelExoSuit, "Durasteel Exo-Rig", ItemCategory::ExoSuit, 400,
+    {ItemId::DurasteelExoSuit, "Durasteel Exo-Rig", ItemCategory::Armor, 400,
      0, 10, {0, 0, 36, 5}},
-    {ItemId::CobaltExoSuit, "Cobalt Subdermal Rig", ItemCategory::ExoSuit, 950,
+    {ItemId::CobaltExoSuit, "Cobalt Subdermal Rig", ItemCategory::Armor, 950,
      0, 20, {0, 0, 52, 7}},
-    {ItemId::TungstenExoSuit, "Tungsten Power-Armor", ItemCategory::ExoSuit,
+    {ItemId::TungstenExoSuit, "Tungsten Power-Armor", ItemCategory::Armor,
      1900, 0, 30, {0, 0, 74, 9}},
-    {ItemId::NeutroniumExoSuit, "Neutronium Nano-Suit", ItemCategory::ExoSuit,
+    {ItemId::NeutroniumExoSuit, "Neutronium Nano-Suit", ItemCategory::Armor,
      4200, 0, 40, {0, 0, 102, 12}},
-    {ItemId::ChronoExoSuit, "Chrono-Weave Exo-Suit", ItemCategory::ExoSuit,
+    {ItemId::ChronoExoSuit, "Chrono-Weave Exo-Suit", ItemCategory::Armor,
      9800, 0, 60, {0, 0, 140, 16}},
-    {ItemId::QuantumExoSuit, "Quantum Phase Exo-Suit", ItemCategory::ExoSuit,
+    {ItemId::QuantumExoSuit, "Quantum Phase Exo-Suit", ItemCategory::Armor,
      19500, 0, 75, {0, 0, 190, 20}},
 
     // Holo-Shields
-    {ItemId::ScrapShield, "Scrap Riot Buckler", ItemCategory::HoloShield, 55, 0,
+    {ItemId::ScrapShield, "Scrap Riot Buckler", ItemCategory::Shield, 55, 0,
      1, {0, 0, 9, 1}},
-    {ItemId::TitaniumShield, "Titanium Deflector", ItemCategory::HoloShield,
+    {ItemId::TitaniumShield, "Titanium Deflector", ItemCategory::Shield,
      120, 0, 5, {0, 0, 16, 2}},
-    {ItemId::DurasteelShield, "Durasteel Barrier", ItemCategory::HoloShield,
+    {ItemId::DurasteelShield, "Durasteel Barrier", ItemCategory::Shield,
      260, 0, 10, {0, 0, 25, 3}},
-    {ItemId::CobaltShield, "Cobalt Holo-Aegis", ItemCategory::HoloShield, 620,
+    {ItemId::CobaltShield, "Cobalt Holo-Aegis", ItemCategory::Shield, 620,
      0, 20, {0, 0, 36, 5}},
-    {ItemId::TungstenShield, "Tungsten Pulse-Shield", ItemCategory::HoloShield,
+    {ItemId::TungstenShield, "Tungsten Pulse-Shield", ItemCategory::Shield,
      1250, 0, 30, {0, 0, 50, 6}},
     {ItemId::NeutroniumShield, "Neutronium Forcefield",
-     ItemCategory::HoloShield, 2800, 0, 40, {0, 0, 68, 8}},
-    {ItemId::ChronoShield, "Chrono-Phase Barrier", ItemCategory::HoloShield,
+     ItemCategory::Shield, 2800, 0, 40, {0, 0, 68, 8}},
+    {ItemId::ChronoShield, "Chrono-Phase Barrier", ItemCategory::Shield,
      6800, 0, 60, {0, 0, 96, 12}},
     {ItemId::QuantumShield, "Quantum Event-Horizon Shield",
-     ItemCategory::HoloShield, 13500, 0, 75, {0, 0, 132, 15}},
+     ItemCategory::Shield, 13500, 0, 75, {0, 0, 132, 15}},
 
     // Tools - Salvaging Cutters
     {ItemId::ScrapCutter, "Scrap Cutter", ItemCategory::Cutter, 10, 0, 1,
@@ -1041,11 +1041,11 @@ std::string item_category_name(ItemCategory cat) {
       return "Crystal";
     case ItemCategory::Weapon:
       return "Weapon";
-    case ItemCategory::Visor:
-      return "Visor";
-    case ItemCategory::ExoSuit:
-      return "Exo-Suit";
-    case ItemCategory::HoloShield:
+    case ItemCategory::Head:
+      return "Head";
+    case ItemCategory::Armor:
+      return "Armor";
+    case ItemCategory::Shield:
       return "Shield";
     case ItemCategory::Cutter:
       return "Cutter";
@@ -1067,12 +1067,12 @@ std::string equip_slot_name(EquipSlot slot) {
   switch (slot) {
     case EquipSlot::Weapon:
       return "Weapon";
-    case EquipSlot::Visor:
-      return "Visor";
-    case EquipSlot::ExoSuit:
-      return "Exo-Suit";
-    case EquipSlot::HoloShield:
-      return "Holo-Shield";
+    case EquipSlot::Head:
+      return "Head";
+    case EquipSlot::Armor:
+      return "Armor";
+    case EquipSlot::Shield:
+      return "Shield";
     case EquipSlot::Cutter:
       return "Cutter";
     case EquipSlot::Harvester:
@@ -1217,9 +1217,9 @@ void GameState::new_game() {
   // Give starter Scrap Vibro-Knife and starter tools equipped
   equipped_items = {
       {EquipSlot::Weapon, ItemId::ScrapBlade},
-      {EquipSlot::Visor, ItemId::None},
-      {EquipSlot::ExoSuit, ItemId::None},
-      {EquipSlot::HoloShield, ItemId::None},
+      {EquipSlot::Head, ItemId::None},
+      {EquipSlot::Armor, ItemId::None},
+      {EquipSlot::Shield, ItemId::None},
       {EquipSlot::Cutter, ItemId::ScrapCutter},
       {EquipSlot::Harvester, ItemId::ScrapHarvester},
       {EquipSlot::Drill, ItemId::ScrapDrill},
@@ -1947,9 +1947,9 @@ bool GameState::equip_item(ItemId item_id) {
         return false;
       }
       break;
-    case EquipSlot::Visor:
-    case EquipSlot::ExoSuit:
-    case EquipSlot::HoloShield:
+    case EquipSlot::Head:
+    case EquipSlot::Armor:
+    case EquipSlot::Shield:
       if (skill_level(SkillType::Defence) < info.req_level) {
         add_log(std::format("Requires Defence Level {} to equip {}.",
                             info.req_level, info.name));
@@ -2382,8 +2382,8 @@ bool GameState::load_from_file(const std::string& path) {
     auto food_id = static_cast<ItemId>(raw_food_id);
     equipped_food_item = is_valid_item(food_id) ? food_id : ItemId::None;
   } else {
-    for (const auto& slot : {EquipSlot::Weapon, EquipSlot::Visor,
-                             EquipSlot::ExoSuit, EquipSlot::HoloShield}) {
+    for (const auto& slot : {EquipSlot::Weapon, EquipSlot::Head,
+                             EquipSlot::Armor, EquipSlot::Shield}) {
       int raw_id = -1;
       in >> raw_id;
       auto id = static_cast<ItemId>(raw_id);
