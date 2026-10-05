@@ -20,11 +20,9 @@ set_target_properties(libroutineverse PROPERTIES
   PUBLIC_HEADER routineverse.h
 )
 if(APPLE)
-  set_target_properties(libroutineverse PROPERTIES
-    INSTALL_RPATH "@loader_path")
+  set_target_properties(libroutineverse PROPERTIES INSTALL_RPATH "@loader_path")
 elseif(UNIX AND NOT APPLE)
-  set_target_properties(libroutineverse PROPERTIES
-    INSTALL_RPATH "$ORIGIN")
+  set_target_properties(libroutineverse PROPERTIES INSTALL_RPATH "$ORIGIN")
 endif()
 add_library(${PROJECT_NAMESPACE}::libroutineverse ALIAS libroutineverse)
 

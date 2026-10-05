@@ -197,9 +197,8 @@ enum class ItemId : uint16_t {
   Microchip,
   SynthWeaveHide,
 };
-inline constexpr size_t ITEM_COUNT = 152;
 inline constexpr bool is_valid_item(ItemId id) {
-  return id == ItemId::None ? false: true;
+  return id == ItemId::None ? false : true;
 }
 
 enum class ItemCategory : uint8_t {
@@ -230,7 +229,8 @@ struct Bonus {
   int strength = 0;          // Max hit bonus
   int defence = 0;           // Evasion bonus
   int damage_reduction = 0;  // Damage reduction %
-  int speed_bonus_pct = 0;   // Tool interval reduction % (or Auto-Stim threshold %)
+  int speed_bonus_pct =
+      0;  // Tool interval reduction % (or Auto-Stim threshold %)
 };
 
 struct ItemInfo {
@@ -242,10 +242,8 @@ struct ItemInfo {
   int req_level;    // Required skill level to equip
   Bonus bonus{};
 };
-extern const std::array<ItemInfo, ITEM_COUNT> item_info;
-inline const ItemInfo& get_item_info(ItemId id) {
-  return item_info[static_cast<int>(id)];
-}
+
+const ItemInfo& get_item_info(ItemId id);
 std::string item_equip_summary(ItemId id);
 
 // Monsters
@@ -383,7 +381,8 @@ extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
 inline constexpr int AUTO_STIM_TIER_COUNT = 4;
-extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
+extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT>
+    auto_stim_upgrades;
 
 // Utility & Formatting functions
 std::string money_string(uint64_t value);
@@ -523,14 +522,10 @@ class GameState {
   Bank bank;
 
   std::map<EquipSlot, ItemId> equipped_items = {
-      {EquipSlot::Weapon, ItemId::None},
-      {EquipSlot::Head, ItemId::None},
-      {EquipSlot::Armor, ItemId::None},
-      {EquipSlot::Shield, ItemId::None},
-      {EquipSlot::Cutter, ItemId::None},
-      {EquipSlot::Harvester, ItemId::None},
-      {EquipSlot::Drill, ItemId::None},
-      {EquipSlot::Reactor, ItemId::None},
+      {EquipSlot::Weapon, ItemId::None},  {EquipSlot::Head, ItemId::None},
+      {EquipSlot::Armor, ItemId::None},   {EquipSlot::Shield, ItemId::None},
+      {EquipSlot::Cutter, ItemId::None},  {EquipSlot::Harvester, ItemId::None},
+      {EquipSlot::Drill, ItemId::None},   {EquipSlot::Reactor, ItemId::None},
       {EquipSlot::AutoStim, ItemId::None}};
   ItemId equipped_food_item = ItemId::None;
   int equipped_food_qty = 0;

@@ -1,6 +1,7 @@
 #include "routineverse.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -40,348 +41,1105 @@ const std::array<uint64_t, MAX_SKILL_LEVEL + 1>& xp_table() {
 
 }  // namespace
 
-const std::array<ItemInfo, ITEM_COUNT> item_info = {{
-    {ItemId::None, "Empty", ItemCategory::Scrap, 0, 0, 0, {0, 0, 0, 0}},
+const ItemInfo& get_item_info(ItemId id) {
+  static const std::array item_info{std::to_array<ItemInfo>({
+      {ItemId::None, "Empty", ItemCategory::Scrap, 0, 0, 0, {0, 0, 0, 0}},
+      // Scrap & Tech Nodes
+      {ItemId::CopperWireScrap,
+       "Copper Wire Scrap",
+       ItemCategory::Scrap,
+       2,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasteelShards,
+       "Plasteel Shards",
+       ItemCategory::Scrap,
+       5,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CarbonNanotubes,
+       "Carbon Nanotubes",
+       ItemCategory::Scrap,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::OpticFiberBundle,
+       "Optic Fiber Bundle",
+       ItemCategory::Scrap,
+       18,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PositronicRelays,
+       "Positronic Relays",
+       ItemCategory::Scrap,
+       30,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CryoCellCore,
+       "Cryo-Cell Core",
+       ItemCategory::Scrap,
+       45,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasmaConduit,
+       "Plasma Conduit",
+       ItemCategory::Scrap,
+       70,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumNode,
+       "Quantum Node",
+       ItemCategory::Scrap,
+       120,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::AiMainframeCore,
+       "AI Mainframe Core",
+       ItemCategory::Scrap,
+       200,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Scrap & Tech Nodes
-    {ItemId::CopperWireScrap, "Copper Wire Scrap", ItemCategory::Scrap, 2, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::PlasteelShards, "Plasteel Shards", ItemCategory::Scrap, 5, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::CarbonNanotubes, "Carbon Nanotubes", ItemCategory::Scrap, 10, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::OpticFiberBundle, "Optic Fiber Bundle", ItemCategory::Scrap, 18, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::PositronicRelays, "Positronic Relays", ItemCategory::Scrap, 30, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::CryoCellCore, "Cryo-Cell Core", ItemCategory::Scrap, 45, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::PlasmaConduit, "Plasma Conduit", ItemCategory::Scrap, 70, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::QuantumNode, "Quantum Node", ItemCategory::Scrap, 120, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::AiMainframeCore, "AI Mainframe Core", ItemCategory::Scrap, 200, 0,
-     1, {0, 0, 0, 0}},
+      // Recycled Basic / Raw Materials
+      {ItemId::CopperFilament,
+       "Copper Filament",
+       ItemCategory::RawMaterial,
+       6,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasteelPolymer,
+       "Plasteel Polymer",
+       ItemCategory::RawMaterial,
+       14,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CarbonFiberWeave,
+       "Carbon Fiber Weave",
+       ItemCategory::RawMaterial,
+       28,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::OpticSilicaGlass,
+       "Optic Silica Glass",
+       ItemCategory::RawMaterial,
+       48,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PositronicWafer,
+       "Positronic Wafer",
+       ItemCategory::RawMaterial,
+       80,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CryoCoolantGel,
+       "Cryo-Coolant Gel",
+       ItemCategory::RawMaterial,
+       120,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasmaCoil,
+       "Magnetic Plasma Coil",
+       ItemCategory::RawMaterial,
+       185,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumLattice,
+       "Quantum Lattice",
+       ItemCategory::RawMaterial,
+       310,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NeuralMatrix,
+       "Neural Matrix",
+       ItemCategory::RawMaterial,
+       520,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Recycled Basic / Raw Materials
-    {ItemId::CopperFilament, "Copper Filament", ItemCategory::RawMaterial, 6, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::PlasteelPolymer, "Plasteel Polymer", ItemCategory::RawMaterial, 14,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::CarbonFiberWeave, "Carbon Fiber Weave", ItemCategory::RawMaterial,
-     28, 0, 1, {0, 0, 0, 0}},
-    {ItemId::OpticSilicaGlass, "Optic Silica Glass", ItemCategory::RawMaterial,
-     48, 0, 1, {0, 0, 0, 0}},
-    {ItemId::PositronicWafer, "Positronic Wafer", ItemCategory::RawMaterial, 80,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::CryoCoolantGel, "Cryo-Coolant Gel", ItemCategory::RawMaterial, 120,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::PlasmaCoil, "Magnetic Plasma Coil", ItemCategory::RawMaterial, 185,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::QuantumLattice, "Quantum Lattice", ItemCategory::RawMaterial, 310,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::NeuralMatrix, "Neural Matrix", ItemCategory::RawMaterial, 520, 0,
-     1, {0, 0, 0, 0}},
+      // Raw Synth-Biota
+      {ItemId::RawKrillBiomass,
+       "Raw Krill Biomass",
+       ItemCategory::RawBiota,
+       3,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawNeonEel,
+       "Raw Neon Eel",
+       ItemCategory::RawBiota,
+       6,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawSynthCarp,
+       "Raw Synth-Carp",
+       ItemCategory::RawBiota,
+       14,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawChromeSalmon,
+       "Raw Chrome Salmon",
+       ItemCategory::RawBiota,
+       24,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawCyberLobster,
+       "Raw Cyber-Lobster",
+       ItemCategory::RawBiota,
+       45,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawPlasmaRay,
+       "Raw Plasma Ray",
+       ItemCategory::RawBiota,
+       75,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawApexShark,
+       "Raw Apex Shark",
+       ItemCategory::RawBiota,
+       140,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawLeviathanCell,
+       "Raw Leviathan Cell",
+       ItemCategory::RawBiota,
+       260,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RawCyberKraken,
+       "Raw Cyber-Kraken",
+       ItemCategory::RawBiota,
+       450,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Raw Synth-Biota
-    {ItemId::RawKrillBiomass, "Raw Krill Biomass", ItemCategory::RawBiota, 3, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::RawNeonEel, "Raw Neon Eel", ItemCategory::RawBiota, 6, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::RawSynthCarp, "Raw Synth-Carp", ItemCategory::RawBiota, 14, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::RawChromeSalmon, "Raw Chrome Salmon", ItemCategory::RawBiota, 24,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::RawCyberLobster, "Raw Cyber-Lobster", ItemCategory::RawBiota, 45,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::RawPlasmaRay, "Raw Plasma Ray", ItemCategory::RawBiota, 75, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::RawApexShark, "Raw Apex Shark", ItemCategory::RawBiota, 140, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::RawLeviathanCell, "Raw Leviathan Cell", ItemCategory::RawBiota,
-     260, 0, 1, {0, 0, 0, 0}},
-    {ItemId::RawCyberKraken, "Raw Cyber-Kraken", ItemCategory::RawBiota, 450, 0,
-     1, {0, 0, 0, 0}},
+      // Hydro-Farmed Crops & Synth-Noodles
+      {ItemId::HydroWheat,
+       "Hydro-Wheat",
+       ItemCategory::Crop,
+       4,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SoyPods,
+       "Synth-Soy Pods",
+       ItemCategory::Crop,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NeonScallion,
+       "Neon Scallion",
+       ItemCategory::Crop,
+       22,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::GlowNori,
+       "Bioluminescent Nori",
+       ItemCategory::Crop,
+       42,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::BioBamboo,
+       "Cyber-Bamboo Shoot",
+       ItemCategory::Crop,
+       75,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CyberShiitake,
+       "Spore-Tech Shiitake",
+       ItemCategory::Crop,
+       130,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasmaChili,
+       "Plasma Ghost-Chili",
+       ItemCategory::Crop,
+       225,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ChronoLotus,
+       "Chrono-Lotus Root",
+       ItemCategory::Crop,
+       380,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumTruffle,
+       "Quantum Myco-Truffle",
+       ItemCategory::Crop,
+       650,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SynthNoodles,
+       "Synth-Noodles",
+       ItemCategory::Crop,
+       8,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Hydro-Farmed Crops & Synth-Noodles
-    {ItemId::HydroWheat, "Hydro-Wheat", ItemCategory::Crop, 4, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::SoyPods, "Synth-Soy Pods", ItemCategory::Crop, 10, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::NeonScallion, "Neon Scallion", ItemCategory::Crop, 22, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::GlowNori, "Bioluminescent Nori", ItemCategory::Crop, 42, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::BioBamboo, "Cyber-Bamboo Shoot", ItemCategory::Crop, 75, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::CyberShiitake, "Spore-Tech Shiitake", ItemCategory::Crop, 130, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::PlasmaChili, "Plasma Ghost-Chili", ItemCategory::Crop, 225, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::ChronoLotus, "Chrono-Lotus Root", ItemCategory::Crop, 380, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::QuantumTruffle, "Quantum Myco-Truffle", ItemCategory::Crop, 650, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::SynthNoodles, "Synth-Noodles", ItemCategory::Crop, 8, 0, 1,
-     {0, 0, 0, 0}},
+      // Synthesized Stims, Cyber-Ramen & Toxic Slag
+      {ItemId::KrillRation,
+       "Krill Ration",
+       ItemCategory::StimFood,
+       8,
+       30,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NeonEelSkewer,
+       "Neon Eel Skewer",
+       ItemCategory::StimFood,
+       15,
+       50,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SynthCarpPack,
+       "Synth-Carp Pack",
+       ItemCategory::StimFood,
+       32,
+       80,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ChromeSalmonStim,
+       "Chrome Salmon Stim",
+       ItemCategory::StimFood,
+       55,
+       110,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CyberLobsterMeal,
+       "Cyber-Lobster Meal",
+       ItemCategory::StimFood,
+       100,
+       160,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasmaRayInfusion,
+       "Plasma Ray Infusion",
+       ItemCategory::StimFood,
+       165,
+       220,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ApexSharkBooster,
+       "Apex Shark Booster",
+       ItemCategory::StimFood,
+       300,
+       320,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::LeviathanNanomed,
+       "Leviathan Nanomed",
+       ItemCategory::StimFood,
+       550,
+       480,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::KrakenBioElixir,
+       "Kraken Bio-Elixir",
+       ItemCategory::StimFood,
+       950,
+       680,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ShoyuRamen,
+       "Soy-Shoyu Cyber-Ramen",
+       ItemCategory::StimFood,
+       35,
+       65,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ScallionRamen,
+       "Neon Scallion Ramen",
+       ItemCategory::StimFood,
+       68,
+       125,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NoriRamen,
+       "Glow-Nori Umami Ramen",
+       ItemCategory::StimFood,
+       135,
+       195,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::BambooRamen,
+       "Cyber-Bamboo Miso Ramen",
+       ItemCategory::StimFood,
+       230,
+       280,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ShiitakeRamen,
+       "Spore-Shiitake Tonkotsu Ramen",
+       ItemCategory::StimFood,
+       390,
+       390,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::PlasmaChiliRamen,
+       "Plasma Volcano Ramen",
+       ItemCategory::StimFood,
+       680,
+       540,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ChronoLotusRamen,
+       "Chrono-Lotus Broth Ramen",
+       ItemCategory::StimFood,
+       1150,
+       720,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::TruffleRamen,
+       "Quantum Truffle Ramen",
+       ItemCategory::StimFood,
+       1850,
+       860,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumKrakenRamen,
+       "Quantum Kraken Special Ramen",
+       ItemCategory::StimFood,
+       2200,
+       980,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SynthProteinBar,
+       "Synth-Protein Bar",
+       ItemCategory::StimFood,
+       6,
+       25,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ToxicSlag,
+       "Toxic Bio-Slag",
+       ItemCategory::ToxicWaste,
+       1,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Synthesized Stims, Cyber-Ramen & Toxic Slag
-    {ItemId::KrillRation, "Krill Ration", ItemCategory::StimFood, 8, 30, 1,
-     {0, 0, 0, 0}},
-    {ItemId::NeonEelSkewer, "Neon Eel Skewer", ItemCategory::StimFood, 15, 50,
-     1, {0, 0, 0, 0}},
-    {ItemId::SynthCarpPack, "Synth-Carp Pack", ItemCategory::StimFood, 32, 80,
-     1, {0, 0, 0, 0}},
-    {ItemId::ChromeSalmonStim, "Chrome Salmon Stim", ItemCategory::StimFood, 55,
-     110, 1, {0, 0, 0, 0}},
-    {ItemId::CyberLobsterMeal, "Cyber-Lobster Meal", ItemCategory::StimFood,
-     100, 160, 1, {0, 0, 0, 0}},
-    {ItemId::PlasmaRayInfusion, "Plasma Ray Infusion", ItemCategory::StimFood,
-     165, 220, 1, {0, 0, 0, 0}},
-    {ItemId::ApexSharkBooster, "Apex Shark Booster", ItemCategory::StimFood,
-     300, 320, 1, {0, 0, 0, 0}},
-    {ItemId::LeviathanNanomed, "Leviathan Nanomed", ItemCategory::StimFood, 550,
-     480, 1, {0, 0, 0, 0}},
-    {ItemId::KrakenBioElixir, "Kraken Bio-Elixir", ItemCategory::StimFood, 950,
-     680, 1, {0, 0, 0, 0}},
-    {ItemId::ShoyuRamen, "Soy-Shoyu Cyber-Ramen", ItemCategory::StimFood, 35,
-     65, 1, {0, 0, 0, 0}},
-    {ItemId::ScallionRamen, "Neon Scallion Ramen", ItemCategory::StimFood, 68,
-     125, 1, {0, 0, 0, 0}},
-    {ItemId::NoriRamen, "Glow-Nori Umami Ramen", ItemCategory::StimFood, 135,
-     195, 1, {0, 0, 0, 0}},
-    {ItemId::BambooRamen, "Cyber-Bamboo Miso Ramen", ItemCategory::StimFood,
-     230, 280, 1, {0, 0, 0, 0}},
-    {ItemId::ShiitakeRamen, "Spore-Shiitake Tonkotsu Ramen",
-     ItemCategory::StimFood, 390, 390, 1, {0, 0, 0, 0}},
-    {ItemId::PlasmaChiliRamen, "Plasma Volcano Ramen", ItemCategory::StimFood,
-     680, 540, 1, {0, 0, 0, 0}},
-    {ItemId::ChronoLotusRamen, "Chrono-Lotus Broth Ramen",
-     ItemCategory::StimFood, 1150, 720, 1, {0, 0, 0, 0}},
-    {ItemId::TruffleRamen, "Quantum Truffle Ramen", ItemCategory::StimFood,
-     1850, 860, 1, {0, 0, 0, 0}},
-    {ItemId::QuantumKrakenRamen, "Quantum Kraken Special Ramen",
-     ItemCategory::StimFood, 2200, 980, 1, {0, 0, 0, 0}},
-    {ItemId::SynthProteinBar, "Synth-Protein Bar", ItemCategory::StimFood, 6,
-     25, 1, {0, 0, 0, 0}},
-    {ItemId::ToxicSlag, "Toxic Bio-Slag", ItemCategory::ToxicWaste, 1, 0, 1,
-     {0, 0, 0, 0}},
+      // Deep-Mined Ores & Cells
+      {ItemId::CopperOre,
+       "Copper Ore",
+       ItemCategory::RawOre,
+       4,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SiliconOre,
+       "Silicon Ore",
+       ItemCategory::RawOre,
+       4,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::TitaniumOre,
+       "Titanium Ore",
+       ItemCategory::RawOre,
+       12,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CarbonCell,
+       "Carbon Cell",
+       ItemCategory::RawOre,
+       18,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SilverOre,
+       "Silver Ore",
+       ItemCategory::RawOre,
+       30,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::GoldOre,
+       "Gold Ore",
+       ItemCategory::RawOre,
+       50,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CobaltOre,
+       "Cobalt Ore",
+       ItemCategory::RawOre,
+       70,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::TungstenOre,
+       "Tungsten Ore",
+       ItemCategory::RawOre,
+       120,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NeutroniumOre,
+       "Neutronium Ore",
+       ItemCategory::RawOre,
+       220,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ChronoOre,
+       "Chrono-Crystal Ore",
+       ItemCategory::RawOre,
+       400,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumOre,
+       "Quantum Singularity Ore",
+       ItemCategory::RawOre,
+       750,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Deep-Mined Ores & Cells
-    {ItemId::CopperOre, "Copper Ore", ItemCategory::RawOre, 4, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::SiliconOre, "Silicon Ore", ItemCategory::RawOre, 4, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::TitaniumOre, "Titanium Ore", ItemCategory::RawOre, 12, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::CarbonCell, "Carbon Cell", ItemCategory::RawOre, 18, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::SilverOre, "Silver Ore", ItemCategory::RawOre, 30, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::GoldOre, "Gold Ore", ItemCategory::RawOre, 50, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::CobaltOre, "Cobalt Ore", ItemCategory::RawOre, 70, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::TungstenOre, "Tungsten Ore", ItemCategory::RawOre, 120, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::NeutroniumOre, "Neutronium Ore", ItemCategory::RawOre, 220, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::ChronoOre, "Chrono-Crystal Ore", ItemCategory::RawOre, 400, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::QuantumOre, "Quantum Singularity Ore", ItemCategory::RawOre, 750,
-     0, 1, {0, 0, 0, 0}},
+      // Refined Alloys & Conductors
+      {ItemId::ScrapAlloy,
+       "Scrap-Alloy Ingot",
+       ItemCategory::Alloy,
+       15,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::TitaniumAlloy,
+       "Titanium Ingot",
+       ItemCategory::Alloy,
+       32,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::DurasteelAlloy,
+       "Durasteel Ingot",
+       ItemCategory::Alloy,
+       65,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SilverConductor,
+       "Silver Conductor",
+       ItemCategory::Alloy,
+       80,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::GoldSuperconductor,
+       "Gold Superconductor",
+       ItemCategory::Alloy,
+       130,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::CobaltAlloy,
+       "Cobalt-Chrome Ingot",
+       ItemCategory::Alloy,
+       175,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::TungstenAlloy,
+       "Tungsten Ingot",
+       ItemCategory::Alloy,
+       310,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::NeutroniumAlloy,
+       "Neutronium Ingot",
+       ItemCategory::Alloy,
+       580,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ChronoAlloy,
+       "Chrono-Alloy Ingot",
+       ItemCategory::Alloy,
+       1100,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumAlloy,
+       "Quantum-Flux Ingot",
+       ItemCategory::Alloy,
+       2000,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Refined Alloys & Conductors
-    {ItemId::ScrapAlloy, "Scrap-Alloy Ingot", ItemCategory::Alloy, 15, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::TitaniumAlloy, "Titanium Ingot", ItemCategory::Alloy, 32, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::DurasteelAlloy, "Durasteel Ingot", ItemCategory::Alloy, 65, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::SilverConductor, "Silver Conductor", ItemCategory::Alloy, 80, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::GoldSuperconductor, "Gold Superconductor", ItemCategory::Alloy,
-     130, 0, 1, {0, 0, 0, 0}},
-    {ItemId::CobaltAlloy, "Cobalt-Chrome Ingot", ItemCategory::Alloy, 175, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::TungstenAlloy, "Tungsten Ingot", ItemCategory::Alloy, 310, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::NeutroniumAlloy, "Neutronium Ingot", ItemCategory::Alloy, 580, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::ChronoAlloy, "Chrono-Alloy Ingot", ItemCategory::Alloy, 1100, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::QuantumAlloy, "Quantum-Flux Ingot", ItemCategory::Alloy, 2000, 0,
-     1, {0, 0, 0, 0}},
+      // Data Crystals
+      {ItemId::AmberDatachip,
+       "Amber Datachip",
+       ItemCategory::DataCrystal,
+       150,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SapphireCortex,
+       "Sapphire Cortex",
+       ItemCategory::DataCrystal,
+       250,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::RubyLaserCore,
+       "Ruby Laser Core",
+       ItemCategory::DataCrystal,
+       450,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::EmeraldCryptokey,
+       "Emerald Cryptokey",
+       ItemCategory::DataCrystal,
+       750,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::QuantumDiamond,
+       "Quantum Diamond",
+       ItemCategory::DataCrystal,
+       1500,
+       0,
+       1,
+       {0, 0, 0, 0}},
 
-    // Data Crystals
-    {ItemId::AmberDatachip, "Amber Datachip", ItemCategory::DataCrystal, 150, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::SapphireCortex, "Sapphire Cortex", ItemCategory::DataCrystal, 250,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::RubyLaserCore, "Ruby Laser Core", ItemCategory::DataCrystal, 450,
-     0, 1, {0, 0, 0, 0}},
-    {ItemId::EmeraldCryptokey, "Emerald Cryptokey", ItemCategory::DataCrystal,
-     750, 0, 1, {0, 0, 0, 0}},
-    {ItemId::QuantumDiamond, "Quantum Diamond", ItemCategory::DataCrystal, 1500,
-     0, 1, {0, 0, 0, 0}},
+      // Gears
+      // Weapons - Melee
+      {ItemId::ScrapBlade,
+       "Scrap Vibro-Knife",
+       ItemCategory::Weapon,
+       45,
+       0,
+       1,
+       {10, 12, 0, 0}},
+      {ItemId::TitaniumBlade,
+       "Titanium Mono-Blade",
+       ItemCategory::Weapon,
+       100,
+       0,
+       5,
+       {18, 20, 0, 0}},
+      {ItemId::DurasteelBlade,
+       "Durasteel Katana",
+       ItemCategory::Weapon,
+       220,
+       0,
+       10,
+       {28, 32, 0, 0}},
+      {ItemId::CobaltBlade,
+       "Cobalt Laser-Edge",
+       ItemCategory::Weapon,
+       550,
+       0,
+       20,
+       {42, 48, 0, 0}},
+      {ItemId::TungstenBlade,
+       "Tungsten Mantis-Blade",
+       ItemCategory::Weapon,
+       1100,
+       0,
+       30,
+       {60, 66, 0, 0}},
+      {ItemId::NeutroniumBlade,
+       "Neutronium Phase-Saber",
+       ItemCategory::Weapon,
+       2400,
+       0,
+       40,
+       {84, 92, 0, 0}},
+      {ItemId::ChronoBlade,
+       "Chrono-Edge Katana",
+       ItemCategory::Weapon,
+       6000,
+       0,
+       60,
+       {120, 130, 0, 0}},
+      {ItemId::QuantumBlade,
+       "Quantum Singularity Blade",
+       ItemCategory::Weapon,
+       12000,
+       0,
+       75,
+       {165, 180, 0, 0}},
 
-    // Gears
-    // Weapons - Melee
-    {ItemId::ScrapBlade, "Scrap Vibro-Knife", ItemCategory::Weapon, 45, 0, 1,
-     {10, 12, 0, 0}},
-    {ItemId::TitaniumBlade, "Titanium Mono-Blade", ItemCategory::Weapon, 100, 0,
-     5, {18, 20, 0, 0}},
-    {ItemId::DurasteelBlade, "Durasteel Katana", ItemCategory::Weapon, 220, 0,
-     10, {28, 32, 0, 0}},
-    {ItemId::CobaltBlade, "Cobalt Laser-Edge", ItemCategory::Weapon, 550, 0, 20,
-     {42, 48, 0, 0}},
-    {ItemId::TungstenBlade, "Tungsten Mantis-Blade", ItemCategory::Weapon, 1100,
-     0, 30, {60, 66, 0, 0}},
-    {ItemId::NeutroniumBlade, "Neutronium Phase-Saber", ItemCategory::Weapon,
-     2400, 0, 40, {84, 92, 0, 0}},
-    {ItemId::ChronoBlade, "Chrono-Edge Katana", ItemCategory::Weapon, 6000, 0,
-     60, {120, 130, 0, 0}},
-    {ItemId::QuantumBlade, "Quantum Singularity Blade", ItemCategory::Weapon,
-     12000, 0, 75, {165, 180, 0, 0}},
+      // Visors
+      {ItemId::ScrapVisor,
+       "Scrap Optic Visor",
+       ItemCategory::Head,
+       40,
+       0,
+       1,
+       {0, 0, 6, 1}},
+      {ItemId::TitaniumVisor,
+       "Titanium HUD Visor",
+       ItemCategory::Head,
+       90,
+       0,
+       5,
+       {0, 0, 11, 2}},
+      {ItemId::DurasteelVisor,
+       "Durasteel Tac-Helm",
+       ItemCategory::Head,
+       200,
+       0,
+       10,
+       {0, 0, 18, 3}},
+      {ItemId::CobaltVisor,
+       "Cobalt Neural Visor",
+       ItemCategory::Head,
+       500,
+       0,
+       20,
+       {0, 0, 27, 4}},
+      {ItemId::TungstenVisor,
+       "Tungsten Cyber-Helm",
+       ItemCategory::Head,
+       950,
+       0,
+       30,
+       {0, 0, 38, 5}},
+      {ItemId::NeutroniumVisor,
+       "Neutronium Mind-Crown",
+       ItemCategory::Head,
+       2100,
+       0,
+       40,
+       {0, 0, 52, 7}},
+      {ItemId::ChronoVisor,
+       "Chrono-Sync Visor",
+       ItemCategory::Head,
+       5200,
+       0,
+       60,
+       {0, 0, 72, 10}},
+      {ItemId::QuantumVisor,
+       "Quantum Tachyon Visor",
+       ItemCategory::Head,
+       10500,
+       0,
+       75,
+       {0, 0, 98, 13}},
 
-    // Visors
-    {ItemId::ScrapVisor, "Scrap Optic Visor", ItemCategory::Head, 40, 0, 1,
-     {0, 0, 6, 1}},
-    {ItemId::TitaniumVisor, "Titanium HUD Visor", ItemCategory::Head, 90, 0, 5,
-     {0, 0, 11, 2}},
-    {ItemId::DurasteelVisor, "Durasteel Tac-Helm", ItemCategory::Head, 200, 0,
-     10, {0, 0, 18, 3}},
-    {ItemId::CobaltVisor, "Cobalt Neural Visor", ItemCategory::Head, 500, 0,
-     20, {0, 0, 27, 4}},
-    {ItemId::TungstenVisor, "Tungsten Cyber-Helm", ItemCategory::Head, 950, 0,
-     30, {0, 0, 38, 5}},
-    {ItemId::NeutroniumVisor, "Neutronium Mind-Crown", ItemCategory::Head,
-     2100, 0, 40, {0, 0, 52, 7}},
-    {ItemId::ChronoVisor, "Chrono-Sync Visor", ItemCategory::Head, 5200, 0, 60,
-     {0, 0, 72, 10}},
-    {ItemId::QuantumVisor, "Quantum Tachyon Visor", ItemCategory::Head, 10500,
-     0, 75, {0, 0, 98, 13}},
+      // Exo-Suits
+      {ItemId::ScrapExoSuit,
+       "Scrap Exo-Harness",
+       ItemCategory::Armor,
+       85,
+       0,
+       1,
+       {0, 0, 14, 2}},
+      {ItemId::TitaniumExoSuit,
+       "Titanium Flak-Jacket",
+       ItemCategory::Armor,
+       180,
+       0,
+       5,
+       {0, 0, 24, 3}},
+      {ItemId::DurasteelExoSuit,
+       "Durasteel Exo-Rig",
+       ItemCategory::Armor,
+       400,
+       0,
+       10,
+       {0, 0, 36, 5}},
+      {ItemId::CobaltExoSuit,
+       "Cobalt Subdermal Rig",
+       ItemCategory::Armor,
+       950,
+       0,
+       20,
+       {0, 0, 52, 7}},
+      {ItemId::TungstenExoSuit,
+       "Tungsten Power-Armor",
+       ItemCategory::Armor,
+       1900,
+       0,
+       30,
+       {0, 0, 74, 9}},
+      {ItemId::NeutroniumExoSuit,
+       "Neutronium Nano-Suit",
+       ItemCategory::Armor,
+       4200,
+       0,
+       40,
+       {0, 0, 102, 12}},
+      {ItemId::ChronoExoSuit,
+       "Chrono-Weave Exo-Suit",
+       ItemCategory::Armor,
+       9800,
+       0,
+       60,
+       {0, 0, 140, 16}},
+      {ItemId::QuantumExoSuit,
+       "Quantum Phase Exo-Suit",
+       ItemCategory::Armor,
+       19500,
+       0,
+       75,
+       {0, 0, 190, 20}},
 
-    // Exo-Suits
-    {ItemId::ScrapExoSuit, "Scrap Exo-Harness", ItemCategory::Armor, 85, 0, 1,
-     {0, 0, 14, 2}},
-    {ItemId::TitaniumExoSuit, "Titanium Flak-Jacket", ItemCategory::Armor,
-     180, 0, 5, {0, 0, 24, 3}},
-    {ItemId::DurasteelExoSuit, "Durasteel Exo-Rig", ItemCategory::Armor, 400,
-     0, 10, {0, 0, 36, 5}},
-    {ItemId::CobaltExoSuit, "Cobalt Subdermal Rig", ItemCategory::Armor, 950,
-     0, 20, {0, 0, 52, 7}},
-    {ItemId::TungstenExoSuit, "Tungsten Power-Armor", ItemCategory::Armor,
-     1900, 0, 30, {0, 0, 74, 9}},
-    {ItemId::NeutroniumExoSuit, "Neutronium Nano-Suit", ItemCategory::Armor,
-     4200, 0, 40, {0, 0, 102, 12}},
-    {ItemId::ChronoExoSuit, "Chrono-Weave Exo-Suit", ItemCategory::Armor,
-     9800, 0, 60, {0, 0, 140, 16}},
-    {ItemId::QuantumExoSuit, "Quantum Phase Exo-Suit", ItemCategory::Armor,
-     19500, 0, 75, {0, 0, 190, 20}},
+      // Holo-Shields
+      {ItemId::ScrapShield,
+       "Scrap Riot Buckler",
+       ItemCategory::Shield,
+       55,
+       0,
+       1,
+       {0, 0, 9, 1}},
+      {ItemId::TitaniumShield,
+       "Titanium Deflector",
+       ItemCategory::Shield,
+       120,
+       0,
+       5,
+       {0, 0, 16, 2}},
+      {ItemId::DurasteelShield,
+       "Durasteel Barrier",
+       ItemCategory::Shield,
+       260,
+       0,
+       10,
+       {0, 0, 25, 3}},
+      {ItemId::CobaltShield,
+       "Cobalt Holo-Aegis",
+       ItemCategory::Shield,
+       620,
+       0,
+       20,
+       {0, 0, 36, 5}},
+      {ItemId::TungstenShield,
+       "Tungsten Pulse-Shield",
+       ItemCategory::Shield,
+       1250,
+       0,
+       30,
+       {0, 0, 50, 6}},
+      {ItemId::NeutroniumShield,
+       "Neutronium Forcefield",
+       ItemCategory::Shield,
+       2800,
+       0,
+       40,
+       {0, 0, 68, 8}},
+      {ItemId::ChronoShield,
+       "Chrono-Phase Barrier",
+       ItemCategory::Shield,
+       6800,
+       0,
+       60,
+       {0, 0, 96, 12}},
+      {ItemId::QuantumShield,
+       "Quantum Event-Horizon Shield",
+       ItemCategory::Shield,
+       13500,
+       0,
+       75,
+       {0, 0, 132, 15}},
 
-    // Holo-Shields
-    {ItemId::ScrapShield, "Scrap Riot Buckler", ItemCategory::Shield, 55, 0,
-     1, {0, 0, 9, 1}},
-    {ItemId::TitaniumShield, "Titanium Deflector", ItemCategory::Shield,
-     120, 0, 5, {0, 0, 16, 2}},
-    {ItemId::DurasteelShield, "Durasteel Barrier", ItemCategory::Shield,
-     260, 0, 10, {0, 0, 25, 3}},
-    {ItemId::CobaltShield, "Cobalt Holo-Aegis", ItemCategory::Shield, 620,
-     0, 20, {0, 0, 36, 5}},
-    {ItemId::TungstenShield, "Tungsten Pulse-Shield", ItemCategory::Shield,
-     1250, 0, 30, {0, 0, 50, 6}},
-    {ItemId::NeutroniumShield, "Neutronium Forcefield",
-     ItemCategory::Shield, 2800, 0, 40, {0, 0, 68, 8}},
-    {ItemId::ChronoShield, "Chrono-Phase Barrier", ItemCategory::Shield,
-     6800, 0, 60, {0, 0, 96, 12}},
-    {ItemId::QuantumShield, "Quantum Event-Horizon Shield",
-     ItemCategory::Shield, 13500, 0, 75, {0, 0, 132, 15}},
+      // Tools - Salvaging Cutters
+      {ItemId::ScrapCutter,
+       "Scrap Cutter",
+       ItemCategory::Cutter,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0, 0}},
+      {ItemId::TitaniumCutter,
+       "Titanium Cutter",
+       ItemCategory::Cutter,
+       50,
+       0,
+       10,
+       {0, 0, 0, 0, 6}},
+      {ItemId::DurasteelCutter,
+       "Durasteel Cutter",
+       ItemCategory::Cutter,
+       180,
+       0,
+       25,
+       {0, 0, 0, 0, 12}},
+      {ItemId::CobaltCutter,
+       "Cobalt Laser-Cutter",
+       ItemCategory::Cutter,
+       625,
+       0,
+       40,
+       {0, 0, 0, 0, 18}},
+      {ItemId::TungstenCutter,
+       "Tungsten Plasma-Torch",
+       ItemCategory::Cutter,
+       2000,
+       0,
+       55,
+       {0, 0, 0, 0, 24}},
+      {ItemId::NeutroniumCutter,
+       "Neutronium Arc-Splicer",
+       ItemCategory::Cutter,
+       6250,
+       0,
+       70,
+       {0, 0, 0, 0, 30}},
+      {ItemId::ChronoCutter,
+       "Chrono Deconstructor",
+       ItemCategory::Cutter,
+       20000,
+       0,
+       85,
+       {0, 0, 0, 0, 38}},
 
-    // Tools - Salvaging Cutters
-    {ItemId::ScrapCutter, "Scrap Cutter", ItemCategory::Cutter, 10, 0, 1,
-     {0, 0, 0, 0, 0}},
-    {ItemId::TitaniumCutter, "Titanium Cutter", ItemCategory::Cutter, 50, 0, 10,
-     {0, 0, 0, 0, 6}},
-    {ItemId::DurasteelCutter, "Durasteel Cutter", ItemCategory::Cutter, 180, 0,
-     25, {0, 0, 0, 0, 12}},
-    {ItemId::CobaltCutter, "Cobalt Laser-Cutter", ItemCategory::Cutter, 625, 0,
-     40, {0, 0, 0, 0, 18}},
-    {ItemId::TungstenCutter, "Tungsten Plasma-Torch", ItemCategory::Cutter,
-     2000, 0, 55, {0, 0, 0, 0, 24}},
-    {ItemId::NeutroniumCutter, "Neutronium Arc-Splicer", ItemCategory::Cutter,
-     6250, 0, 70, {0, 0, 0, 0, 30}},
-    {ItemId::ChronoCutter, "Chrono Deconstructor", ItemCategory::Cutter, 20000,
-     0, 85, {0, 0, 0, 0, 38}},
+      // Tools - Bio-Harvesters
+      {ItemId::ScrapHarvester,
+       "Scrap Bio-Net",
+       ItemCategory::Harvester,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0, 0}},
+      {ItemId::TitaniumHarvester,
+       "Titanium Bio-Rig",
+       ItemCategory::Harvester,
+       50,
+       0,
+       10,
+       {0, 0, 0, 0, 6}},
+      {ItemId::DurasteelHarvester,
+       "Durasteel Bio-Sampler",
+       ItemCategory::Harvester,
+       180,
+       0,
+       25,
+       {0, 0, 0, 0, 12}},
+      {ItemId::CobaltHarvester,
+       "Cobalt Gene-Extractor",
+       ItemCategory::Harvester,
+       625,
+       0,
+       40,
+       {0, 0, 0, 0, 18}},
+      {ItemId::TungstenHarvester,
+       "Tungsten Drone-Trawler",
+       ItemCategory::Harvester,
+       2000,
+       0,
+       55,
+       {0, 0, 0, 0, 24}},
+      {ItemId::NeutroniumHarvester,
+       "Neutronium Bio-Harvester",
+       ItemCategory::Harvester,
+       6250,
+       0,
+       70,
+       {0, 0, 0, 0, 30}},
+      {ItemId::ChronoHarvester,
+       "Chrono Stasis-Harvester",
+       ItemCategory::Harvester,
+       20000,
+       0,
+       85,
+       {0, 0, 0, 0, 38}},
 
-    // Tools - Bio-Harvesters
-    {ItemId::ScrapHarvester, "Scrap Bio-Net", ItemCategory::Harvester, 10, 0, 1,
-     {0, 0, 0, 0, 0}},
-    {ItemId::TitaniumHarvester, "Titanium Bio-Rig", ItemCategory::Harvester, 50,
-     0, 10, {0, 0, 0, 0, 6}},
-    {ItemId::DurasteelHarvester, "Durasteel Bio-Sampler",
-     ItemCategory::Harvester, 180, 0, 25, {0, 0, 0, 0, 12}},
-    {ItemId::CobaltHarvester, "Cobalt Gene-Extractor", ItemCategory::Harvester,
-     625, 0, 40, {0, 0, 0, 0, 18}},
-    {ItemId::TungstenHarvester, "Tungsten Drone-Trawler",
-     ItemCategory::Harvester, 2000, 0, 55, {0, 0, 0, 0, 24}},
-    {ItemId::NeutroniumHarvester, "Neutronium Bio-Harvester",
-     ItemCategory::Harvester, 6250, 0, 70, {0, 0, 0, 0, 30}},
-    {ItemId::ChronoHarvester, "Chrono Stasis-Harvester",
-     ItemCategory::Harvester, 20000, 0, 85, {0, 0, 0, 0, 38}},
+      // Tools - Mining Drills
+      {ItemId::ScrapDrill,
+       "Scrap Rotary Drill",
+       ItemCategory::Drill,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0, 0}},
+      {ItemId::TitaniumDrill,
+       "Titanium Impact Drill",
+       ItemCategory::Drill,
+       50,
+       0,
+       10,
+       {0, 0, 0, 0, 6}},
+      {ItemId::DurasteelDrill,
+       "Durasteel Sonic Drill",
+       ItemCategory::Drill,
+       180,
+       0,
+       25,
+       {0, 0, 0, 0, 12}},
+      {ItemId::CobaltDrill,
+       "Cobalt Laser Bore",
+       ItemCategory::Drill,
+       625,
+       0,
+       40,
+       {0, 0, 0, 0, 18}},
+      {ItemId::TungstenDrill,
+       "Tungsten Plasma Bore",
+       ItemCategory::Drill,
+       2000,
+       0,
+       55,
+       {0, 0, 0, 0, 24}},
+      {ItemId::NeutroniumDrill,
+       "Neutronium Quantum Drill",
+       ItemCategory::Drill,
+       6250,
+       0,
+       70,
+       {0, 0, 0, 0, 30}},
+      {ItemId::ChronoDrill,
+       "Chrono Singularity Bore",
+       ItemCategory::Drill,
+       20000,
+       0,
+       85,
+       {0, 0, 0, 0, 38}},
 
-    // Tools - Mining Drills
-    {ItemId::ScrapDrill, "Scrap Rotary Drill", ItemCategory::Drill, 10, 0, 1,
-     {0, 0, 0, 0, 0}},
-    {ItemId::TitaniumDrill, "Titanium Impact Drill", ItemCategory::Drill, 50, 0,
-     10, {0, 0, 0, 0, 6}},
-    {ItemId::DurasteelDrill, "Durasteel Sonic Drill", ItemCategory::Drill, 180,
-     0, 25, {0, 0, 0, 0, 12}},
-    {ItemId::CobaltDrill, "Cobalt Laser Bore", ItemCategory::Drill, 625, 0, 40,
-     {0, 0, 0, 0, 18}},
-    {ItemId::TungstenDrill, "Tungsten Plasma Bore", ItemCategory::Drill, 2000,
-     0, 55, {0, 0, 0, 0, 24}},
-    {ItemId::NeutroniumDrill, "Neutronium Quantum Drill", ItemCategory::Drill,
-     6250, 0, 70, {0, 0, 0, 0, 30}},
-    {ItemId::ChronoDrill, "Chrono Singularity Bore", ItemCategory::Drill, 20000,
-     0, 85, {0, 0, 0, 0, 38}},
+      // Tools - Synth-Reactors
+      {ItemId::BasicReactor,
+       "Basic Micro-Reactor",
+       ItemCategory::Reactor,
+       10,
+       0,
+       1,
+       {0, 0, 0, 0, 0}},
+      {ItemId::PlasteelReactor,
+       "Plasteel Thermal Unit",
+       ItemCategory::Reactor,
+       60,
+       0,
+       10,
+       {0, 0, 0, 0, 5}},
+      {ItemId::NanotubeReactor,
+       "Nanotube Induction Core",
+       ItemCategory::Reactor,
+       225,
+       0,
+       25,
+       {0, 0, 0, 0, 10}},
+      {ItemId::PositronicReactor,
+       "Positronic Reactor",
+       ItemCategory::Reactor,
+       750,
+       0,
+       45,
+       {0, 0, 0, 0, 15}},
+      {ItemId::PlasmaReactor,
+       "Plasma Fusion Furnace",
+       ItemCategory::Reactor,
+       2500,
+       0,
+       60,
+       {0, 0, 0, 0, 20}},
+      {ItemId::QuantumReactor,
+       "Quantum Synth-Core",
+       ItemCategory::Reactor,
+       7500,
+       0,
+       75,
+       {0, 0, 0, 0, 26}},
+      {ItemId::MainframeReactor,
+       "AI Mainframe Reactor",
+       ItemCategory::Reactor,
+       23750,
+       0,
+       90,
+       {0, 0, 0, 0, 34}},
 
-    // Tools - Synth-Reactors
-    {ItemId::BasicReactor, "Basic Micro-Reactor", ItemCategory::Reactor, 10, 0,
-     1, {0, 0, 0, 0, 0}},
-    {ItemId::PlasteelReactor, "Plasteel Thermal Unit", ItemCategory::Reactor,
-     60, 0, 10, {0, 0, 0, 0, 5}},
-    {ItemId::NanotubeReactor, "Nanotube Induction Core", ItemCategory::Reactor,
-     225, 0, 25, {0, 0, 0, 0, 10}},
-    {ItemId::PositronicReactor, "Positronic Reactor", ItemCategory::Reactor,
-     750, 0, 45, {0, 0, 0, 0, 15}},
-    {ItemId::PlasmaReactor, "Plasma Fusion Furnace", ItemCategory::Reactor,
-     2500, 0, 60, {0, 0, 0, 0, 20}},
-    {ItemId::QuantumReactor, "Quantum Synth-Core", ItemCategory::Reactor, 7500,
-     0, 75, {0, 0, 0, 0, 26}},
-    {ItemId::MainframeReactor, "AI Mainframe Reactor", ItemCategory::Reactor,
-     23750, 0, 90, {0, 0, 0, 0, 34}},
+      // Cyberware - Auto-Stim Injectors
+      {ItemId::AutoStimMk1,
+       "Auto-Stim — Mk I",
+       ItemCategory::AutoStim,
+       375,
+       0,
+       1,
+       {0, 0, 0, 0, 25}},
+      {ItemId::AutoStimMk2,
+       "Auto-Stim — Mk II",
+       ItemCategory::AutoStim,
+       3000,
+       0,
+       1,
+       {0, 0, 0, 0, 40}},
+      {ItemId::AutoStimMk3,
+       "Auto-Stim — Mk III",
+       ItemCategory::AutoStim,
+       12500,
+       0,
+       1,
+       {0, 0, 0, 0, 55}},
 
-    // Cyberware - Auto-Stim Injectors
-    {ItemId::AutoStimMk1, "Auto-Stim — Mk I", ItemCategory::AutoStim, 375, 0, 1,
-     {0, 0, 0, 0, 25}},
-    {ItemId::AutoStimMk2, "Auto-Stim — Mk II", ItemCategory::AutoStim, 3000, 0,
-     1, {0, 0, 0, 0, 40}},
-    {ItemId::AutoStimMk3, "Auto-Stim — Mk III", ItemCategory::AutoStim, 12500,
-     0, 1, {0, 0, 0, 0, 55}},
-
-    // Enemy Salvage
-    {ItemId::ServoParts, "Servo Parts", ItemCategory::CyberLoot, 8, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::HeavyChassis, "Heavy Mech Chassis", ItemCategory::CyberLoot, 30, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::ApexCyberCore, "Apex Cyber-Core", ItemCategory::CyberLoot, 180, 0,
-     1, {0, 0, 0, 0}},
-    {ItemId::Microchip, "Microchip", ItemCategory::CyberLoot, 3, 0, 1,
-     {0, 0, 0, 0}},
-    {ItemId::SynthWeaveHide, "Synth-Weave Hide", ItemCategory::CyberLoot, 16, 0,
-     1, {0, 0, 0, 0}},
-}};
+      // Enemy Salvage
+      {ItemId::ServoParts,
+       "Servo Parts",
+       ItemCategory::CyberLoot,
+       8,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::HeavyChassis,
+       "Heavy Mech Chassis",
+       ItemCategory::CyberLoot,
+       30,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::ApexCyberCore,
+       "Apex Cyber-Core",
+       ItemCategory::CyberLoot,
+       180,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::Microchip,
+       "Microchip",
+       ItemCategory::CyberLoot,
+       3,
+       0,
+       1,
+       {0, 0, 0, 0}},
+      {ItemId::SynthWeaveHide,
+       "Synth-Weave Hide",
+       ItemCategory::CyberLoot,
+       16,
+       0,
+       1,
+       {0, 0, 0, 0}},
+  })};
+  return item_info[static_cast<size_t>(id)];
+}
 
 const std::vector<SkillAction> skill_actions = {
     // Salvaging
@@ -1161,9 +1919,9 @@ double level_progress_ratio(uint64_t xp) {
   uint64_t cur_base = xp_for_level(lvl);
   uint64_t next_base = xp_for_level(lvl + 1);
   if (next_base <= cur_base) return 1.0;
-  return std::clamp(
-      static_cast<double>(xp - cur_base) / static_cast<double>(next_base - cur_base),
-      0.0, 1.0);
+  return std::clamp(static_cast<double>(xp - cur_base) /
+                        static_cast<double>(next_base - cur_base),
+                    0.0, 1.0);
 }
 
 std::vector<int> actions_for_skill(SkillType skill) {
@@ -1260,8 +2018,12 @@ void GameState::new_game() {
   history_timer_ms_ = 0;
 
   status_banner = "Strip Copper Wiring (Salvaging)";
-  add_log("Welcome to Routineverse! You jack into Neo-Sector with a Scrap Vibro-Knife, 10 Krill Rations, and 250 Cr.");
-  add_log("Active protocol: Strip Copper Wiring. Select any skill or hostile target to begin!");
+  add_log(
+      "Welcome to Routineverse! You jack into Neo-Sector with a Scrap "
+      "Vibro-Knife, 10 Krill Rations, and 250 Cr.");
+  add_log(
+      "Active protocol: Strip Copper Wiring. Select any skill or hostile "
+      "target to begin!");
   record_history_snapshot();
 }
 
@@ -1300,9 +2062,7 @@ void GameState::History::add_record(const GameState& state) {
   }
 }
 
-void GameState::record_history_snapshot() {
-  history.add_record(*this);
-}
+void GameState::record_history_snapshot() { history.add_record(*this); }
 
 int GameState::skill_level(SkillType skill) const {
   return level_for_xp(xp[static_cast<int>(skill)]);
@@ -1446,8 +2206,8 @@ bool GameState::start_skill_action(int global_action_id) {
       req_str += std::format(" + {}x {}", act.input_qty_2,
                              get_item_info(act.input_item_2).name);
     }
-    add_log(std::format("Missing components for {}: need {}.", act.name,
-                        req_str));
+    add_log(
+        std::format("Missing components for {}: need {}.", act.name, req_str));
     return false;
   }
 
@@ -1476,8 +2236,8 @@ bool GameState::start_combat(int monster_id) {
   monster_attack_timer_ms = 0;
   status_banner = std::format("Engaging {} (Lv {}) in {}", mon.name,
                               mon.combat_level, mon.zone_name);
-  add_log(std::format("Engaged hostile {} ({} HP) in {}.", mon.name,
-                      mon.max_hp, mon.zone_name));
+  add_log(std::format("Engaged hostile {} ({} HP) in {}.", mon.name, mon.max_hp,
+                      mon.zone_name));
   return true;
 }
 
@@ -1515,7 +2275,9 @@ void GameState::complete_skill_action(int global_action_id) {
   const auto& act = skill_actions[global_action_id];
   int m_lvl = mastery_level(global_action_id);
 
-  // Resource preservation chance for Fabrication/Synthesis/Smithing/Recycling/Farming skills (5% + 0.2% per mastery level)
+  // Resource preservation chance for
+  // Fabrication/Synthesis/Smithing/Recycling/Farming skills (5% + 0.2% per
+  // mastery level)
   bool preserved = false;
   if (is_valid_item(act.input_item_1) &&
       (act.skill == SkillType::Smithing || act.skill == SkillType::CyberFab ||
@@ -1549,9 +2311,9 @@ void GameState::complete_skill_action(int global_action_id) {
   if (act.skill == SkillType::SynthCook && is_valid_item(act.product_item) &&
       get_item_info(act.product_item).heal_amount > 0) {
     // Synthesis success chance (75% base + mastery/level bonus up to 99%)
-    int cook_chance =
-        std::min(99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 +
-                         m_lvl / 4);
+    int cook_chance = std::min(
+        99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 +
+                m_lvl / 4);
     if (rand_int(1, 100) <= cook_chance) {
       add_item(act.product_item, qty, false);
       total_items_gathered += qty;
@@ -1567,7 +2329,8 @@ void GameState::complete_skill_action(int global_action_id) {
 
   // Bonus procs by skill
   if (act.skill == SkillType::Recycling) {
-    // 25% chance to recover a Carbon Cell while recycling scrap, plus minor credit yield
+    // 25% chance to recover a Carbon Cell while recycling scrap, plus minor
+    // credit yield
     if (rand_int(1, 100) <= 25) {
       add_item(ItemId::CarbonCell, 1, false);
     }
@@ -1602,8 +2365,7 @@ void GameState::complete_skill_action(int global_action_id) {
 
   // Stop if materials ran out after this action
   if (!can_perform_action(global_action_id)) {
-    add_log(std::format("Completed {}: input components depleted.",
-                        act.name));
+    add_log(std::format("Completed {}: input components depleted.", act.name));
     stop_activity();
   }
 }
@@ -1612,7 +2374,8 @@ void GameState::tick(int elapsed_ms) {
   if (elapsed_ms <= 0) return;
   total_ticks_ms += elapsed_ms;
 
-  // Passive nanite HP regeneration outside/inside combat (+1% max HP every 5 seconds)
+  // Passive nanite HP regeneration outside/inside combat (+1% max HP every 5
+  // seconds)
   hp_regen_timer_ms += elapsed_ms;
   while (hp_regen_timer_ms >= 5000) {
     hp_regen_timer_ms -= 5000;
@@ -1742,9 +2505,10 @@ void GameState::on_monster_defeated(int monster_id) {
       int bonus_bt = 50 + bounties_completed * 15;
       bounty_tokens += bonus_bt;
       gain_xp(SkillType::Bounty, 120 + mon.xp_reward);
-      add_log(std::format(
-          "BOUNTY CONTRACT COMPLETE! Earned +{} Bounty Tokens! Assigning new target...",
-          bonus_bt));
+      add_log(
+          std::format("BOUNTY CONTRACT COMPLETE! Earned +{} Bounty Tokens! "
+                      "Assigning new target...",
+                      bonus_bt));
       assign_new_bounty_contract();
     }
   } else if (mon.bounty_req > 1) {
@@ -1758,8 +2522,7 @@ void GameState::on_monster_defeated(int monster_id) {
       int q = rand_int(drop.min_qty, drop.max_qty);
       if (add_item(drop.item_id, q, false)) {
         if (!loot_str.empty()) loot_str += ", ";
-        loot_str +=
-            std::format("{}x {}", q, get_item_info(drop.item_id).name);
+        loot_str += std::format("{}x {}", q, get_item_info(drop.item_id).name);
       }
     }
   }
@@ -1783,9 +2546,10 @@ void GameState::on_player_defeated() {
   player_hp = max_hp();
   uint64_t lost_cr = std::min(credits, std::max(uint64_t{10}, credits / 10));
   credits -= lost_cr;
-  add_log(std::format(
-      "CRITICAL FLATLINE fighting {}! Trauma Team reconstructed you in Neo-Sector for {}.",
-      monster_info[active_monster_id].name, money_string(lost_cr)));
+  add_log(
+      std::format("CRITICAL FLATLINE fighting {}! Trauma Team reconstructed "
+                  "you in Neo-Sector for {}.",
+                  monster_info[active_monster_id].name, money_string(lost_cr)));
   stop_activity();
 }
 
@@ -1801,11 +2565,11 @@ void GameState::assign_new_bounty_contract() {
     }
   }
   if (eligible.empty()) eligible.push_back(0);
-  bounty_target_id = eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
+  bounty_target_id =
+      eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
   bounty_remaining = rand_int(6, 15);
   add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
-                      bounty_remaining,
-                      monster_info[bounty_target_id].name,
+                      bounty_remaining, monster_info[bounty_target_id].name,
                       monster_info[bounty_target_id].zone_name));
 }
 
@@ -1905,7 +2669,7 @@ bool GameState::sell_item(ItemId item_id, int qty) {
   credits += value;
   total_credits_earned += value;
   add_log(std::format("Liquidated {}x {} for {}.", sell_q,
-                       get_item_info(item_id).name, money_string(value)));
+                      get_item_info(item_id).name, money_string(value)));
   return true;
 }
 
@@ -1966,9 +2730,9 @@ bool GameState::equip_item(ItemId item_id) {
     case EquipSlot::Harvester:
       if (std::max(skill_level(SkillType::BioHarvest),
                    skill_level(SkillType::Farming)) < info.req_level) {
-        add_log(std::format(
-            "Requires Bio-Harvest or Farming Level {} to equip {}.",
-            info.req_level, info.name));
+        add_log(
+            std::format("Requires Bio-Harvest or Farming Level {} to equip {}.",
+                        info.req_level, info.name));
         return false;
       }
       break;
@@ -2065,9 +2829,8 @@ bool GameState::eat_food() {
   equipped_food_qty--;
   int before = player_hp;
   player_hp = std::min(max_hp(), player_hp + heal);
-  add_log(std::format("Used {} and restored +{} HP ({}/{} HP).",
-                      food_info.name, player_hp - before, player_hp,
-                      max_hp()));
+  add_log(std::format("Used {} and restored +{} HP ({}/{} HP).", food_info.name,
+                      player_hp - before, player_hp, max_hp()));
   if (equipped_food_qty == 0) {
     equipped_food_item = ItemId::None;
   }
@@ -2109,8 +2872,8 @@ bool GameState::buy_cutter_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Cutter] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name,
-                      upg.description));
+  add_log(
+      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2131,8 +2894,8 @@ bool GameState::buy_harvester_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Harvester] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name,
-                      upg.description));
+  add_log(
+      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2152,8 +2915,8 @@ bool GameState::buy_drill_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Drill] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name,
-                      upg.description));
+  add_log(
+      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2173,8 +2936,8 @@ bool GameState::buy_reactor_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Reactor] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name,
-                      upg.description));
+  add_log(
+      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2189,8 +2952,8 @@ bool GameState::buy_auto_stim_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::AutoStim] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name,
-                      upg.description));
+  add_log(
+      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2203,8 +2966,9 @@ bool GameState::buy_bank_slot() {
   }
   credits -= cost;
   bank.capacity += 4;
-  add_log(std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
-                      bank.capacity));
+  add_log(
+      std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
+                  bank.capacity));
   return true;
 }
 
@@ -2218,13 +2982,9 @@ int GameState::combat_level() const {
   return std::max(3, static_cast<int>(std::floor(base + melee)));
 }
 
-int GameState::max_hp() const {
-  return skill_level(SkillType::Hitpoints) * 10;
-}
+int GameState::max_hp() const { return skill_level(SkillType::Hitpoints) * 10; }
 
-int GameState::player_attack_interval_ms() const {
-  return 2400;
-}
+int GameState::player_attack_interval_ms() const { return 2400; }
 
 int GameState::player_max_hit() const {
   int str_lvl = skill_level(SkillType::Strength);
@@ -2292,8 +3052,7 @@ std::string GameState::default_save_path() {
   if (!home || std::string_view(home).empty()) {
     return "routineverse.save";
   }
-  std::filesystem::path dir =
-      std::filesystem::path(home) / ".config" / "Mizux";
+  std::filesystem::path dir = std::filesystem::path(home) / ".config" / "Mizux";
   std::error_code ec;
   std::filesystem::create_directories(dir, ec);
   return (dir / "routineverse.save").string();
@@ -2418,8 +3177,8 @@ bool GameState::load_from_file(const std::string& path) {
   combat_style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
 
   in >> bounty_target_id >> bounty_remaining >> bounties_completed;
-  in >> total_items_gathered >> total_monsters_killed >>
-      total_credits_earned >> player_deaths;
+  in >> total_items_gathered >> total_monsters_killed >> total_credits_earned >>
+      player_deaths;
 
   if (active_type == ActiveActivityType::Skill && active_action_id >= 0 &&
       active_action_id < static_cast<int>(skill_actions.size())) {
