@@ -179,7 +179,7 @@ void window_main_button_docs_clicked_cb(MainWindow& window) {
           "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
           "• Extraction Protocols:\n"
           "  - Salvaging: Strip wiring, plasteel, nanotubes, and AI mainframe cores.\n"
-          "  - Bio-Harvest: Culture synth-biota and recover submerged Corp "
+          "  - Fishing: Culture synth-biota and recover submerged Corp "
           "data-caches.\n"
           "  - Farming: Cultivate hydroponic crops (Hydro-Wheat, Soy, Scallions, Nori, "
           "Bamboo, Shiitake, Plasma Chili, Chrono-Lotus, Quantum Truffle) & mill "

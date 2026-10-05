@@ -1339,7 +1339,7 @@ void TuiApp::showDocsDialog() {
   showMessageModal(
       "Routineverse Cyber-Guide",
       "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
-      "• Extraction Protocols: Train Salvaging, Bio-Harvest, Farming, and "
+      "• Extraction Protocols: Train Salvaging, Fishing, Farming, and "
       "Deep-Mining to gather scrap, synth-biota, hydroponic crops, ores, and "
       "rare Data Crystals.\n"
       "• Processing & Fabrication: Train Recycling, Synth-Cook, Smithing, and "

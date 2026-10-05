@@ -18,7 +18,7 @@ flowchart LR
   subgraph Extraction["1. Extraction Protocols"]
     SLV["Salvaging (SLV)<br/>Tech Scrap & Cores"]
     MIN["Deep-Mining (MIN)<br/>Ores, Carbon Cells & Crystals"]
-    BIO["Bio-Harvest (BIO)<br/>Raw Synth-Biota"]
+    BIO["Fishing (FSH)<br/>Raw Synth-Biota"]
     FRM["Farming (FRM)<br/>Hydroponic Crops & Wheat"]
   end
 
@@ -67,7 +67,7 @@ flowchart LR
 | Skill | Short | Category | Primary Role | Tool / Shop Upgrade |
 |-------|:-----:|----------|--------------|---------------------|
 | **Salvaging** | `SLV` | Extraction | Strip tech scrap, optic fibers, plasma conduits, and AI cores | Salvaging Cutter (T1–T7) |
-| **Bio-Harvest** | `BIO` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
+| **Fishing** | `FSH` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
 | **Farming** | `FRM` | Extraction | Cultivate hydroponic crops, mill Synth-Noodles (+20% bonus Hydro-Wheat proc) | Bio-Harvester (T1–T7) |
 | **Recycling** | `REC` | Processing | Recycle scrap into Raw Materials (+25% Carbon Cell proc & Credits) | Synth-Reactor (T1–T7) |
 | **Synth-Cook** | `SYN` | Culinary | Prep Synth-Noodles, cook Cyber-Ramen bowls, and synthesize Biota Stims | Synth-Reactor (T1–T7) |
@@ -76,7 +76,7 @@ flowchart LR
 | **Cyber-Fab** | `FAB` | Fabrication | Combine Alloy Ingots + Recycled Raw Materials into Visors, Shields & Crystals | Mastery Preservation & Speed |
 | **Attack** | `ATK` | Combat | Increases melee Accuracy rating and unlocks higher weapon tiers | Mono-Blades (T1–T8) |
 | **Strength** | `STR` | Combat | Increases maximum hit damage per weapon cycle | Mono-Blades (T1–T8) |
-| **Defence** | `DEF` | Combat | Increases Evasion rating and unlocks higher cyber-armor tiers | Visors, Exo-Suits, Shields (T1–T8) |
+| **Defence** | `DEF` | Combat | Increases Evasion rating and unlocks higher cyber-armor tiers | Head, Armor, Shield (T1–T8) |
 | **Hitpoints** | `HP` | Combat | Determines max HP (`Level × 10`) and passive nanite regeneration | Auto-Stim Injector (Mk I–III) |
 | **Bounty** | `BNT` | Combat | Unlocks high-security hostile targets and awards Bounty Tokens (`BT`) | Bounty Contracts |
 
@@ -88,7 +88,7 @@ flowchart LR
 |----------|--------------|-------------|-------------------|
 | `Scrap` | Scrap | Salvaging, Hostile Drops | Input for **Recycling** |
 | `RawMaterial` | Raw Material | Recycling | Input for **Cyber-Fab** |
-| `RawBiota` | Raw Biota | Bio-Harvest | Input for **Synth-Cook** (Stims & Kraken Ramen) |
+| `RawBiota` | Raw Biota | Fishing | Input for **Synth-Cook** (Stims & Kraken Ramen) |
 | `Crop` | Crop/Ingr | Farming, Synth-Cook | Hydroponic crops & **Synth-Noodles** for **Cyber-Ramen** |
 | `StimFood` | Stim/Ration | Synth-Cook, Hostile Drops | Loaded into **Stim-Injector** to restore HP in combat |
 | `ToxicWaste` | Slag | Synth-Cook (failed synthesis) | Can be liquidated for 1 Cr |
@@ -96,7 +96,7 @@ flowchart LR
 | `Alloy` | Alloy | Smithing | Input for **Smithing** (Blades/Exo-Suits) and **Cyber-Fab** (Visors/Shields/Crystals) |
 | `DataCrystal` | Crystal | Cyber-Fab, Deep-Mining (8% proc), Drops | High-value tradeable tech cores |
 | `Weapon` | Weapon | Smithing, Hostile Drops | Equippable in `Weapon` slot (+Attack, +Strength) |
-| `Visor` | Visor | Cyber-Fab | Equippable in `Visor` slot (+Defence, +% DR) |
-| `ExoSuit` | Exo-Suit | Smithing, Hostile Drops | Equippable in `Exo-Suit` slot (+Defence, +% DR) |
-| `HoloShield` | Shield | Cyber-Fab | Equippable in `Holo-Shield` slot (+Defence, +% DR) |
+| `Head` | Head | Cyber-Fab | Equippable in `Head` slot (+Defence, +% DR) |
+| `Armor` | Armor | Smithing, Hostile Drops | Equippable in `Armor` slot (+Defence, +% DR) |
+| `Shield` | Shield | Cyber-Fab | Equippable in `Shield` slot (+Defence, +% DR) |
 | `CyberLoot` | Salvage | Hostile Drops | Tradeable mechanical salvage for Credits |

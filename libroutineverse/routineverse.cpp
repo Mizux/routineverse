@@ -1108,24 +1108,24 @@ const std::vector<SkillAction> skill_actions = {
     {SkillType::Salvaging, "Rip AI Mainframe Core", 90, 9000, 500,
      ItemId::AiMainframeCore, 1, ItemId::None, 0, ItemId::None, 0},
 
-    // Bio-Harvest
-    {SkillType::BioHarvest, "Culture Krill Biomass", 1, 3000, 12,
+    // Fishing
+    {SkillType::Fishing, "Culture Krill Biomass", 1, 3000, 12,
      ItemId::RawKrillBiomass, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Net Neon Eel", 5, 3400, 24, ItemId::RawNeonEel, 1,
+    {SkillType::Fishing, "Net Neon Eel", 5, 3400, 24, ItemId::RawNeonEel, 1,
      ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55, ItemId::RawSynthCarp, 1,
+    {SkillType::Fishing, "Harvest Synth-Carp", 20, 4000, 55, ItemId::RawSynthCarp, 1,
      ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Extract Chrome Salmon", 35, 4500, 90,
+    {SkillType::Fishing, "Extract Chrome Salmon", 35, 4500, 90,
      ItemId::RawChromeSalmon, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Trap Cyber-Lobster", 45, 5200, 135,
+    {SkillType::Fishing, "Trap Cyber-Lobster", 45, 5200, 135,
      ItemId::RawCyberLobster, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195, ItemId::RawPlasmaRay, 1,
+    {SkillType::Fishing, "Snare Plasma Ray", 55, 6000, 195, ItemId::RawPlasmaRay, 1,
      ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310, ItemId::RawApexShark,
+    {SkillType::Fishing, "Harpoon Apex Shark", 70, 7200, 310, ItemId::RawApexShark,
      1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Clone Leviathan Cell", 85, 8500, 480,
+    {SkillType::Fishing, "Clone Leviathan Cell", 85, 8500, 480,
      ItemId::RawLeviathanCell, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Dredge Cyber-Kraken", 95, 9500, 650,
+    {SkillType::Fishing, "Dredge Cyber-Kraken", 95, 9500, 650,
      ItemId::RawCyberKraken, 1, ItemId::None, 0, ItemId::None, 0},
 
     // Farming - Hydroponic Crops & Noodle Milling
@@ -1577,17 +1577,17 @@ const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades = {{
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades = {{
     {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0, ItemId::ScrapHarvester},
-    {1, "Titanium Bio-Rig", "-6% Bio-Harvest/Farming Interval", 10, 200, 6,
+    {1, "Titanium Bio-Rig", "-6% Fishing/Farming Interval", 10, 200, 6,
      ItemId::TitaniumHarvester},
-    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest/Farming Interval", 25, 750, 12,
+    {2, "Durasteel Bio-Sampler", "-12% Fishing/Farming Interval", 25, 750, 12,
      ItemId::DurasteelHarvester},
-    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest/Farming Interval", 40, 2500, 18,
+    {3, "Cobalt Gene-Extractor", "-18% Fishing/Farming Interval", 40, 2500, 18,
      ItemId::CobaltHarvester},
-    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest/Farming Interval", 55, 8000, 24,
+    {4, "Tungsten Drone-Trawler", "-24% Fishing/Farming Interval", 55, 8000, 24,
      ItemId::TungstenHarvester},
-    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest/Farming Interval", 70, 25000, 30,
+    {5, "Neutronium Bio-Harvester", "-30% Fishing/Farming Interval", 70, 25000, 30,
      ItemId::NeutroniumHarvester},
-    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest/Farming Interval", 85, 80000, 38,
+    {6, "Chrono Stasis-Harvester", "-38% Fishing/Farming Interval", 85, 80000, 38,
      ItemId::ChronoHarvester},
 }};
 
@@ -1637,8 +1637,8 @@ std::string skill_name(SkillType skill) {
   switch (skill) {
     case SkillType::Salvaging:
       return "Salvaging";
-    case SkillType::BioHarvest:
-      return "Bio-Harvest";
+    case SkillType::Fishing:
+      return "Fishing";
     case SkillType::Farming:
       return "Farming";
     case SkillType::Recycling:
@@ -1669,8 +1669,8 @@ std::string skill_short_name(SkillType skill) {
   switch (skill) {
     case SkillType::Salvaging:
       return "SLV";
-    case SkillType::BioHarvest:
-      return "BIO";
+    case SkillType::Fishing:
+      return "FSH";
     case SkillType::Farming:
       return "FRM";
     case SkillType::Recycling:
@@ -2127,7 +2127,7 @@ int GameState::action_effective_interval_ms(int global_action_id) const {
     case SkillType::Salvaging:
       bonus_pct = equipment.speed_bonus_pct(EquipSlot::Cutter);
       break;
-    case SkillType::BioHarvest:
+    case SkillType::Fishing:
     case SkillType::Farming:
       bonus_pct = equipment.speed_bonus_pct(EquipSlot::Harvester);
       break;
@@ -2328,7 +2328,7 @@ void GameState::complete_skill_action(int global_action_id) {
                             get_item_info(gem_id).name));
       }
     }
-  } else if (act.skill == SkillType::BioHarvest) {
+  } else if (act.skill == SkillType::Fishing) {
     // 5% chance to recover a submerged Corp Data-Cache (Credits)
     if (rand_int(1, 100) <= 5) {
       uint64_t bonus_cr = 25 + act.req_level * 8;
@@ -2703,9 +2703,9 @@ bool GameState::equip_item(ItemId item_id) {
       }
       break;
     case EquipSlot::Harvester:
-      if (std::max(skill_level(SkillType::BioHarvest),
+      if (std::max(skill_level(SkillType::Fishing),
                    skill_level(SkillType::Farming)) < info.req_level) {
-        add_log(std::format("Requires Bio-Harvest or Farming Level {} to equip {}.",
+        add_log(std::format("Requires Fishing or Farming Level {} to equip {}.",
                             info.req_level, info.name));
         return false;
       }
@@ -2850,9 +2850,9 @@ bool GameState::buy_harvester_upgrade() {
   int cur_t = harvester_tier();
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = harvester_upgrades[cur_t + 1];
-  if (std::max(skill_level(SkillType::BioHarvest), skill_level(SkillType::Farming)) <
+  if (std::max(skill_level(SkillType::Fishing), skill_level(SkillType::Farming)) <
       upg.req_skill_level) {
-    add_log(std::format("Requires Bio-Harvest or Farming Level {} to buy {}.",
+    add_log(std::format("Requires Fishing or Farming Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
   }

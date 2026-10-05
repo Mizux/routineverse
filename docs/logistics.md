@@ -8,7 +8,7 @@ This document details all resource extraction, refinement, fabrication, and culi
 
 The non-combat economy is divided into two major industrial branches:
 1. **Metallurgy & Cyberware Branch**: `Salvaging` + `Deep-Mining` $\rightarrow$ `Recycling` + `Smithing` $\rightarrow$ `Cyber-Fab` (Weapons, Armor, and Data Crystals).
-2. **Bio-Agri & Culinary Branch**: `Bio-Harvest` + `Farming` $\rightarrow$ `Synth-Noodles` $\rightarrow$ `Synth-Cook` (Biota Stims and Cyber-Ramen).
+2. **Bio-Agri & Culinary Branch**: `Fishing` + `Farming` $\rightarrow$ `Synth-Noodles` $\rightarrow$ `Synth-Cook` (Biota Stims and Cyber-Ramen).
 
 ```mermaid
 flowchart TD
@@ -33,7 +33,7 @@ flowchart TD
   end
 
   subgraph Culinary["Bio-Agri & Culinary Branch"]
-    BH["Bio-Harvest<br/>(9 Raw Synth-Biota)"]
+    BH["Fishing<br/>(9 Raw Synth-Biota)"]
     FM["Farming<br/>(9 Hydroponic Crops)"]
     HW["Hydro-Wheat<br/>(Lv 1 Crop + 20% Farming Proc)"]
     ND["Synth-Noodles<br/>(1x Hydro-Wheat -> 2x Noodles)"]
@@ -208,7 +208,7 @@ flowchart LR
 ## 4. Farming, Synth-Noodles & Cyber-Ramen Culinary Chain
 
 The culinary system offers two parallel paths in **Synth-Cook**:
-1. **Single-Input Biota Stims**: Directly synthesize aquatic `RawBiota` from **Bio-Harvest** into combat rations (`+30 HP` to `+680 HP`).
+1. **Single-Input Biota Stims**: Directly synthesize aquatic `RawBiota` from **Fishing** into combat rations (`+30 HP` to `+680 HP`).
 2. **Multi-Ingredient Cyber-Ramen**: Cultivate `Hydro-Wheat` in **Farming** (also obtained via a **20% bonus proc** on any hydroponic crop harvest), mill it into `2x Synth-Noodles`, and combine `1x Synth-Noodles` with hydroponic crops (or `Raw Cyber-Kraken`) to cook high-healing **Cyber-Ramen** bowls (`+65 HP` to `+980 HP`).
 
 ```mermaid
@@ -225,7 +225,7 @@ flowchart LR
     F_TR["Lv 94: Quantum Myco-Truffle"]
   end
 
-  subgraph Aquaculture["Bio-Harvest (Raw Biota)"]
+  subgraph Aquaculture["Fishing (Raw Biota)"]
     B_ALL["Lv 1–85: Krill .. Leviathan"]
     B_KR["Lv 95: Raw Cyber-Kraken"]
   end

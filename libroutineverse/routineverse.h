@@ -319,7 +319,7 @@ inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 enum class SkillType : uint8_t {
   // Logistic Skill
   Salvaging,
-  BioHarvest,
+  Fishing,
   Farming,
   Recycling,
   SynthCook,
@@ -338,10 +338,10 @@ std::string skill_name(SkillType skill);
 std::string skill_short_name(SkillType skill);
 
 inline constexpr std::array all_skills = {
-    SkillType::Salvaging, SkillType::BioHarvest, SkillType::Farming,
-    SkillType::Recycling, SkillType::SynthCook,  SkillType::DeepMining,
-    SkillType::Smithing,  SkillType::CyberFab,   SkillType::Attack,
-    SkillType::Strength,  SkillType::Defence,    SkillType::Hitpoints,
+    SkillType::Salvaging, SkillType::Fishing,  SkillType::Farming,
+    SkillType::Recycling, SkillType::SynthCook, SkillType::DeepMining,
+    SkillType::Smithing,  SkillType::CyberFab,  SkillType::Attack,
+    SkillType::Strength,  SkillType::Defence,   SkillType::Hitpoints,
     SkillType::Bounty,
 };
 inline constexpr bool is_combat_skill(SkillType skill) {
