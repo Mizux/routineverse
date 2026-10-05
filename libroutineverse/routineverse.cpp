@@ -1014,6 +1014,26 @@ std::vector<int> actions_for_skill(SkillType skill) {
   return res;
 }
 
+std::string action_recipe(const SkillAction& act) {
+  std::string io_str;
+  if (is_valid_item(act.input_item_1)) {
+    io_str += std::format("{}x{}", act.input_qty_1,
+                          get_item_info(act.input_item_1).name);
+  }
+  if (is_valid_item(act.input_item_2)) {
+    io_str += std::format("+{}x{}", act.input_qty_2,
+                          get_item_info(act.input_item_2).name);
+  }
+  if (is_valid_item(act.product_item)) {
+    if (!io_str.empty()) io_str += " -> ";
+    io_str += std::format("{}x{}", act.product_qty,
+                          get_item_info(act.product_item).name);
+  } else if (io_str.empty()) {
+    io_str = "XP+Cell+Cr";
+  }
+  return io_str;
+}
+
 // ============================================================================
 // GameState Implementation
 // ============================================================================

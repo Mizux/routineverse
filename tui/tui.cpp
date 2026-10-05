@@ -736,22 +736,6 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       attron(COLOR_PAIR(cp) | ((is_sel || is_running) ? A_BOLD : A_NORMAL));
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
-      std::string io_str;
-      if (is_valid_item(act.input_item_1)) {
-        io_str += std::format("{}x{}", act.input_qty_1,
-                              get_item_info(act.input_item_1).name);
-      }
-      if (is_valid_item(act.input_item_2)) {
-        io_str += std::format(" + {}x{}", act.input_qty_2,
-                              get_item_info(act.input_item_2).name);
-      }
-      if (is_valid_item(act.product_item)) {
-        if (!io_str.empty()) io_str += " -> ";
-        io_str += std::format("{}", get_item_info(act.product_item).name);
-      } else if (io_str.empty()) {
-        io_str = "XP+Cell+Cr";
-      }
-
       double eff_s = _gameState.action_effective_interval_ms(id) / 1000.0;
       int m_lvl = _gameState.mastery_level(id);
       std::string aname = (is_running ? "* " : "") + std::string(act.name);
@@ -759,7 +743,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
       std::string line =
           std::format("{:>2}  {:<18} {:>4.1f}s {:>4} {:>3}  {}", act.req_level,
-                      aname, eff_s, act.xp, m_lvl, io_str);
+                      aname, eff_s, act.xp, m_lvl, action_recipe(act));
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }

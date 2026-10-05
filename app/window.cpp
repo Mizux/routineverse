@@ -827,32 +827,12 @@ void MainWindow::_fillTreeviewActions() {
       act_name = "▶ " + act_name;
     }
 
-    QString io_str;
-    if (is_valid_item(act.input_item_1)) {
-      io_str += QString("%1x %2")
-                    .arg(act.input_qty_1)
-                    .arg(get_item_info(act.input_item_1).name);
-    }
-    if (is_valid_item(act.input_item_2)) {
-      io_str += QString(" + %1x %2")
-                    .arg(act.input_qty_2)
-                    .arg(get_item_info(act.input_item_2).name);
-    }
-    if (is_valid_item(act.product_item)) {
-      if (!io_str.isEmpty()) io_str += " -> ";
-      io_str += QString("%1x %2")
-                    .arg(act.product_qty)
-                    .arg(get_item_info(act.product_item).name);
-    } else if (io_str.isEmpty()) {
-      io_str = "XP + Carbon Cell + Cr";
-    }
-
     item->setText(0, QString::number(act.req_level));
     item->setText(1, act_name);
     item->setText(2, QString("%1s").arg(eff_ms / 1000.0, 0, 'f', 2));
     item->setText(3, QString::number(act.xp));
     item->setText(4, QString("Lv %1").arg(m_lvl));
-    item->setText(5, io_str);
+    item->setText(5, QString::fromStdString(action_recipe(act)));
     item->setData(0, Qt::UserRole, id);
 
     if (_gameState.skill_level(sk) < act.req_level) {

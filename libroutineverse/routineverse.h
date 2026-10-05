@@ -274,6 +274,7 @@ struct SkillAction {
   int input_qty_2;
 };
 extern const std::vector<SkillAction> skill_actions;
+std::string action_recipe(const SkillAction& act);
 
 // Monsters
 struct MonsterDrop {
