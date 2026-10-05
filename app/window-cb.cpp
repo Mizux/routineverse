@@ -226,7 +226,7 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
       "Hostiles Neutralized: {}   |   Flatlines: {}\n"
       "NEXUS-9 (Mainframe Boss) Kills: {}\n"
       "Simulated Uptime: {}m {}s",
-      gs.combat_level(), gs.total_skill_level(), SKILL_COUNT * MAX_SKILL_LEVEL,
+      gs.combat_level(), gs.total_skill_level(), max_total_skill_level(),
       number_string(gs.total_skill_xp()), money_string(gs.credits),
       money_string(gs.total_credits_earned), money_string(gs.total_bank_value()),
       gs.used_bank_slots(), gs.bank.capacity, number_string(gs.bounty_tokens),

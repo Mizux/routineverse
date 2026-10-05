@@ -37,7 +37,7 @@ class HistoryChartView : public QChartView {
   static constexpr int ITEM_TOTAL_XP = 3;
   static constexpr int ITEM_HP = 4;
   static constexpr int ITEM_FIRST_SKILL = 5;
-  static constexpr int TOTAL_ITEMS = 5 + SKILL_COUNT;
+  static constexpr int TOTAL_ITEMS = 5 + static_cast<int>(all_skills.size());
 
   explicit HistoryChartView(bool compact = true, QWidget* parent = nullptr);
   virtual ~HistoryChartView() = default;

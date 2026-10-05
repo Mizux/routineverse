@@ -139,9 +139,8 @@ QString HistoryChartView::itemName(int item_idx) {
       return "Player Hitpoints";
     default: {
       int s_idx = item_idx - ITEM_FIRST_SKILL;
-      if (s_idx >= 0 && s_idx < SKILL_COUNT) {
-        return QString::fromStdString(skill_name(static_cast<SkillType>(s_idx)) +
-                                      " XP");
+      if (s_idx >= 0 && s_idx < static_cast<int>(all_skills.size())) {
+        return QString::fromStdString(skill_name(all_skills[s_idx]) + " XP");
       }
       return "Credits (Cr)";
     }
@@ -179,9 +178,14 @@ void HistoryChartView::updateChart(const GameState& gameState) {
     for (int v : gameState.history.hp) values.push_back(v);
     values.push_back(gameState.player_hp);
   } else {
-    int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
-    for (long long v : gameState.history.skill_xp[s_idx]) values.push_back(v);
-    values.push_back(gameState.xp[s_idx]);
+    int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0,
+                           static_cast<int>(all_skills.size()) - 1);
+    SkillType sk = all_skills[s_idx];
+    auto it = gameState.history.skill_xp.find(sk);
+    if (it != gameState.history.skill_xp.end()) {
+      for (long long v : it->second) values.push_back(v);
+    }
+    values.push_back(gameState.skill_xp(sk));
   }
 
   int count = static_cast<int>(values.size());
@@ -576,7 +580,7 @@ void MainWindow::_setupWidget() {
 
 void MainWindow::setSelectedSkill(SkillType skill) {
   _selected_skill = skill;
-  if (static_cast<int>(skill) >= NON_COMBAT_SKILL_COUNT) {
+  if (is_combat_skill(skill)) {
     if (_tabs_mode) _tabs_mode->setCurrentIndex(1);
   } else {
     if (_tabs_mode) _tabs_mode->setCurrentIndex(0);
@@ -670,7 +674,7 @@ void MainWindow::updateAllUi() {
     _label_combat_lvl->setText(QString("Lv %1  (Total: %2 / %3)")
                                    .arg(_gameState.combat_level())
                                    .arg(_gameState.total_skill_level())
-                                   .arg(SKILL_COUNT * MAX_SKILL_LEVEL));
+                                   .arg(max_total_skill_level()));
   }
   if (_label_tools) {
     _label_tools->setText(QString("Cut T%1 | Bio T%2 | Drill T%3 | Core T%4")
@@ -747,8 +751,8 @@ void MainWindow::_fillTreeviewSkills() {
   _treeview_skills->blockSignals(true);
   _treeview_skills->clear();
 
-  for (int i = 0; i < SKILL_COUNT; ++i) {
-    auto sk = static_cast<SkillType>(i);
+  for (size_t i = 0; i < all_skills.size(); ++i) {
+    SkillType sk = all_skills[i];
     int lvl = _gameState.skill_level(sk);
     long long s_xp = _gameState.skill_xp(sk);
     double prog = level_progress_ratio(s_xp) * 100.0;
@@ -760,14 +764,14 @@ void MainWindow::_fillTreeviewSkills() {
         skill_actions[_gameState.active_action_id].skill == sk) {
       name_str = "▶ " + name_str;
     } else if (_gameState.active_type == ActiveActivityType::Combat &&
-               i >= NON_COMBAT_SKILL_COUNT) {
+               is_combat_skill(sk)) {
       name_str = "⚔ " + name_str;
     }
     item->setText(0, name_str);
     item->setText(1, QString("%1 / 99").arg(lvl));
     item->setText(2, QString::fromStdString(number_string(s_xp)));
     item->setText(3, QString("%1%").arg(prog, 0, 'f', 0));
-    item->setData(0, Qt::UserRole, i);
+    item->setData(0, Qt::UserRole, static_cast<int>(i));
     item->setTextAlignment(1, Qt::AlignRight | Qt::AlignVCenter);
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
     item->setTextAlignment(3, Qt::AlignRight | Qt::AlignVCenter);
@@ -785,7 +789,7 @@ void MainWindow::_fillTreeviewActions() {
   _treeview_actions->clear();
 
   SkillType sk = _selected_skill;
-  if (static_cast<int>(sk) >= NON_COMBAT_SKILL_COUNT) {
+  if (is_combat_skill(sk)) {
     sk = SkillType::Salvaging;
   }
 
@@ -932,8 +936,9 @@ void MainWindow::onSkillSelectionChanged() {
   if (!_treeview_skills) return;
   auto* item = _treeview_skills->currentItem();
   if (!item) return;
-  int sk_idx = item->data(0, Qt::UserRole).toInt();
-  setSelectedSkill(static_cast<SkillType>(std::clamp(sk_idx, 0, int{SKILL_COUNT} - 1)));
+  int sk_idx = std::clamp(item->data(0, Qt::UserRole).toInt(), 0,
+                          static_cast<int>(all_skills.size()) - 1);
+  setSelectedSkill(all_skills[sk_idx]);
 }
 
 void MainWindow::onActionDoubleClicked() {

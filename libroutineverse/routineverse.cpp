@@ -1879,9 +1879,10 @@ void GameState::new_game() {
   bounty_tokens = 0;
   total_ticks_ms = 0;
 
-  xp.fill(0);
+  xp.clear();
+  for (SkillType sk : all_skills) xp[sk] = 0;
   // Hitpoints starts at Level 10 (1,154 XP)
-  xp[static_cast<int>(SkillType::Hitpoints)] = xp_for_level(10);
+  xp[SkillType::Hitpoints] = xp_for_level(10);
 
   action_mastery_xp.assign(skill_actions.size(), 0);
 
@@ -1956,7 +1957,8 @@ void GameState::History::clear() {
   total_level.clear();
   total_xp.clear();
   hp.clear();
-  for (auto& list : skill_xp) list.clear();
+  skill_xp.clear();
+  for (SkillType sk : all_skills) skill_xp[sk] = {};
 }
 
 void GameState::History::add_record(const GameState& state) {
@@ -1972,32 +1974,33 @@ void GameState::History::add_record(const GameState& state) {
   push_capped(total_level, state.total_skill_level());
   push_capped(total_xp, state.total_skill_xp());
   push_capped(hp, state.player_hp);
-  for (size_t i = 0; i < SKILL_COUNT; ++i) {
-    push_capped(skill_xp[i], state.xp[i]);
+  for (SkillType sk : all_skills) {
+    push_capped(skill_xp[sk], state.skill_xp(sk));
   }
 }
 
 void GameState::record_history_snapshot() { history.add_record(*this); }
 
 int GameState::skill_level(SkillType skill) const {
-  return level_for_xp(xp[static_cast<int>(skill)]);
+  return level_for_xp(skill_xp(skill));
 }
 
 uint64_t GameState::skill_xp(SkillType skill) const {
-  return xp[static_cast<int>(skill)];
+  auto it = xp.find(skill);
+  return it != xp.end() ? it->second : 0;
 }
 
 int GameState::total_skill_level() const {
   int sum = 0;
-  for (int i = 0; i < SKILL_COUNT; ++i) {
-    sum += level_for_xp(xp[i]);
+  for (SkillType sk : all_skills) {
+    sum += skill_level(sk);
   }
   return sum;
 }
 
 uint64_t GameState::total_skill_xp() const {
   uint64_t sum = 0;
-  for (uint64_t v : xp) sum += v;
+  for (const auto& [sk, v] : xp) sum += v;
   return sum;
 }
 
@@ -2157,12 +2160,11 @@ void GameState::stop_activity() {
 
 void GameState::gain_xp(SkillType skill, uint64_t amount) {
   if (amount <= 0) return;
-  int idx = static_cast<int>(skill);
-  int old_lvl = level_for_xp(xp[idx]);
+  int old_lvl = skill_level(skill);
   // Reactor tier grants a global XP bonus
   uint64_t bonus = (amount * reactor_tier() * 2) / 100;
-  xp[idx] += (amount + bonus);
-  int new_lvl = level_for_xp(xp[idx]);
+  xp[skill] += (amount + bonus);
+  int new_lvl = skill_level(skill);
   if (new_lvl > old_lvl) {
     add_log(std::format("NEURAL UPGRADE! Your {} skill is now Level {}!",
                         skill_name(skill), new_lvl));
@@ -2955,8 +2957,8 @@ bool GameState::save_to_file(const std::string& path) const {
 
   out << "ROUTINEVERSE_SAVE_V2\n";
   out << credits << " " << bounty_tokens << " " << total_ticks_ms << "\n";
-  for (int i = 0; i < SKILL_COUNT; ++i) {
-    out << xp[i] << (i + 1 == SKILL_COUNT ? "\n" : " ");
+  for (size_t i = 0; i < all_skills.size(); ++i) {
+    out << skill_xp(all_skills[i]) << (i + 1 == all_skills.size() ? "\n" : " ");
   }
   out << action_mastery_xp.size() << "\n";
   for (size_t i = 0; i < action_mastery_xp.size(); ++i) {
@@ -2992,7 +2994,7 @@ bool GameState::load_from_file(const std::string& path) {
   }
 
   in >> credits >> bounty_tokens >> total_ticks_ms;
-  for (int i = 0; i < SKILL_COUNT; ++i) in >> xp[i];
+  for (SkillType sk : all_skills) in >> xp[sk];
 
   size_t m_sz = 0;
   in >> m_sz;

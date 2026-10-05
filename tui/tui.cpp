@@ -204,8 +204,8 @@ std::string TuiApp::itemName(int item_idx) {
       return "Player Hitpoints";
     default: {
       int s_idx = item_idx - ITEM_FIRST_SKILL;
-      if (s_idx >= 0 && s_idx < SKILL_COUNT) {
-        return skill_name(static_cast<SkillType>(s_idx)) + " XP";
+      if (s_idx >= 0 && s_idx < static_cast<int>(all_skills.size())) {
+        return skill_name(all_skills[s_idx]) + " XP";
       }
       return "Credits (Cr)";
     }
@@ -214,13 +214,15 @@ std::string TuiApp::itemName(int item_idx) {
 
 bool TuiApp::isCombatView() const {
   if (_forceCombatView) return true;
-  return _skillCursor >= NON_COMBAT_SKILL_COUNT;
+  int idx = std::clamp(_skillCursor, 0, static_cast<int>(all_skills.size()) - 1);
+  return is_combat_skill(all_skills[idx]);
 }
 
 void TuiApp::clampCursors() {
-  _skillCursor = std::clamp(_skillCursor, 0, int{SKILL_COUNT} - 1);
+  _skillCursor =
+      std::clamp(_skillCursor, 0, static_cast<int>(all_skills.size()) - 1);
   if (!isCombatView()) {
-    auto acts = actions_for_skill(static_cast<SkillType>(_skillCursor));
+    auto acts = actions_for_skill(all_skills[_skillCursor]);
     if (acts.empty()) {
       _actionCursor = 0;
     } else {
@@ -366,10 +368,11 @@ int TuiApp::run() {
       case 'c':
       case 'C':
         _forceCombatView = !isCombatView();
-        if (_forceCombatView && _skillCursor < NON_COMBAT_SKILL_COUNT) {
-          _skillCursor = static_cast<int>(SkillType::Attack);
-        } else if (!_forceCombatView && _skillCursor >= NON_COMBAT_SKILL_COUNT) {
-          _skillCursor = static_cast<int>(SkillType::Salvaging);
+        if (_forceCombatView && !is_combat_skill(all_skills[_skillCursor])) {
+          _skillCursor = 8;
+        } else if (!_forceCombatView &&
+                   is_combat_skill(all_skills[_skillCursor])) {
+          _skillCursor = 0;
         }
         _focus = FocusPane::Actions;
         clampCursors();
@@ -508,7 +511,7 @@ int TuiApp::run() {
             if (ev.x < left_w) {
               _focus = FocusPane::Skills;
               int idx = ev.y - 3;
-              if (idx >= 0 && idx < SKILL_COUNT) {
+              if (idx >= 0 && idx < static_cast<int>(all_skills.size())) {
                 _skillCursor = idx;
                 _forceCombatView = false;
                 _actionCursor = 0;
@@ -524,7 +527,7 @@ int TuiApp::run() {
                   }
                 }
               } else {
-                auto acts = actions_for_skill(static_cast<SkillType>(_skillCursor));
+                auto acts = actions_for_skill(all_skills[_skillCursor]);
                 int idx = ev.y - 5;
                 if (idx >= 0 && idx < static_cast<int>(acts.size())) {
                   _actionCursor = idx;
@@ -614,7 +617,7 @@ void TuiApp::drawTopBar(int cols) {
       "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
       number_string(_gameState.credits), number_string(_gameState.bounty_tokens),
       _gameState.combat_level(), _gameState.total_skill_level(),
-      SKILL_COUNT * MAX_SKILL_LEVEL, _gameState.player_hp, _gameState.max_hp());
+      max_total_skill_level(), _gameState.player_hp, _gameState.max_hp());
 
   int rx = std::max(30, cols - static_cast<int>(right_stats.size()) - 1);
   mvaddstr(0, rx, right_stats.c_str());
@@ -632,15 +635,16 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   mvprintw(row++, x + 2, "%-12s %5s %5s", "Skill", "Level", "Prog");
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
-  for (int i = 0; i < SKILL_COUNT && row < y + h - 1; ++i) {
-    if (i == NON_COMBAT_SKILL_COUNT && h >= SKILL_COUNT + 4 && row < y + h - 2) {
+  int skill_count = static_cast<int>(all_skills.size());
+  for (int i = 0; i < skill_count && row < y + h - 1; ++i) {
+    SkillType sk = all_skills[i];
+    if (sk == SkillType::Attack && h >= skill_count + 4 && row < y + h - 2) {
       attron(COLOR_PAIR(CP_DIM));
       mvaddstr(row++, x + 2, "── Combat & Bounty ─");
       attroff(COLOR_PAIR(CP_DIM));
     }
     if (row >= y + h - 1) break;
 
-    auto sk = static_cast<SkillType>(i);
     int lvl = _gameState.skill_level(sk);
     long long s_xp = _gameState.skill_xp(sk);
     int pct = static_cast<int>(std::round(level_progress_ratio(s_xp) * 100.0));
@@ -650,7 +654,7 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
                         _gameState.active_action_id >= 0 &&
                         skill_actions[_gameState.active_action_id].skill == sk) ||
                        (_gameState.active_type == ActiveActivityType::Combat &&
-                        i >= NON_COMBAT_SKILL_COUNT);
+                        is_combat_skill(sk));
 
     short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
                       : (is_training ? CP_GREEN : CP_DEFAULT);
@@ -671,8 +675,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
 
   if (!isCombatView()) {
-    auto sk = static_cast<SkillType>(
-        std::clamp(_skillCursor, 0, int{NON_COMBAT_SKILL_COUNT} - 1));
+    SkillType sk = all_skills[_skillCursor];
+    if (is_combat_skill(sk)) sk = SkillType::Salvaging;
     std::string title = skill_name(sk) + " Protocols";
     draw_btop_box(y, x, h, w, title, "[Enter]Execute [x]Stop", active);
 
@@ -953,9 +957,14 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
     for (int v : _gameState.history.hp) values.push_back(v);
     values.push_back(_gameState.player_hp);
   } else {
-    int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
-    for (long long v : _gameState.history.skill_xp[s_idx]) values.push_back(v);
-    values.push_back(_gameState.xp[s_idx]);
+    int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0,
+                           static_cast<int>(all_skills.size()) - 1);
+    SkillType sk = all_skills[s_idx];
+    auto it = _gameState.history.skill_xp.find(sk);
+    if (it != _gameState.history.skill_xp.end()) {
+      for (long long v : it->second) values.push_back(v);
+    }
+    values.push_back(_gameState.skill_xp(sk));
   }
 
   if (values.empty()) values.push_back(0.0);
@@ -1058,7 +1067,7 @@ void TuiApp::actionStartSelected() {
   if (isCombatView()) {
     _gameState.start_combat(_monsterCursor);
   } else {
-    auto acts = actions_for_skill(static_cast<SkillType>(_skillCursor));
+    auto acts = actions_for_skill(all_skills[_skillCursor]);
     if (_actionCursor >= 0 && _actionCursor < static_cast<int>(acts.size())) {
       _gameState.start_skill_action(acts[_actionCursor]);
     }
@@ -1354,7 +1363,7 @@ void TuiApp::showMilestonesDialog() {
       "NEXUS-9 (Mainframe Boss) Kills: {}\n"
       "Simulated Uptime: {}m {}s",
       _gameState.combat_level(), _gameState.total_skill_level(),
-      SKILL_COUNT * MAX_SKILL_LEVEL, number_string(_gameState.total_skill_xp()),
+      max_total_skill_level(), number_string(_gameState.total_skill_xp()),
       money_string(_gameState.credits), money_string(_gameState.total_credits_earned),
       money_string(_gameState.total_bank_value()), _gameState.used_bank_slots(),
       _gameState.bank.capacity, number_string(_gameState.bounty_tokens),

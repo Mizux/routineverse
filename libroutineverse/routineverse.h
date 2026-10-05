@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 // Items
@@ -336,8 +337,28 @@ enum class SkillType : uint8_t {
 std::string skill_name(SkillType skill);
 std::string skill_short_name(SkillType skill);
 
-inline constexpr size_t SKILL_COUNT = 13;
-inline constexpr size_t NON_COMBAT_SKILL_COUNT = 8;
+inline constexpr std::array all_skills = {
+    SkillType::Salvaging, SkillType::BioHarvest, SkillType::Farming,
+    SkillType::Recycling, SkillType::SynthCook,  SkillType::DeepMining,
+    SkillType::Smithing,  SkillType::CyberFab,   SkillType::Attack,
+    SkillType::Strength,  SkillType::Defence,    SkillType::Hitpoints,
+    SkillType::Bounty,
+};
+inline constexpr bool is_combat_skill(SkillType skill) {
+  switch (skill) {
+    case SkillType::Attack:
+    case SkillType::Strength:
+    case SkillType::Defence:
+    case SkillType::Hitpoints:
+    case SkillType::Bounty:
+      return true;
+    default:
+      return false;
+  }
+}
+inline constexpr int max_total_skill_level() {
+  return static_cast<int>(all_skills.size()) * MAX_SKILL_LEVEL;
+}
 
 struct SkillAction {
   SkillType skill;
@@ -391,7 +412,6 @@ uint64_t xp_for_level(int level);
 int level_for_xp(uint64_t xp);
 double level_progress_ratio(uint64_t xp);
 
-// todo move inside GameState ?
 enum class ActiveActivityType : uint8_t {
   None,
   Skill,
@@ -485,7 +505,7 @@ class GameState {
   uint64_t bounty_tokens = 0;
   uint64_t total_ticks_ms = 0;
 
-  std::array<uint64_t, SKILL_COUNT> xp{};
+  std::unordered_map<SkillType, uint64_t> xp;
   std::vector<uint64_t> action_mastery_xp;
 
   struct Bank {
@@ -569,7 +589,7 @@ class GameState {
     std::list<int> total_level;
     std::list<uint64_t> total_xp;
     std::list<int> hp;
-    std::array<std::list<uint64_t>, SKILL_COUNT> skill_xp{};
+    std::unordered_map<SkillType, std::list<uint64_t>> skill_xp;
 
     void clear();
     void add_record(const GameState& state);
