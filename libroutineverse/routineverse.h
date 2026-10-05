@@ -9,83 +9,7 @@
 
 inline constexpr uint8_t MAX_HISTORY_POINTS = 60;
 
-// Skills
-inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
-
-enum class SkillType : uint8_t {
-  // Logistic Skill
-  Salvaging,
-  BioHarvest,
-  Farming,
-  Recycling,
-  SynthCook,
-  DeepMining,
-  Smithing,
-  CyberFab,
-  // Combat Skill
-  Attack,
-  Strength,
-  Defence,
-  Hitpoints,
-  Bounty,
-  // Hacking Skill
-};
-std::string skill_name(SkillType skill);
-std::string skill_short_name(SkillType skill);
-
-inline constexpr size_t SKILL_COUNT = 13;
-inline constexpr size_t NON_COMBAT_SKILL_COUNT = 8;
-
-// Gears
-enum class EquipSlot : int8_t {
-  None = -1,
-  Weapon,
-  Visor,
-  ExoSuit,
-  HoloShield,
-};
-std::string equip_slot_name(EquipSlot slot);
-
-enum class CombatStyle : uint8_t {
-  Accurate,    // Trains Precision (+accuracy)
-  Aggressive,  // Trains Strength (+max hit)
-  Defensive,   // Trains Defence (+evasion)
-};
-std::string combat_style_name(CombatStyle style);
-
 // Items
-enum class ItemCategory : uint8_t {
-  Scrap,
-  RawMaterial,
-  RawBiota,
-  Crop,
-  StimFood,
-  ToxicWaste,
-  RawOre,
-  Alloy,
-  DataCrystal,
-  Weapon,
-  Visor,
-  ExoSuit,
-  HoloShield,
-  CyberLoot,
-};
-std::string item_category_name(ItemCategory cat);
-inline constexpr EquipSlot equip_slot(ItemCategory cat) {
-  switch (cat) {
-    case ItemCategory::Weapon:
-      return EquipSlot::Weapon;
-    case ItemCategory::Visor:
-      return EquipSlot::Visor;
-    case ItemCategory::ExoSuit:
-      return EquipSlot::ExoSuit;
-    case ItemCategory::HoloShield:
-      return EquipSlot::HoloShield;
-    default:
-      return EquipSlot::None;
-  }
-}
-
 enum class ItemId : uint16_t {
   None,
   // Scrap & Tech Nodes
@@ -239,6 +163,24 @@ inline constexpr bool is_valid_item(ItemId id) {
   return id == ItemId::None ? false: true;
 }
 
+enum class ItemCategory : uint8_t {
+  Scrap,
+  RawMaterial,
+  RawBiota,
+  Crop,
+  StimFood,
+  ToxicWaste,
+  RawOre,
+  Alloy,
+  DataCrystal,
+  Weapon,
+  Visor,
+  ExoSuit,
+  HoloShield,
+  CyberLoot,
+};
+std::string item_category_name(ItemCategory cat);
+
 struct Bonus {
   int attack = 0;            // Accuracy bonus
   int strength = 0;          // Max hit bonus
@@ -259,22 +201,6 @@ extern const std::array<ItemInfo, ITEM_COUNT> item_info;
 inline const ItemInfo& get_item_info(ItemId id) {
   return item_info[static_cast<int>(id)];
 }
-
-struct SkillAction {
-  SkillType skill;
-  const char* name;
-  int req_level;
-  int base_interval_ms;
-  int xp;
-  ItemId product_item;
-  int product_qty;
-  ItemId input_item_1;
-  int input_qty_1;
-  ItemId input_item_2;
-  int input_qty_2;
-};
-extern const std::vector<SkillAction> skill_actions;
-std::string action_recipe(const SkillAction& act);
 
 // Monsters
 struct MonsterDrop {
@@ -303,6 +229,83 @@ struct MonsterInfo {
 inline constexpr int MONSTER_COUNT = 12;
 extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
 
+// Gears
+enum class EquipSlot : int8_t {
+  None = -1,
+  Weapon,
+  Visor,
+  ExoSuit,
+  HoloShield,
+};
+std::string equip_slot_name(EquipSlot slot);
+inline constexpr EquipSlot equip_slot(ItemCategory cat) {
+  switch (cat) {
+    case ItemCategory::Weapon:
+      return EquipSlot::Weapon;
+    case ItemCategory::Visor:
+      return EquipSlot::Visor;
+    case ItemCategory::ExoSuit:
+      return EquipSlot::ExoSuit;
+    case ItemCategory::HoloShield:
+      return EquipSlot::HoloShield;
+    default:
+      return EquipSlot::None;
+  }
+}
+
+// Skills
+inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
+
+enum class SkillType : uint8_t {
+  // Logistic Skill
+  Salvaging,
+  BioHarvest,
+  Farming,
+  Recycling,
+  SynthCook,
+  DeepMining,
+  Smithing,
+  CyberFab,
+  // Combat Skill
+  Attack,
+  Strength,
+  Defence,
+  Hitpoints,
+  Bounty,
+  // Hacking Skill
+};
+std::string skill_name(SkillType skill);
+std::string skill_short_name(SkillType skill);
+
+inline constexpr size_t SKILL_COUNT = 13;
+inline constexpr size_t NON_COMBAT_SKILL_COUNT = 8;
+
+struct SkillAction {
+  SkillType skill;
+  const char* name;
+  int req_level;
+  int base_interval_ms;
+  int xp;
+  ItemId product_item;
+  int product_qty;
+  ItemId input_item_1;
+  int input_qty_1;
+  ItemId input_item_2;
+  int input_qty_2;
+};
+extern const std::vector<SkillAction> skill_actions;
+std::string action_recipe(const SkillAction& act);
+std::vector<int> actions_for_skill(SkillType skill);
+
+// Combat
+enum class CombatStyle : uint8_t {
+  Accurate,    // Trains Precision (+accuracy)
+  Aggressive,  // Trains Strength (+max hit)
+  Defensive,   // Trains Defence (+evasion)
+};
+std::string combat_style_name(CombatStyle style);
+
+// Shop
 struct ShopUpgradeInfo {
   uint8_t tier;
   const char* name;
@@ -319,13 +322,11 @@ extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
 inline constexpr int AUTO_STIM_TIER_COUNT = 4;
 extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
 
+// todo move inside GameState and/or create a BankClass ?
 struct BankSlot {
   ItemId item_id = ItemId::None;
   int qty = 0;
 };
-
-
-// Utility & Formatting functions
 std::string money_string(uint64_t value);
 std::string number_string(uint64_t value);
 
@@ -334,14 +335,15 @@ uint64_t xp_for_level(int level);
 int level_for_xp(uint64_t xp);
 double level_progress_ratio(uint64_t xp);
 
-std::vector<int> actions_for_skill(SkillType skill);
-
+// todo move inside GameState ?
 enum class ActiveActivityType : uint8_t {
   None,
   Skill,
   Combat,
 };
 
+// todo split into smaller classes e.g. PlayerState have instance of
+// InventoryClass, BankClass, SkillClass, CombatClass, etc.
 class GameState {
  public:
   GameState();
@@ -421,6 +423,7 @@ class GameState {
   uint64_t bounty_tokens = 0;
   uint64_t total_ticks_ms = 0;
 
+  // todo: use map SkillId -> uint64_t ?
   std::array<uint64_t, SKILL_COUNT> xp{};
   std::vector<uint64_t> action_mastery_xp;
 
@@ -436,6 +439,8 @@ class GameState {
   int equipped_food_qty = 0;
 
   // Cyber-Shop upgrade tiers
+  // todo why not having EquipSlot for tooling like we have with combat gear ?
+  // also make it items mean mobs can drop them for you too !
   int cutter_tier = 0;
   int harvester_tier = 0;
   int drill_tier = 0;
@@ -474,6 +479,7 @@ class GameState {
   std::vector<std::string> game_log;
 
   // History for Charts
+  // todo Add ctor with MAX_HISTORY_ENTRIES as argument with a default value
   struct History {
     std::list<uint64_t> credits;
     std::list<uint64_t> bank_value;
