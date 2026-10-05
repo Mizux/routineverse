@@ -228,11 +228,11 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
       "Simulated Uptime: {}m {}s",
       gs.combat_level(), gs.total_skill_level(), max_total_skill_level(),
       number_string(gs.total_skill_xp()), money_string(gs.credits),
-      money_string(gs.total_credits_earned), money_string(gs.total_bank_value()),
+      money_string(gs.stats.total_credits_earned), money_string(gs.total_bank_value()),
       gs.used_bank_slots(), gs.bank.capacity, number_string(gs.bounty_tokens),
-      gs.bounties_completed, number_string(gs.total_items_gathered),
-      number_string(gs.total_monsters_killed), gs.player_deaths,
-      gs.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
+      gs.combat.bounties_completed, number_string(gs.stats.total_items_gathered),
+      number_string(gs.stats.total_monsters_killed), gs.stats.player_deaths,
+      gs.stats.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
   QMessageBox::information(&window, "Telemetry & Milestones",
                            QString::fromStdString(text));
 }

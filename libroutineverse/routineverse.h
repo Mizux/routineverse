@@ -418,8 +418,6 @@ enum class ActiveActivityType : uint8_t {
   Combat,
 };
 
-// todo split into smaller classes e.g. PlayerState have instance of
-// InventoryClass, BankClass, SkillClass, CombatClass, etc.
 class GameState {
  public:
   GameState();
@@ -505,8 +503,18 @@ class GameState {
   uint64_t bounty_tokens = 0;
   uint64_t total_ticks_ms = 0;
 
-  std::unordered_map<SkillType, uint64_t> xp;
-  std::vector<uint64_t> action_mastery_xp;
+  struct Skills {
+    std::unordered_map<SkillType, uint64_t> xp;
+    std::vector<uint64_t> action_mastery_xp;
+
+    void reset();
+    int level(SkillType skill) const;
+    uint64_t skill_xp(SkillType skill) const;
+    int total_level() const;
+    uint64_t total_xp() const;
+    int mastery_level(int global_action_id) const;
+  };
+  Skills skills;
 
   struct Bank {
     struct Slot {
@@ -539,14 +547,36 @@ class GameState {
   };
   Bank bank;
 
-  std::map<EquipSlot, ItemId> equipped_items = {
-      {EquipSlot::Weapon, ItemId::None},  {EquipSlot::Head, ItemId::None},
-      {EquipSlot::Armor, ItemId::None},   {EquipSlot::Shield, ItemId::None},
-      {EquipSlot::Cutter, ItemId::None},  {EquipSlot::Harvester, ItemId::None},
-      {EquipSlot::Drill, ItemId::None},   {EquipSlot::Reactor, ItemId::None},
-      {EquipSlot::AutoStim, ItemId::None}};
-  ItemId equipped_food_item = ItemId::None;
-  int equipped_food_qty = 0;
+  struct Equipment {
+    std::map<EquipSlot, ItemId> items = {
+        {EquipSlot::Weapon, ItemId::None},  {EquipSlot::Head, ItemId::None},
+        {EquipSlot::Armor, ItemId::None},   {EquipSlot::Shield, ItemId::None},
+        {EquipSlot::Cutter, ItemId::None},  {EquipSlot::Harvester, ItemId::None},
+        {EquipSlot::Drill, ItemId::None},   {EquipSlot::Reactor, ItemId::None},
+        {EquipSlot::AutoStim, ItemId::None}};
+    ItemId food_item = ItemId::None;
+    int food_qty = 0;
+
+    void reset();
+    ItemId at(EquipSlot slot) const { return items.at(slot); }
+    ItemId& operator[](EquipSlot slot) { return items[slot]; }
+    size_t size() const { return items.size(); }
+    auto begin() const { return items.begin(); }
+    auto end() const { return items.end(); }
+
+    int cutter_tier() const;
+    int harvester_tier() const;
+    int drill_tier() const;
+    int reactor_tier() const;
+    int auto_stim_tier() const;
+
+    int attack_bonus() const;
+    int strength_bonus() const;
+    int defence_bonus() const;
+    int damage_reduction() const;
+    int speed_bonus_pct(EquipSlot slot) const;
+  };
+  Equipment equipment;
 
   // Active activity state
   ActiveActivityType active_type = ActiveActivityType::None;
@@ -554,26 +584,35 @@ class GameState {
   int active_progress_ms = 0;
   int active_target_ms = 2000;
 
-  // Combat state
-  CombatStyle combat_style = CombatStyle::Accurate;
-  int player_hp = 100;
-  int active_monster_id = 0;
-  int monster_hp = 30;
-  int player_attack_timer_ms = 0;
-  int monster_attack_timer_ms = 0;
-  int hp_regen_timer_ms = 0;
+  // Combat & Bounty state
+  struct CombatState {
+    CombatStyle style = CombatStyle::Accurate;
+    int player_hp = 100;
+    int active_monster_id = 0;
+    int monster_hp = 30;
+    int player_attack_timer_ms = 0;
+    int monster_attack_timer_ms = 0;
+    int hp_regen_timer_ms = 0;
 
-  // Bounty contract
-  uint8_t bounty_target_id = 0;
-  uint8_t bounty_remaining = 10;
-  uint16_t bounties_completed = 0;
+    uint8_t bounty_target_id = 0;
+    uint8_t bounty_remaining = 10;
+    uint16_t bounties_completed = 0;
+
+    void reset(int initial_hp);
+  };
+  CombatState combat;
 
   // Statistics
-  std::array<uint16_t, MONSTER_COUNT> monster_kills{};
-  uint64_t total_items_gathered = 0;
-  uint64_t total_monsters_killed = 0;
-  uint64_t total_credits_earned = 250;
-  uint16_t player_deaths = 0;
+  struct Stats {
+    std::array<uint16_t, MONSTER_COUNT> monster_kills{};
+    uint64_t total_items_gathered = 0;
+    uint64_t total_monsters_killed = 0;
+    uint64_t total_credits_earned = 250;
+    uint16_t player_deaths = 0;
+
+    void reset();
+  };
+  Stats stats;
 
   bool sound_enabled = false;
   std::string status_banner;

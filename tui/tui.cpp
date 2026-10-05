@@ -617,7 +617,7 @@ void TuiApp::drawTopBar(int cols) {
       "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
       number_string(_gameState.credits), number_string(_gameState.bounty_tokens),
       _gameState.combat_level(), _gameState.total_skill_level(),
-      max_total_skill_level(), _gameState.player_hp, _gameState.max_hp());
+      max_total_skill_level(), _gameState.combat.player_hp, _gameState.max_hp());
 
   int rx = std::max(30, cols - static_cast<int>(right_stats.size()) - 1);
   mvaddstr(0, rx, right_stats.c_str());
@@ -749,21 +749,22 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     int row = y + 1;
     // Player vs Hostile live HUD
-    double plr_hp_r =
-        static_cast<double>(_gameState.player_hp) / std::max(1, _gameState.max_hp());
+    double plr_hp_r = static_cast<double>(_gameState.combat.player_hp) /
+                      std::max(1, _gameState.max_hp());
     attron(COLOR_PAIR(CP_GREEN) | A_BOLD);
-    mvprintw(row, x + 2, "You HP %4d/%-4d ", _gameState.player_hp, _gameState.max_hp());
+    mvprintw(row, x + 2, "You HP %4d/%-4d ", _gameState.combat.player_hp,
+             _gameState.max_hp());
     attroff(COLOR_PAIR(CP_GREEN) | A_BOLD);
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_hp_r,
                       plr_hp_r > 0.35 ? CP_GREEN : CP_RED);
 
     int mon_id = (_gameState.active_type == ActiveActivityType::Combat)
-                     ? _gameState.active_monster_id
+                     ? _gameState.combat.active_monster_id
                      : _monsterCursor;
     mon_id = std::clamp(mon_id, 0, MONSTER_COUNT - 1);
     const auto& cur_mon = monster_info[mon_id];
     int cur_mhp = (_gameState.active_type == ActiveActivityType::Combat)
-                      ? _gameState.monster_hp
+                      ? _gameState.combat.monster_hp
                       : cur_mon.max_hp;
     double mon_hp_r = static_cast<double>(cur_mhp) / std::max(1, cur_mon.max_hp);
 
@@ -774,8 +775,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
-        "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat_style),
-        _gameState.bounty_remaining, monster_info[_gameState.bounty_target_id].name);
+        "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat.style),
+        _gameState.combat.bounty_remaining,
+        monster_info[_gameState.combat.bounty_target_id].name);
     if (static_cast<int>(style_task.size()) > inner_w) {
       style_task = style_task.substr(0, inner_w);
     }
@@ -791,8 +793,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       const auto& mon = monster_info[i];
       bool is_sel = (i == _monsterCursor);
       bool is_fighting = (_gameState.active_type == ActiveActivityType::Combat &&
-                          _gameState.active_monster_id == i);
-      bool is_task = (i == _gameState.bounty_target_id);
+                          _gameState.combat.active_monster_id == i);
+      bool is_task = (i == _gameState.combat.bounty_target_id);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
                         : (is_fighting ? CP_RED : (is_task ? CP_YELLOW : CP_DEFAULT));
@@ -805,9 +807,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       std::string zname = mon.zone_name;
       if (static_cast<int>(zname.size()) > 13) zname = zname.substr(0, 13);
 
-      std::string line = std::format(
-          "{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level, mname, zname,
-          mon.max_hp, mon.max_hit, mon.bounty_req, _gameState.monster_kills[i]);
+      std::string line =
+          std::format("{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level,
+                      mname, zname, mon.max_hp, mon.max_hit, mon.bounty_req,
+                      _gameState.stats.monster_kills[i]);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -883,23 +886,23 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
   int row = y + 1;
 
-  ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
+  ItemId w_id = _gameState.equipment.at(EquipSlot::Weapon);
   std::string w_str = is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::Shield);
+  w_id = _gameState.equipment.at(EquipSlot::Shield);
   std::string w_shield = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::Head);
+  w_id = _gameState.equipment.at(EquipSlot::Head);
   std::string w_visor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
-  w_id = _gameState.equipped_items.at(EquipSlot::Armor);
+  w_id = _gameState.equipment.at(EquipSlot::Armor);
   std::string w_armor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
   std::string food_str =
-      (is_valid_item(_gameState.equipped_food_item) && _gameState.equipped_food_qty > 0)
-          ? std::format("{}x {} (+{}HP)", _gameState.equipped_food_qty,
-                        get_item_info(_gameState.equipped_food_item).name,
-                        get_item_info(_gameState.equipped_food_item).heal_amount)
+      (is_valid_item(_gameState.equipment.food_item) && _gameState.equipment.food_qty > 0)
+          ? std::format("{}x {} (+{}HP)", _gameState.equipment.food_qty,
+                        get_item_info(_gameState.equipment.food_item).name,
+                        get_item_info(_gameState.equipment.food_item).heal_amount)
           : "None";
 
   auto print_line = [&](short cp, const std::string& s) {
@@ -955,7 +958,7 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
     values.push_back(_gameState.total_skill_xp());
   } else if (item_idx == ITEM_HP) {
     for (int v : _gameState.history.hp) values.push_back(v);
-    values.push_back(_gameState.player_hp);
+    values.push_back(_gameState.combat.player_hp);
   } else {
     int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0,
                            static_cast<int>(all_skills.size()) - 1);
@@ -1124,10 +1127,10 @@ void TuiApp::actionSellAllBank() {
 }
 
 void TuiApp::actionCycleAttackStyle() {
-  int next = (static_cast<int>(_gameState.combat_style) + 1) % 3;
-  _gameState.combat_style = static_cast<CombatStyle>(next);
+  int next = (static_cast<int>(_gameState.combat.style) + 1) % 3;
+  _gameState.combat.style = static_cast<CombatStyle>(next);
   _gameState.add_log(std::format("Switched combat mode to {}.",
-                                 combat_style_name(_gameState.combat_style)));
+                                 combat_style_name(_gameState.combat.style)));
 }
 
 void TuiApp::actionNewBountyContract() { _gameState.assign_new_bounty_contract(); }
@@ -1242,7 +1245,7 @@ void TuiApp::showEquipmentDialog() {
 
     for (int idx = 0; idx < static_cast<int>(EQUIP_SLOT_COUNT); ++idx) {
       EquipSlot slot = static_cast<EquipSlot>(idx);
-      ItemId id = _gameState.equipped_items.at(slot);
+      ItemId id = _gameState.equipment.at(slot);
       std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
       bool sel = (idx == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
@@ -1255,9 +1258,10 @@ void TuiApp::showEquipmentDialog() {
     int stats_y = y + 3 + static_cast<int>(EQUIP_SLOT_COUNT);
     attron(COLOR_PAIR(CP_YELLOW));
     mvprintw(stats_y, x + 3, "Combat Level: %d   │   HP: %d / %d",
-             _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp());
+             _gameState.combat_level(), _gameState.combat.player_hp,
+             _gameState.max_hp());
     mvprintw(stats_y + 1, x + 3, "Combat Mode: %s",
-             combat_style_name(_gameState.combat_style).c_str());
+             combat_style_name(_gameState.combat.style).c_str());
     mvprintw(stats_y + 2, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
              _gameState.player_max_hit(), _gameState.player_accuracy(),
              _gameState.player_evasion());
@@ -1269,7 +1273,7 @@ void TuiApp::showEquipmentDialog() {
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
-    int slot_count = _gameState.equipped_items.size();
+    int slot_count = _gameState.equipment.size();
     if (ch == KEY_UP || ch == 'k') cursor = (cursor + slot_count - 1) % slot_count;
     if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
@@ -1285,7 +1289,7 @@ void TuiApp::showBestiaryDialog() {
     const auto& mon = monster_info[i];
     oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
                        mon.combat_level, mon.name, mon.zone_name, mon.max_hp,
-                       mon.max_hit, _gameState.monster_kills[i]);
+                       mon.max_hit, _gameState.stats.monster_kills[i]);
     oss << std::format("   Salvage: {}-{} Cr", mon.credits_min, mon.credits_max);
     for (const auto& d : mon.drops) {
       if (is_valid_item(d.item_id)) {
@@ -1364,12 +1368,15 @@ void TuiApp::showMilestonesDialog() {
       "Simulated Uptime: {}m {}s",
       _gameState.combat_level(), _gameState.total_skill_level(),
       max_total_skill_level(), number_string(_gameState.total_skill_xp()),
-      money_string(_gameState.credits), money_string(_gameState.total_credits_earned),
+      money_string(_gameState.credits),
+      money_string(_gameState.stats.total_credits_earned),
       money_string(_gameState.total_bank_value()), _gameState.used_bank_slots(),
       _gameState.bank.capacity, number_string(_gameState.bounty_tokens),
-      _gameState.bounties_completed, number_string(_gameState.total_items_gathered),
-      number_string(_gameState.total_monsters_killed), _gameState.player_deaths,
-      _gameState.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
+      _gameState.combat.bounties_completed,
+      number_string(_gameState.stats.total_items_gathered),
+      number_string(_gameState.stats.total_monsters_killed),
+      _gameState.stats.player_deaths, _gameState.stats.monster_kills[MONSTER_COUNT - 1],
+      minutes, seconds);
   showMessageModal("Operative Telemetry & Milestones", text, CP_YELLOW);
 }
 

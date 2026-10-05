@@ -176,7 +176,7 @@ void HistoryChartView::updateChart(const GameState& gameState) {
     values.push_back(gameState.total_skill_xp());
   } else if (_item_idx == ITEM_HP) {
     for (int v : gameState.history.hp) values.push_back(v);
-    values.push_back(gameState.player_hp);
+    values.push_back(gameState.combat.player_hp);
   } else {
     int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0,
                            static_cast<int>(all_skills.size()) - 1);
@@ -626,7 +626,8 @@ void MainWindow::updateLiveProgressOnly() {
               .arg(_gameState.active_target_ms / 1000.0, 0, 'f', 1));
     } else if (_gameState.active_type == ActiveActivityType::Combat) {
       int plr_int = _gameState.player_attack_interval_ms();
-      int pct = (plr_int > 0) ? (_gameState.player_attack_timer_ms * 100) / plr_int : 0;
+      int pct =
+          (plr_int > 0) ? (_gameState.combat.player_attack_timer_ms * 100) / plr_int : 0;
       _progressbar_action->setValue(std::clamp(pct, 0, 100));
       _progressbar_action->setFormat(QString("Weapon Cycle: %1%").arg(pct));
     } else {
@@ -638,17 +639,17 @@ void MainWindow::updateLiveProgressOnly() {
   if (_progressbar_hp) {
     int mhp = std::max(1, _gameState.max_hp());
     _progressbar_hp->setRange(0, mhp);
-    _progressbar_hp->setValue(std::clamp(_gameState.player_hp, 0, mhp));
+    _progressbar_hp->setValue(std::clamp(_gameState.combat.player_hp, 0, mhp));
     _progressbar_hp->setFormat(
-        QString("%1 / %2 HP").arg(_gameState.player_hp).arg(mhp));
+        QString("%1 / %2 HP").arg(_gameState.combat.player_hp).arg(mhp));
   }
 
   if (_progressbar_monster_hp) {
-    int mon_id = _gameState.active_monster_id;
+    int mon_id = _gameState.combat.active_monster_id;
     int mhp =
         (mon_id >= 0 && mon_id < MONSTER_COUNT) ? monster_info[mon_id].max_hp : 100;
     int chp = (_gameState.active_type == ActiveActivityType::Combat)
-                  ? _gameState.monster_hp
+                  ? _gameState.combat.monster_hp
                   : mhp;
     _progressbar_monster_hp->setRange(0, mhp);
     _progressbar_monster_hp->setValue(std::clamp(chp, 0, mhp));
@@ -684,7 +685,7 @@ void MainWindow::updateAllUi() {
                               .arg(_gameState.reactor_tier() + 1));
   }
   if (_label_equipped_weapon) {
-    ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
+    ItemId w_id = _gameState.equipment.at(EquipSlot::Weapon);
     _label_equipped_weapon->setText(
         is_valid_item(w_id)
             ? QString("%1 (Max Hit: %2)")
@@ -699,11 +700,11 @@ void MainWindow::updateAllUi() {
                                        .arg(_gameState.auto_stim_tier()));
   }
   if (_label_equipped_food) {
-    if (is_valid_item(_gameState.equipped_food_item) &&
-        _gameState.equipped_food_qty > 0) {
-      const auto& fi = get_item_info(_gameState.equipped_food_item);
+    if (is_valid_item(_gameState.equipment.food_item) &&
+        _gameState.equipment.food_qty > 0) {
+      const auto& fi = get_item_info(_gameState.equipment.food_item);
       _label_equipped_food->setText(QString("%1x %2 (+%3 HP)")
-                                        .arg(_gameState.equipped_food_qty)
+                                        .arg(_gameState.equipment.food_qty)
                                         .arg(fi.name)
                                         .arg(fi.heal_amount));
     } else {
@@ -711,9 +712,9 @@ void MainWindow::updateAllUi() {
     }
   }
   if (_label_bounty_task) {
-    const auto& mon = monster_info[_gameState.bounty_target_id];
+    const auto& mon = monster_info[_gameState.combat.bounty_target_id];
     _label_bounty_task->setText(
-        QString("Bounty: %1x %2").arg(_gameState.bounty_remaining).arg(mon.name));
+        QString("Bounty: %1x %2").arg(_gameState.combat.bounty_remaining).arg(mon.name));
   }
   if (_group_bank) {
     _group_bank->setTitle(
@@ -847,9 +848,9 @@ void MainWindow::_fillTreeviewMonsters() {
 
     QString m_name = QString::fromUtf8(mon.name);
     if (_gameState.active_type == ActiveActivityType::Combat &&
-        _gameState.active_monster_id == i) {
+        _gameState.combat.active_monster_id == i) {
       m_name = "⚔ " + m_name;
-    } else if (_gameState.bounty_target_id == i) {
+    } else if (_gameState.combat.bounty_target_id == i) {
       m_name = "★ " + m_name;
     }
 
@@ -859,10 +860,10 @@ void MainWindow::_fillTreeviewMonsters() {
     item->setText(3, QString::number(mon.max_hp));
     item->setText(4, QString::number(mon.max_hit));
     item->setText(5, QString("Lv %1").arg(mon.bounty_req));
-    item->setText(6, QString::number(_gameState.monster_kills[i]));
+    item->setText(6, QString::number(_gameState.stats.monster_kills[i]));
     item->setData(0, Qt::UserRole, i);
 
-    if (i == prev_mon_id || (!to_select && i == _gameState.active_monster_id)) {
+    if (i == prev_mon_id || (!to_select && i == _gameState.combat.active_monster_id)) {
       to_select = item;
     }
   }
@@ -918,13 +919,13 @@ void MainWindow::_fillTreeviewBank() {
 
 void MainWindow::onTickTimer() {
   uint64_t prev_xp = _gameState.total_skill_xp();
-  uint64_t prev_kills = _gameState.total_monsters_killed;
+  uint64_t prev_kills = _gameState.stats.total_monsters_killed;
   std::size_t prev_logs = _gameState.game_log.size();
 
   _gameState.tick(100);
 
   if (_gameState.total_skill_xp() != prev_xp ||
-      _gameState.total_monsters_killed != prev_kills ||
+      _gameState.stats.total_monsters_killed != prev_kills ||
       _gameState.game_log.size() != prev_logs) {
     updateAllUi();
   } else {
@@ -960,7 +961,7 @@ void MainWindow::onMonsterDoubleClicked() {
 void MainWindow::onBankDoubleClicked() { window_main_button_equip_clicked_cb(*this); }
 
 void MainWindow::onAttackStyleChanged(int idx) {
-  _gameState.combat_style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
+  _gameState.combat.style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
   updateAllUi();
 }
 
@@ -1178,9 +1179,9 @@ void WindowEquipment::_setupWidget() {
   }
 
   grid->addWidget(new QLabel("<b>Stim-Injector:</b>", grp_gear),
-                  _gameState.equipped_items.size(), 0);
+                  _gameState.equipment.size(), 0);
   _label_food = new QLabel(grp_gear);
-  grid->addWidget(_label_food, _gameState.equipped_items.size(), 1, 1, 2);
+  grid->addWidget(_label_food, _gameState.equipment.size(), 1, 1, 2);
   vbox->addWidget(grp_gear);
 
   QGroupBox* grp_stats = new QGroupBox("Effective Combat Telemetry", this);
@@ -1196,7 +1197,7 @@ void WindowEquipment::_setupWidget() {
 
 void WindowEquipment::updateEquipmentUi() {
   for (size_t idx = 0; idx < EQUIP_SLOT_COUNT; ++idx) {
-    ItemId id = _gameState.equipped_items.at(static_cast<EquipSlot>(idx));
+    ItemId id = _gameState.equipment.at(static_cast<EquipSlot>(idx));
     if (is_valid_item(id)) {
       _slot_labels[idx]->setText(QString::fromStdString(item_equip_summary(id)));
       _slot_buttons[idx]->setEnabled(true);
@@ -1206,11 +1207,11 @@ void WindowEquipment::updateEquipmentUi() {
     }
   }
 
-  if (is_valid_item(_gameState.equipped_food_item) &&
-      _gameState.equipped_food_qty > 0) {
-    const auto& fi = get_item_info(_gameState.equipped_food_item);
+  if (is_valid_item(_gameState.equipment.food_item) &&
+      _gameState.equipment.food_qty > 0) {
+    const auto& fi = get_item_info(_gameState.equipment.food_item);
     _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
-                             .arg(_gameState.equipped_food_qty)
+                             .arg(_gameState.equipment.food_qty)
                              .arg(fi.name)
                              .arg(fi.heal_amount));
   } else {
@@ -1227,8 +1228,8 @@ void WindowEquipment::updateEquipmentUi() {
       "Evasion Rating: {}\n"
       "Damage Reduction: {}%\n"
       "Auto-Stim Threshold: {} HP",
-      _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp(),
-      combat_style_name(_gameState.combat_style),
+      _gameState.combat_level(), _gameState.combat.player_hp, _gameState.max_hp(),
+      combat_style_name(_gameState.combat.style),
       _gameState.player_attack_interval_ms() / 1000.0, _gameState.player_max_hit(),
       _gameState.player_accuracy(), _gameState.player_evasion(),
       _gameState.player_damage_reduction(), _gameState.auto_eat_threshold_hp());
@@ -1287,7 +1288,7 @@ void WindowBestiary::_setupWidget() {
     item->setText(4, QString("You %1% / Foe %2%")
                          .arg(_gameState.player_hit_chance_pct(i))
                          .arg(_gameState.monster_hit_chance_pct(i)));
-    item->setText(5, QString::number(_gameState.monster_kills[i]));
+    item->setText(5, QString::number(_gameState.stats.monster_kills[i]));
     item->setText(6, drops_str);
   }
 
