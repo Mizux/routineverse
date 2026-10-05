@@ -1730,7 +1730,7 @@ bool GameState::equip_item(ItemId item_id) {
 bool GameState::unequip_slot(EquipSlot slot) {
   if (slot == EquipSlot::None) return false;
   ItemId cur = equipped_items.at(slot);
-  if (!is_valid_item(cur) || cur == ItemId::None) return false;
+  if (!is_valid_item(cur)) return false;
   if (!can_store_item(cur)) {
     add_log("Cyber-Vault is full! Cannot unequip item.");
     return false;

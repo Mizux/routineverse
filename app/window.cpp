@@ -828,17 +828,17 @@ void MainWindow::_fillTreeviewActions() {
     }
 
     QString io_str;
-    if (is_valid_item(act.input_item_1) && act.input_item_1 != ItemId::None) {
+    if (is_valid_item(act.input_item_1)) {
       io_str += QString("%1x %2")
                     .arg(act.input_qty_1)
                     .arg(get_item_info(act.input_item_1).name);
     }
-    if (is_valid_item(act.input_item_2) && act.input_item_2 != ItemId::None) {
+    if (is_valid_item(act.input_item_2)) {
       io_str += QString(" + %1x %2")
                     .arg(act.input_qty_2)
                     .arg(get_item_info(act.input_item_2).name);
     }
-    if (is_valid_item(act.product_item) && act.product_item != ItemId::None) {
+    if (is_valid_item(act.product_item)) {
       if (!io_str.isEmpty()) io_str += " -> ";
       io_str += QString("%1x %2")
                     .arg(act.product_qty)
@@ -1261,7 +1261,7 @@ void WindowEquipment::updateEquipmentUi() {
       EquipSlot::HoloShield};
   for (int idx = 0; idx < 4; ++idx) {
     ItemId id = _gameState.equipped_items.at(equip_slots[idx]);
-    if (is_valid_item(id) && id != ItemId::None) {
+    if (is_valid_item(id)) {
       const auto& info = get_item_info(id);
       _slot_labels[idx]->setText(
           QString("%1 (+%2 Atk, +%3 Str, +%4 Def, %5% DR)")
