@@ -253,8 +253,8 @@ class WindowEquipment : public QDialog {
   void _setupWidget();
 
   GameState& _gameState;
-  std::array<QLabel*, 4> _slot_labels{};
-  std::array<QPushButton*, 4> _slot_buttons{};
+  std::array<QLabel*, EQUIP_SLOT_COUNT> _slot_labels{};
+  std::array<QPushButton*, EQUIP_SLOT_COUNT> _slot_buttons{};
   QLabel* _label_food = nullptr;
   QLabel* _label_stats = nullptr;
 };

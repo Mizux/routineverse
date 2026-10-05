@@ -298,6 +298,78 @@ const std::array<ItemInfo, ITEM_COUNT> item_info = {{
     {ItemId::QuantumShield, "Quantum Event-Horizon Shield",
      ItemCategory::HoloShield, 13500, 0, 75, {0, 0, 132, 15}},
 
+    // Tools - Salvaging Cutters
+    {ItemId::ScrapCutter, "Scrap Cutter", ItemCategory::Cutter, 10, 0, 1,
+     {0, 0, 0, 0, 0}},
+    {ItemId::TitaniumCutter, "Titanium Cutter", ItemCategory::Cutter, 50, 0, 10,
+     {0, 0, 0, 0, 6}},
+    {ItemId::DurasteelCutter, "Durasteel Cutter", ItemCategory::Cutter, 180, 0,
+     25, {0, 0, 0, 0, 12}},
+    {ItemId::CobaltCutter, "Cobalt Laser-Cutter", ItemCategory::Cutter, 625, 0,
+     40, {0, 0, 0, 0, 18}},
+    {ItemId::TungstenCutter, "Tungsten Plasma-Torch", ItemCategory::Cutter,
+     2000, 0, 55, {0, 0, 0, 0, 24}},
+    {ItemId::NeutroniumCutter, "Neutronium Arc-Splicer", ItemCategory::Cutter,
+     6250, 0, 70, {0, 0, 0, 0, 30}},
+    {ItemId::ChronoCutter, "Chrono Deconstructor", ItemCategory::Cutter, 20000,
+     0, 85, {0, 0, 0, 0, 38}},
+
+    // Tools - Bio-Harvesters
+    {ItemId::ScrapHarvester, "Scrap Bio-Net", ItemCategory::Harvester, 10, 0, 1,
+     {0, 0, 0, 0, 0}},
+    {ItemId::TitaniumHarvester, "Titanium Bio-Rig", ItemCategory::Harvester, 50,
+     0, 10, {0, 0, 0, 0, 6}},
+    {ItemId::DurasteelHarvester, "Durasteel Bio-Sampler",
+     ItemCategory::Harvester, 180, 0, 25, {0, 0, 0, 0, 12}},
+    {ItemId::CobaltHarvester, "Cobalt Gene-Extractor", ItemCategory::Harvester,
+     625, 0, 40, {0, 0, 0, 0, 18}},
+    {ItemId::TungstenHarvester, "Tungsten Drone-Trawler",
+     ItemCategory::Harvester, 2000, 0, 55, {0, 0, 0, 0, 24}},
+    {ItemId::NeutroniumHarvester, "Neutronium Bio-Harvester",
+     ItemCategory::Harvester, 6250, 0, 70, {0, 0, 0, 0, 30}},
+    {ItemId::ChronoHarvester, "Chrono Stasis-Harvester",
+     ItemCategory::Harvester, 20000, 0, 85, {0, 0, 0, 0, 38}},
+
+    // Tools - Mining Drills
+    {ItemId::ScrapDrill, "Scrap Rotary Drill", ItemCategory::Drill, 10, 0, 1,
+     {0, 0, 0, 0, 0}},
+    {ItemId::TitaniumDrill, "Titanium Impact Drill", ItemCategory::Drill, 50, 0,
+     10, {0, 0, 0, 0, 6}},
+    {ItemId::DurasteelDrill, "Durasteel Sonic Drill", ItemCategory::Drill, 180,
+     0, 25, {0, 0, 0, 0, 12}},
+    {ItemId::CobaltDrill, "Cobalt Laser Bore", ItemCategory::Drill, 625, 0, 40,
+     {0, 0, 0, 0, 18}},
+    {ItemId::TungstenDrill, "Tungsten Plasma Bore", ItemCategory::Drill, 2000,
+     0, 55, {0, 0, 0, 0, 24}},
+    {ItemId::NeutroniumDrill, "Neutronium Quantum Drill", ItemCategory::Drill,
+     6250, 0, 70, {0, 0, 0, 0, 30}},
+    {ItemId::ChronoDrill, "Chrono Singularity Bore", ItemCategory::Drill, 20000,
+     0, 85, {0, 0, 0, 0, 38}},
+
+    // Tools - Synth-Reactors
+    {ItemId::BasicReactor, "Basic Micro-Reactor", ItemCategory::Reactor, 10, 0,
+     1, {0, 0, 0, 0, 0}},
+    {ItemId::PlasteelReactor, "Plasteel Thermal Unit", ItemCategory::Reactor,
+     60, 0, 10, {0, 0, 0, 0, 5}},
+    {ItemId::NanotubeReactor, "Nanotube Induction Core", ItemCategory::Reactor,
+     225, 0, 25, {0, 0, 0, 0, 10}},
+    {ItemId::PositronicReactor, "Positronic Reactor", ItemCategory::Reactor,
+     750, 0, 45, {0, 0, 0, 0, 15}},
+    {ItemId::PlasmaReactor, "Plasma Fusion Furnace", ItemCategory::Reactor,
+     2500, 0, 60, {0, 0, 0, 0, 20}},
+    {ItemId::QuantumReactor, "Quantum Synth-Core", ItemCategory::Reactor, 7500,
+     0, 75, {0, 0, 0, 0, 26}},
+    {ItemId::MainframeReactor, "AI Mainframe Reactor", ItemCategory::Reactor,
+     23750, 0, 90, {0, 0, 0, 0, 34}},
+
+    // Cyberware - Auto-Stim Injectors
+    {ItemId::AutoStimMk1, "Auto-Stim — Mk I", ItemCategory::AutoStim, 375, 0, 1,
+     {0, 0, 0, 0, 25}},
+    {ItemId::AutoStimMk2, "Auto-Stim — Mk II", ItemCategory::AutoStim, 3000, 0,
+     1, {0, 0, 0, 0, 40}},
+    {ItemId::AutoStimMk3, "Auto-Stim — Mk III", ItemCategory::AutoStim, 12500,
+     0, 1, {0, 0, 0, 0, 55}},
+
     // Enemy Salvage
     {ItemId::ServoParts, "Servo Parts", ItemCategory::CyberLoot, 8, 0, 1,
      {0, 0, 0, 0}},
@@ -612,7 +684,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::Microchip, 90, 2, 6},
        {ItemId::ServoParts, 100, 1, 1},
-       {ItemId::KrillRation, 25, 1, 2}}}},
+       {ItemId::KrillRation, 25, 1, 2},
+       {ItemId::ScrapCutter, 12, 1, 1}}}},
     {"Bio-Vat Hound",
      "Neon Slums",
      4,
@@ -628,7 +701,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::SynthWeaveHide, 85, 1, 2},
        {ItemId::SynthProteinBar, 70, 1, 2},
-       {ItemId::ServoParts, 100, 1, 1}}}},
+       {ItemId::ServoParts, 100, 1, 1},
+       {ItemId::TitaniumHarvester, 10, 1, 1}}}},
     {"Street Scavenger",
      "Neon Slums",
      9,
@@ -644,7 +718,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::PlasteelShards, 50, 2, 5},
        {ItemId::SynthCarpPack, 40, 1, 2},
-       {ItemId::ServoParts, 100, 1, 1}}}},
+       {ItemId::ServoParts, 100, 1, 1},
+       {ItemId::TitaniumCutter, 10, 1, 1}}}},
     {"Chrome Gang Punk",
      "Back-Alley Sector",
      14,
@@ -660,7 +735,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::ScrapBlade, 15, 1, 1},
        {ItemId::TitaniumOre, 45, 2, 4},
-       {ItemId::ServoParts, 100, 1, 1}}}},
+       {ItemId::ServoParts, 100, 1, 1},
+       {ItemId::TitaniumDrill, 10, 1, 1}}}},
     {"Riot Enforcer Bot",
      "Industrial Sector",
      24,
@@ -676,7 +752,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::HeavyChassis, 100, 1, 2},
        {ItemId::DurasteelBlade, 12, 1, 1},
-       {ItemId::CarbonCell, 40, 3, 6}}}},
+       {ItemId::CarbonCell, 40, 3, 6},
+       {ItemId::DurasteelCutter, 10, 1, 1}}}},
     {"Chem-Mutant Brute",
      "Industrial Sector",
      36,
@@ -692,7 +769,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::HeavyChassis, 100, 1, 2},
        {ItemId::CobaltOre, 45, 2, 5},
-       {ItemId::CyberLobsterMeal, 35, 2, 4}}}},
+       {ItemId::CyberLobsterMeal, 35, 2, 4},
+       {ItemId::DurasteelHarvester, 10, 1, 1}}}},
     {"Cryo-Sec Mech",
      "Industrial Sector",
      48,
@@ -708,7 +786,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::HeavyChassis, 100, 2, 3},
        {ItemId::CobaltExoSuit, 10, 1, 1},
-       {ItemId::SapphireCortex, 25, 1, 2}}}},
+       {ItemId::SapphireCortex, 25, 1, 2},
+       {ItemId::CobaltDrill, 8, 1, 1}}}},
     {"Corp Shadow-Op",
      "Megacorp Plaza",
      60,
@@ -724,7 +803,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::TungstenBlade, 12, 1, 1},
        {ItemId::TungstenOre, 45, 2, 5},
-       {ItemId::PlasmaRayInfusion, 40, 2, 4}}}},
+       {ItemId::PlasmaRayInfusion, 40, 2, 4},
+       {ItemId::PositronicReactor, 8, 1, 1}}}},
     {"Cobalt Cyber-Ninja",
      "Megacorp Plaza",
      74,
@@ -740,7 +820,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::TungstenExoSuit, 10, 1, 1},
        {ItemId::RubyLaserCore, 30, 1, 2},
-       {ItemId::ApexSharkBooster, 35, 2, 4}}}},
+       {ItemId::ApexSharkBooster, 35, 2, 4},
+       {ItemId::TungstenCutter, 8, 1, 1}}}},
     {"Neutronium Cyborg",
      "Megacorp Plaza",
      88,
@@ -756,7 +837,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::NeutroniumBlade, 10, 1, 1},
        {ItemId::NeutroniumExoSuit, 8, 1, 1},
-       {ItemId::EmeraldCryptokey, 30, 1, 2}}}},
+       {ItemId::EmeraldCryptokey, 30, 1, 2},
+       {ItemId::NeutroniumDrill, 7, 1, 1}}}},
     {"Apex Cyber-Wyrm",
      "Orbital Spire",
      110,
@@ -772,7 +854,8 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      false,
      {{{ItemId::ApexCyberCore, 100, 1, 2},
        {ItemId::ChronoBlade, 15, 1, 1},
-       {ItemId::QuantumOre, 30, 1, 3}}}},
+       {ItemId::QuantumOre, 30, 1, 3},
+       {ItemId::ChronoHarvester, 6, 1, 1}}}},
     {"NEXUS-9, Rogue Overmind",
      "Mainframe Core [BOSS]",
      150,
@@ -788,54 +871,88 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
      true,
      {{{ItemId::QuantumBlade, 15, 1, 1},
        {ItemId::QuantumExoSuit, 12, 1, 1},
-       {ItemId::KrakenBioElixir, 60, 4, 8}}}},
+       {ItemId::KrakenBioElixir, 60, 4, 8},
+       {ItemId::MainframeReactor, 5, 1, 1}}}},
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades = {{
-    {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0},
-    {1, "Titanium Cutter", "-6% Salvaging Interval", 10, 200, 6},
-    {2, "Durasteel Cutter", "-12% Salvaging Interval", 25, 750, 12},
-    {3, "Cobalt Laser-Cutter", "-18% Salvaging Interval", 40, 2500, 18},
-    {4, "Tungsten Plasma-Torch", "-24% Salvaging Interval", 55, 8000, 24},
-    {5, "Neutronium Arc-Splicer", "-30% Salvaging Interval", 70, 25000, 30},
-    {6, "Chrono Deconstructor", "-38% Salvaging Interval", 85, 80000, 38},
+    {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0,
+     ItemId::ScrapCutter},
+    {1, "Titanium Cutter", "-6% Salvaging Interval", 10, 200, 6,
+     ItemId::TitaniumCutter},
+    {2, "Durasteel Cutter", "-12% Salvaging Interval", 25, 750, 12,
+     ItemId::DurasteelCutter},
+    {3, "Cobalt Laser-Cutter", "-18% Salvaging Interval", 40, 2500, 18,
+     ItemId::CobaltCutter},
+    {4, "Tungsten Plasma-Torch", "-24% Salvaging Interval", 55, 8000, 24,
+     ItemId::TungstenCutter},
+    {5, "Neutronium Arc-Splicer", "-30% Salvaging Interval", 70, 25000, 30,
+     ItemId::NeutroniumCutter},
+    {6, "Chrono Deconstructor", "-38% Salvaging Interval", 85, 80000, 38,
+     ItemId::ChronoCutter},
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades = {{
-    {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0},
-    {1, "Titanium Bio-Rig", "-6% Bio-Harvest/Farming Interval", 10, 200, 6},
-    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest/Farming Interval", 25, 750, 12},
-    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest/Farming Interval", 40, 2500, 18},
-    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest/Farming Interval", 55, 8000, 24},
-    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest/Farming Interval", 70, 25000, 30},
-    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest/Farming Interval", 85, 80000, 38},
+    {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0,
+     ItemId::ScrapHarvester},
+    {1, "Titanium Bio-Rig", "-6% Bio-Harvest/Farming Interval", 10, 200, 6,
+     ItemId::TitaniumHarvester},
+    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest/Farming Interval", 25, 750,
+     12, ItemId::DurasteelHarvester},
+    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest/Farming Interval", 40, 2500,
+     18, ItemId::CobaltHarvester},
+    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest/Farming Interval", 55, 8000,
+     24, ItemId::TungstenHarvester},
+    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest/Farming Interval", 70,
+     25000, 30, ItemId::NeutroniumHarvester},
+    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest/Farming Interval", 85,
+     80000, 38, ItemId::ChronoHarvester},
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades = {{
-    {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0},
-    {1, "Titanium Impact Drill", "-6% Deep-Mining Interval", 10, 200, 6},
-    {2, "Durasteel Sonic Drill", "-12% Deep-Mining Interval", 25, 750, 12},
-    {3, "Cobalt Laser Bore", "-18% Deep-Mining Interval", 40, 2500, 18},
-    {4, "Tungsten Plasma Bore", "-24% Deep-Mining Interval", 55, 8000, 24},
-    {5, "Neutronium Quantum Drill", "-30% Deep-Mining Interval", 70, 25000, 30},
-    {6, "Chrono Singularity Bore", "-38% Deep-Mining Interval", 85, 80000, 38},
+    {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0,
+     ItemId::ScrapDrill},
+    {1, "Titanium Impact Drill", "-6% Deep-Mining Interval", 10, 200, 6,
+     ItemId::TitaniumDrill},
+    {2, "Durasteel Sonic Drill", "-12% Deep-Mining Interval", 25, 750, 12,
+     ItemId::DurasteelDrill},
+    {3, "Cobalt Laser Bore", "-18% Deep-Mining Interval", 40, 2500, 18,
+     ItemId::CobaltDrill},
+    {4, "Tungsten Plasma Bore", "-24% Deep-Mining Interval", 55, 8000, 24,
+     ItemId::TungstenDrill},
+    {5, "Neutronium Quantum Drill", "-30% Deep-Mining Interval", 70, 25000, 30,
+     ItemId::NeutroniumDrill},
+    {6, "Chrono Singularity Bore", "-38% Deep-Mining Interval", 85, 80000, 38,
+     ItemId::ChronoDrill},
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades = {{
-    {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0},
-    {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP", 10, 250, 5},
-    {2, "Nanotube Induction Core", "-10% Recycling/Synth-Cook Interval & +10% XP", 25, 900, 10},
-    {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP", 45, 3000, 15},
-    {4, "Plasma Fusion Furnace", "-20% Recycling/Synth-Cook Interval & +20% XP", 60, 10000, 20},
-    {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP", 75, 30000, 26},
-    {6, "AI Mainframe Reactor", "-34% Recycling/Synth-Cook Interval & +34% XP", 90, 95000, 34},
+    {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0,
+     ItemId::BasicReactor},
+    {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP",
+     10, 250, 5, ItemId::PlasteelReactor},
+    {2, "Nanotube Induction Core",
+     "-10% Recycling/Synth-Cook Interval & +10% XP", 25, 900, 10,
+     ItemId::NanotubeReactor},
+    {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP",
+     45, 3000, 15, ItemId::PositronicReactor},
+    {4, "Plasma Fusion Furnace", "-20% Recycling/Synth-Cook Interval & +20% XP",
+     60, 10000, 20, ItemId::PlasmaReactor},
+    {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP",
+     75, 30000, 26, ItemId::QuantumReactor},
+    {6, "AI Mainframe Reactor", "-34% Recycling/Synth-Cook Interval & +34% XP",
+     90, 95000, 34, ItemId::MainframeReactor},
 }};
 
 const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades = {{
-    {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0},
-    {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500, 25},
-    {2, "Auto-Stim — Mk II", "Auto-injects equipped stim below 40% HP", 1, 12000, 40},
-    {3, "Auto-Stim — Mk III", "Auto-injects equipped stim below 55% HP", 1, 50000, 55},
+    {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0,
+     ItemId::None},
+    {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500,
+     25, ItemId::AutoStimMk1},
+    {2, "Auto-Stim — Mk II", "Auto-injects equipped stim below 40% HP", 1,
+     12000, 40, ItemId::AutoStimMk2},
+    {3, "Auto-Stim — Mk III", "Auto-injects equipped stim below 55% HP", 1,
+     50000, 55, ItemId::AutoStimMk3},
 }};
 
 std::string skill_name(SkillType skill) {
@@ -930,6 +1047,16 @@ std::string item_category_name(ItemCategory cat) {
       return "Exo-Suit";
     case ItemCategory::HoloShield:
       return "Shield";
+    case ItemCategory::Cutter:
+      return "Cutter";
+    case ItemCategory::Harvester:
+      return "Harvester";
+    case ItemCategory::Drill:
+      return "Drill";
+    case ItemCategory::Reactor:
+      return "Reactor";
+    case ItemCategory::AutoStim:
+      return "Auto-Stim";
     case ItemCategory::CyberLoot:
       return "Salvage";
   }
@@ -946,10 +1073,43 @@ std::string equip_slot_name(EquipSlot slot) {
       return "Exo-Suit";
     case EquipSlot::HoloShield:
       return "Holo-Shield";
+    case EquipSlot::Cutter:
+      return "Cutter";
+    case EquipSlot::Harvester:
+      return "Harvester";
+    case EquipSlot::Drill:
+      return "Drill";
+    case EquipSlot::Reactor:
+      return "Reactor";
+    case EquipSlot::AutoStim:
+      return "Auto-Stim";
     case EquipSlot::None:
       return "None";
   }
   return "None";
+}
+
+std::string item_equip_summary(ItemId id) {
+  if (!is_valid_item(id)) return "Empty";
+  const auto& info = get_item_info(id);
+  switch (info.category) {
+    case ItemCategory::Cutter:
+    case ItemCategory::Harvester:
+    case ItemCategory::Drill:
+      return std::format("{} (-{}% Cycle)", info.name,
+                         info.bonus.speed_bonus_pct);
+    case ItemCategory::Reactor:
+      return std::format("{} (-{}% Cycle, +{}% XP)", info.name,
+                         info.bonus.speed_bonus_pct,
+                         info.bonus.speed_bonus_pct);
+    case ItemCategory::AutoStim:
+      return std::format("{} (Auto-Stim <= {}% HP)", info.name,
+                         info.bonus.speed_bonus_pct);
+    default:
+      return std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
+                         info.bonus.attack, info.bonus.strength,
+                         info.bonus.defence, info.bonus.damage_reduction);
+  }
 }
 
 std::string combat_style_name(CombatStyle style) {
@@ -1051,27 +1211,26 @@ void GameState::new_game() {
 
   action_mastery_xp.assign(skill_actions.size(), 0);
 
-  bank_capacity = 24;
   bank.clear();
+  bank.capacity = 24;
 
-  // Give starter Scrap Vibro-Knife equipped and a few scrap/rations in storage
+  // Give starter Scrap Vibro-Knife and starter tools equipped
   equipped_items = {
       {EquipSlot::Weapon, ItemId::ScrapBlade},
       {EquipSlot::Visor, ItemId::None},
       {EquipSlot::ExoSuit, ItemId::None},
       {EquipSlot::HoloShield, ItemId::None},
+      {EquipSlot::Cutter, ItemId::ScrapCutter},
+      {EquipSlot::Harvester, ItemId::ScrapHarvester},
+      {EquipSlot::Drill, ItemId::ScrapDrill},
+      {EquipSlot::Reactor, ItemId::BasicReactor},
+      {EquipSlot::AutoStim, ItemId::None},
   };
   equipped_food_item = ItemId::None;
   equipped_food_qty = 0;
 
   add_item(ItemId::CopperWireScrap, 5, false);
   add_item(ItemId::KrillRation, 5, false);
-
-  cutter_tier = 0;
-  harvester_tier = 0;
-  drill_tier = 0;
-  reactor_tier = 0;
-  auto_stim_tier = 0;
 
   active_type = ActiveActivityType::Skill;
   active_action_id = 0;  // Start stripping Copper Wiring by default!
@@ -1124,9 +1283,9 @@ void GameState::History::clear() {
 }
 
 void GameState::History::add_record(const GameState& state) {
-  auto push_capped = [](auto& list, auto val) {
+  auto push_capped = [this](auto& list, auto val) {
     list.push_back(val);
-    if (list.size() > MAX_HISTORY_POINTS) {
+    if (list.size() > max_entries) {
       list.pop_front();
     }
   };
@@ -1175,6 +1334,42 @@ int GameState::mastery_level(int global_action_id) const {
   return level_for_xp(action_mastery_xp[global_action_id]);
 }
 
+namespace {
+template <size_t N>
+int find_upgrade_tier(const std::array<ShopUpgradeInfo, N>& upgrades,
+                      ItemId id) {
+  if (!is_valid_item(id)) return 0;
+  for (size_t i = 0; i < N; ++i) {
+    if (upgrades[i].item_id == id) return static_cast<int>(upgrades[i].tier);
+  }
+  return 0;
+}
+}  // namespace
+
+int GameState::cutter_tier() const {
+  return find_upgrade_tier(cutter_upgrades,
+                           equipped_items.at(EquipSlot::Cutter));
+}
+
+int GameState::harvester_tier() const {
+  return find_upgrade_tier(harvester_upgrades,
+                           equipped_items.at(EquipSlot::Harvester));
+}
+
+int GameState::drill_tier() const {
+  return find_upgrade_tier(drill_upgrades, equipped_items.at(EquipSlot::Drill));
+}
+
+int GameState::reactor_tier() const {
+  return find_upgrade_tier(reactor_upgrades,
+                           equipped_items.at(EquipSlot::Reactor));
+}
+
+int GameState::auto_stim_tier() const {
+  return find_upgrade_tier(auto_stim_upgrades,
+                           equipped_items.at(EquipSlot::AutoStim));
+}
+
 int GameState::action_effective_interval_ms(int global_action_id) const {
   if (global_action_id < 0 ||
       global_action_id >= static_cast<int>(skill_actions.size())) {
@@ -1182,26 +1377,24 @@ int GameState::action_effective_interval_ms(int global_action_id) const {
   }
   const auto& act = skill_actions[global_action_id];
   int bonus_pct = 0;
+  auto slot_bonus = [this](EquipSlot slot) {
+    ItemId id = equipped_items.at(slot);
+    return is_valid_item(id) ? get_item_info(id).bonus.speed_bonus_pct : 0;
+  };
   switch (act.skill) {
     case SkillType::Salvaging:
-      bonus_pct = cutter_upgrades[std::clamp(cutter_tier, 0, TOOL_TIER_COUNT - 1)]
-                      .speed_bonus_pct;
+      bonus_pct = slot_bonus(EquipSlot::Cutter);
       break;
     case SkillType::BioHarvest:
     case SkillType::Farming:
-      bonus_pct =
-          harvester_upgrades[std::clamp(harvester_tier, 0, TOOL_TIER_COUNT - 1)]
-              .speed_bonus_pct;
+      bonus_pct = slot_bonus(EquipSlot::Harvester);
       break;
     case SkillType::DeepMining:
-      bonus_pct = drill_upgrades[std::clamp(drill_tier, 0, TOOL_TIER_COUNT - 1)]
-                      .speed_bonus_pct;
+      bonus_pct = slot_bonus(EquipSlot::Drill);
       break;
     case SkillType::Recycling:
     case SkillType::SynthCook:
-      bonus_pct =
-          reactor_upgrades[std::clamp(reactor_tier, 0, TOOL_TIER_COUNT - 1)]
-              .speed_bonus_pct;
+      bonus_pct = slot_bonus(EquipSlot::Reactor);
       break;
     default:
       break;
@@ -1300,7 +1493,7 @@ void GameState::gain_xp(SkillType skill, uint64_t amount) {
   int idx = static_cast<int>(skill);
   int old_lvl = level_for_xp(xp[idx]);
   // Reactor tier grants a global XP bonus
-  uint64_t bonus = (amount * reactor_tier * 2) / 100;
+  uint64_t bonus = (amount * reactor_tier() * 2) / 100;
   xp[idx] += (amount + bonus);
   int new_lvl = level_for_xp(xp[idx]);
   if (new_lvl > old_lvl) {
@@ -1616,20 +1809,18 @@ void GameState::assign_new_bounty_contract() {
                       monster_info[bounty_target_id].zone_name));
 }
 
-int GameState::item_qty(ItemId item_id) const {
-  for (const auto& s : bank) {
+void GameState::Bank::clear() { items.clear(); }
+
+int GameState::Bank::item_qty(ItemId item_id) const {
+  for (const auto& s : items) {
     if (s.item_id == item_id) return s.qty;
   }
   return 0;
 }
 
-int GameState::used_bank_slots() const {
-  return static_cast<int>(bank.size());
-}
-
-uint64_t GameState::total_bank_value() const {
+uint64_t GameState::Bank::total_value() const {
   uint64_t total = 0;
-  for (const auto& s : bank) {
+  for (const auto& s : items) {
     if (is_valid_item(s.item_id)) {
       total += static_cast<uint64_t>(s.qty) * get_item_info(s.item_id).price;
     }
@@ -1637,32 +1828,62 @@ uint64_t GameState::total_bank_value() const {
   return total;
 }
 
-bool GameState::can_store_item(ItemId item_id) const {
-  for (const auto& s : bank) {
+bool GameState::Bank::can_store_item(ItemId item_id) const {
+  for (const auto& s : items) {
     if (s.item_id == item_id) return true;
   }
-  return static_cast<int>(bank.size()) < bank_capacity;
+  return static_cast<int>(items.size()) < capacity;
+}
+
+bool GameState::Bank::add_item(ItemId item_id, int qty) {
+  if (!is_valid_item(item_id) || qty <= 0) return false;
+  for (auto& s : items) {
+    if (s.item_id == item_id) {
+      s.qty += qty;
+      return true;
+    }
+  }
+  if (static_cast<int>(items.size()) >= capacity) return false;
+  items.push_back(Slot{item_id, qty});
+  return true;
+}
+
+bool GameState::Bank::remove_item(ItemId item_id, int qty) {
+  if (qty <= 0) return true;
+  for (auto it = items.begin(); it != items.end(); ++it) {
+    if (it->item_id == item_id) {
+      if (it->qty < qty) return false;
+      it->qty -= qty;
+      if (it->qty == 0) items.erase(it);
+      return true;
+    }
+  }
+  return false;
+}
+
+uint64_t GameState::Bank::next_slot_cost() const {
+  int extra = std::max(0, (capacity - 24) / 4);
+  return 150 + extra * extra * 120 + extra * 150;
+}
+
+int GameState::item_qty(ItemId item_id) const { return bank.item_qty(item_id); }
+
+int GameState::used_bank_slots() const { return bank.used_slots(); }
+
+uint64_t GameState::total_bank_value() const { return bank.total_value(); }
+
+bool GameState::can_store_item(ItemId item_id) const {
+  return bank.can_store_item(item_id);
 }
 
 bool GameState::add_item(ItemId item_id, int qty, bool log_drop) {
   if (!is_valid_item(item_id) || qty <= 0) return false;
-  for (auto& s : bank) {
-    if (s.item_id == item_id) {
-      s.qty += qty;
-      if (log_drop) {
-        add_log(std::format("Stored {}x {} in Cyber-Vault.", qty,
-                            get_item_info(item_id).name));
-      }
-      return true;
-    }
-  }
-  if (static_cast<int>(bank.size()) >= bank_capacity) {
+  if (!bank.add_item(item_id, qty)) {
     add_log(std::format("Cyber-Vault is full ({}/{})! Could not store {}!",
-                        bank.size(), bank_capacity,
+                        bank.size(), bank.capacity,
                         get_item_info(item_id).name));
     return false;
   }
-  bank.push_back(BankSlot{item_id, qty});
   if (log_drop) {
     add_log(std::format("Stored {}x {} in Cyber-Vault.", qty,
                         get_item_info(item_id).name));
@@ -1671,16 +1892,7 @@ bool GameState::add_item(ItemId item_id, int qty, bool log_drop) {
 }
 
 bool GameState::remove_item(ItemId item_id, int qty) {
-  if (qty <= 0) return true;
-  for (auto it = bank.begin(); it != bank.end(); ++it) {
-    if (it->item_id == item_id) {
-      if (it->qty < qty) return false;
-      it->qty -= qty;
-      if (it->qty == 0) bank.erase(it);
-      return true;
-    }
-  }
-  return false;
+  return bank.remove_item(item_id, qty);
 }
 
 bool GameState::sell_item(ItemId item_id, int qty) {
@@ -1727,13 +1939,60 @@ bool GameState::equip_item(ItemId item_id) {
     return false;
   }
 
-  SkillType req_skill =
-      (slot == EquipSlot::Weapon) ? SkillType::Attack : SkillType::Defence;
-  if (skill_level(req_skill) < info.req_level) {
-    add_log(std::format("Requires {} Level {} to equip {}.",
-                        skill_name(req_skill), info.req_level, info.name));
-    return false;
+  switch (slot) {
+    case EquipSlot::Weapon:
+      if (skill_level(SkillType::Attack) < info.req_level) {
+        add_log(std::format("Requires Attack Level {} to equip {}.",
+                            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Visor:
+    case EquipSlot::ExoSuit:
+    case EquipSlot::HoloShield:
+      if (skill_level(SkillType::Defence) < info.req_level) {
+        add_log(std::format("Requires Defence Level {} to equip {}.",
+                            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Cutter:
+      if (skill_level(SkillType::Salvaging) < info.req_level) {
+        add_log(std::format("Requires Salvaging Level {} to equip {}.",
+                            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Harvester:
+      if (std::max(skill_level(SkillType::BioHarvest),
+                   skill_level(SkillType::Farming)) < info.req_level) {
+        add_log(std::format(
+            "Requires Bio-Harvest or Farming Level {} to equip {}.",
+            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Drill:
+      if (skill_level(SkillType::DeepMining) < info.req_level) {
+        add_log(std::format("Requires Deep-Mining Level {} to equip {}.",
+                            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Reactor:
+      if (std::max(skill_level(SkillType::Recycling),
+                   skill_level(SkillType::SynthCook)) < info.req_level) {
+        add_log(std::format(
+            "Requires Recycling or Synth-Cook Level {} to equip {}.",
+            info.req_level, info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::AutoStim:
+    case EquipSlot::None:
+      break;
   }
+
   if (item_qty(item_id) <= 0) return false;
 
   ItemId old_item = equipped_items.at(slot);
@@ -1816,7 +2075,7 @@ bool GameState::eat_food() {
 }
 
 void GameState::check_auto_eat() {
-  if (auto_stim_tier <= 0) return;
+  if (auto_stim_tier() <= 0) return;
   int threshold = auto_eat_threshold_hp();
   while (player_hp > 0 && player_hp <= threshold &&
          is_valid_item(equipped_food_item) && equipped_food_qty > 0) {
@@ -1831,13 +2090,13 @@ void GameState::check_auto_eat() {
 }
 
 uint64_t GameState::next_bank_slot_cost() const {
-  int extra = std::max(0, (bank_capacity - 24) / 4);
-  return 150 + extra * extra * 120 + extra * 150;
+  return bank.next_slot_cost();
 }
 
 bool GameState::buy_cutter_upgrade() {
-  if (cutter_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = cutter_upgrades[cutter_tier + 1];
+  int cur_t = cutter_tier();
+  if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = cutter_upgrades[cur_t + 1];
   if (skill_level(SkillType::Salvaging) < upg.req_skill_level) {
     add_log(std::format("Requires Salvaging Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
@@ -1849,14 +2108,16 @@ bool GameState::buy_cutter_upgrade() {
     return false;
   }
   credits -= upg.cost_credits;
-  cutter_tier++;
-  add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
+  equipped_items[EquipSlot::Cutter] = upg.item_id;
+  add_log(std::format("Purchased & installed {} ({})!", upg.name,
+                      upg.description));
   return true;
 }
 
 bool GameState::buy_harvester_upgrade() {
-  if (harvester_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = harvester_upgrades[harvester_tier + 1];
+  int cur_t = harvester_tier();
+  if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = harvester_upgrades[cur_t + 1];
   if (std::max(skill_level(SkillType::BioHarvest),
                skill_level(SkillType::Farming)) < upg.req_skill_level) {
     add_log(std::format("Requires Bio-Harvest or Farming Level {} to buy {}.",
@@ -1869,14 +2130,16 @@ bool GameState::buy_harvester_upgrade() {
     return false;
   }
   credits -= upg.cost_credits;
-  harvester_tier++;
-  add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
+  equipped_items[EquipSlot::Harvester] = upg.item_id;
+  add_log(std::format("Purchased & installed {} ({})!", upg.name,
+                      upg.description));
   return true;
 }
 
 bool GameState::buy_drill_upgrade() {
-  if (drill_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = drill_upgrades[drill_tier + 1];
+  int cur_t = drill_tier();
+  if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = drill_upgrades[cur_t + 1];
   if (skill_level(SkillType::DeepMining) < upg.req_skill_level) {
     add_log(std::format("Requires Deep-Mining Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
@@ -1888,14 +2151,16 @@ bool GameState::buy_drill_upgrade() {
     return false;
   }
   credits -= upg.cost_credits;
-  drill_tier++;
-  add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
+  equipped_items[EquipSlot::Drill] = upg.item_id;
+  add_log(std::format("Purchased & installed {} ({})!", upg.name,
+                      upg.description));
   return true;
 }
 
 bool GameState::buy_reactor_upgrade() {
-  if (reactor_tier + 1 >= TOOL_TIER_COUNT) return false;
-  const auto& upg = reactor_upgrades[reactor_tier + 1];
+  int cur_t = reactor_tier();
+  if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
+  const auto& upg = reactor_upgrades[cur_t + 1];
   if (skill_level(SkillType::Recycling) < upg.req_skill_level) {
     add_log(std::format("Requires Recycling Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
@@ -1907,22 +2172,25 @@ bool GameState::buy_reactor_upgrade() {
     return false;
   }
   credits -= upg.cost_credits;
-  reactor_tier++;
-  add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
+  equipped_items[EquipSlot::Reactor] = upg.item_id;
+  add_log(std::format("Purchased & installed {} ({})!", upg.name,
+                      upg.description));
   return true;
 }
 
 bool GameState::buy_auto_stim_upgrade() {
-  if (auto_stim_tier + 1 >= AUTO_STIM_TIER_COUNT) return false;
-  const auto& upg = auto_stim_upgrades[auto_stim_tier + 1];
+  int cur_t = auto_stim_tier();
+  if (cur_t + 1 >= AUTO_STIM_TIER_COUNT) return false;
+  const auto& upg = auto_stim_upgrades[cur_t + 1];
   if (credits < upg.cost_credits) {
     add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
                         money_string(upg.cost_credits)));
     return false;
   }
   credits -= upg.cost_credits;
-  auto_stim_tier++;
-  add_log(std::format("Purchased {} ({})!", upg.name, upg.description));
+  equipped_items[EquipSlot::AutoStim] = upg.item_id;
+  add_log(std::format("Purchased & installed {} ({})!", upg.name,
+                      upg.description));
   return true;
 }
 
@@ -1934,9 +2202,9 @@ bool GameState::buy_bank_slot() {
     return false;
   }
   credits -= cost;
-  bank_capacity += 4;
+  bank.capacity += 4;
   add_log(std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
-                      bank_capacity));
+                      bank.capacity));
   return true;
 }
 
@@ -2013,8 +2281,9 @@ int GameState::monster_hit_chance_pct(int monster_id) const {
 }
 
 int GameState::auto_eat_threshold_hp() const {
-  if (auto_stim_tier <= 0 || auto_stim_tier >= AUTO_STIM_TIER_COUNT) return 0;
-  int pct = auto_stim_upgrades[auto_stim_tier].speed_bonus_pct;
+  ItemId id = equipped_items.at(EquipSlot::AutoStim);
+  if (!is_valid_item(id)) return 0;
+  int pct = get_item_info(id).bonus.speed_bonus_pct;
   return (max_hp() * pct) / 100;
 }
 
@@ -2034,7 +2303,7 @@ bool GameState::save_to_file(const std::string& path) const {
   std::ofstream out(path);
   if (!out.is_open()) return false;
 
-  out << "ROUTINEVERSE_SAVE_V1\n";
+  out << "ROUTINEVERSE_SAVE_V2\n";
   out << credits << " " << bounty_tokens << " " << total_ticks_ms << "\n";
   for (int i = 0; i < SKILL_COUNT; ++i) {
     out << xp[i] << (i + 1 == SKILL_COUNT ? "\n" : " ");
@@ -2044,18 +2313,16 @@ bool GameState::save_to_file(const std::string& path) const {
     out << action_mastery_xp[i]
         << (i + 1 == action_mastery_xp.size() ? "\n" : " ");
   }
-  out << bank_capacity << " " << bank.size() << "\n";
+  out << bank.capacity << " " << bank.size() << "\n";
   for (const auto& s : bank) {
     out << static_cast<int>(s.item_id) << " " << s.qty << "\n";
   }
-  out << static_cast<int>(equipped_items.at(EquipSlot::Weapon)) << " "
-      << static_cast<int>(equipped_items.at(EquipSlot::Visor)) << " "
-      << static_cast<int>(equipped_items.at(EquipSlot::ExoSuit)) << " "
-      << static_cast<int>(equipped_items.at(EquipSlot::HoloShield)) << " "
-      << static_cast<int>(equipped_food_item) << " " << equipped_food_qty
+  for (size_t i = 0; i < EQUIP_SLOT_COUNT; ++i) {
+    auto slot = static_cast<EquipSlot>(i);
+    out << static_cast<int>(equipped_items.at(slot)) << " ";
+  }
+  out << static_cast<int>(equipped_food_item) << " " << equipped_food_qty
       << "\n";
-  out << cutter_tier << " " << harvester_tier << " " << drill_tier << " "
-      << reactor_tier << " " << auto_stim_tier << "\n";
   out << static_cast<int>(active_type) << " " << active_action_id << " "
       << active_monster_id << " " << player_hp << " " << monster_hp << " "
       << static_cast<int>(combat_style) << "\n";
@@ -2071,7 +2338,10 @@ bool GameState::load_from_file(const std::string& path) {
   if (!in.is_open()) return false;
 
   std::string header;
-  if (!(in >> header) || header != "ROUTINEVERSE_SAVE_V1") return false;
+  if (!(in >> header) ||
+      (header != "ROUTINEVERSE_SAVE_V1" && header != "ROUTINEVERSE_SAVE_V2")) {
+    return false;
+  }
 
   in >> credits >> bounty_tokens >> total_ticks_ms;
   for (int i = 0; i < SKILL_COUNT; ++i) in >> xp[i];
@@ -2086,7 +2356,7 @@ bool GameState::load_from_file(const std::string& path) {
   }
 
   size_t b_sz = 0;
-  in >> bank_capacity >> b_sz;
+  in >> bank.capacity >> b_sz;
   bank.clear();
   for (size_t i = 0; i < b_sz; ++i) {
     int raw_id = -1;
@@ -2094,25 +2364,51 @@ bool GameState::load_from_file(const std::string& path) {
     in >> raw_id >> qty;
     auto id = static_cast<ItemId>(raw_id);
     if (is_valid_item(id) && qty > 0) {
-      bank.push_back(BankSlot{id, qty});
+      bank.items.push_back(Bank::Slot{id, qty});
     }
   }
 
-  for (const auto& slot : {EquipSlot::Weapon, EquipSlot::Visor,
-                           EquipSlot::ExoSuit, EquipSlot::HoloShield}) {
-    int raw_id = -1;
-    in >> raw_id;
-    auto id = static_cast<ItemId>(raw_id);
-    equipped_items[slot] = is_valid_item(id) ? id : ItemId::None;
+  if (header == "ROUTINEVERSE_SAVE_V2") {
+    for (size_t i = 0; i < EQUIP_SLOT_COUNT; ++i) {
+      auto slot = static_cast<EquipSlot>(i);
+      int raw_id = -1;
+      in >> raw_id;
+      auto id = static_cast<ItemId>(raw_id);
+      equipped_items[slot] = is_valid_item(id) ? id : ItemId::None;
+    }
+
+    int raw_food_id = -1;
+    in >> raw_food_id >> equipped_food_qty;
+    auto food_id = static_cast<ItemId>(raw_food_id);
+    equipped_food_item = is_valid_item(food_id) ? food_id : ItemId::None;
+  } else {
+    for (const auto& slot : {EquipSlot::Weapon, EquipSlot::Visor,
+                             EquipSlot::ExoSuit, EquipSlot::HoloShield}) {
+      int raw_id = -1;
+      in >> raw_id;
+      auto id = static_cast<ItemId>(raw_id);
+      equipped_items[slot] = is_valid_item(id) ? id : ItemId::None;
+    }
+
+    int raw_food_id = -1;
+    in >> raw_food_id >> equipped_food_qty;
+    auto food_id = static_cast<ItemId>(raw_food_id);
+    equipped_food_item = is_valid_item(food_id) ? food_id : ItemId::None;
+
+    int c_t = 0, h_t = 0, d_t = 0, r_t = 0, a_t = 0;
+    in >> c_t >> h_t >> d_t >> r_t >> a_t;
+    equipped_items[EquipSlot::Cutter] =
+        cutter_upgrades[std::clamp(c_t, 0, TOOL_TIER_COUNT - 1)].item_id;
+    equipped_items[EquipSlot::Harvester] =
+        harvester_upgrades[std::clamp(h_t, 0, TOOL_TIER_COUNT - 1)].item_id;
+    equipped_items[EquipSlot::Drill] =
+        drill_upgrades[std::clamp(d_t, 0, TOOL_TIER_COUNT - 1)].item_id;
+    equipped_items[EquipSlot::Reactor] =
+        reactor_upgrades[std::clamp(r_t, 0, TOOL_TIER_COUNT - 1)].item_id;
+    equipped_items[EquipSlot::AutoStim] =
+        auto_stim_upgrades[std::clamp(a_t, 0, AUTO_STIM_TIER_COUNT - 1)]
+            .item_id;
   }
-
-  int raw_food_id = -1;
-  in >> raw_food_id >> equipped_food_qty;
-  auto food_id = static_cast<ItemId>(raw_food_id);
-  equipped_food_item = is_valid_item(food_id) ? food_id : ItemId::None;
-
-  in >> cutter_tier >> harvester_tier >> drill_tier >> reactor_tier >>
-      auto_stim_tier;
 
   int act_t = 0;
   int style_t = 0;

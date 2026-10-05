@@ -836,7 +836,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 void TuiApp::drawBankPane(int y, int x, int h, int w) {
   bool active = (_focus == FocusPane::Bank);
   std::string title = std::format("Vault ({}/{})", _gameState.used_bank_slots(),
-                                  _gameState.bank_capacity);
+                                  _gameState.bank.capacity);
   draw_btop_box(y, x, h, w, title, "[e]Equip [s]Sell", active);
 
   int inner_w = w - 4;
@@ -878,7 +878,9 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
       extra += std::format(" (+{}HP)", info.heal_amount);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
       extra += std::format(" (+{}Str)", info.bonus.strength);
-    } else if (equip_slot(info.category) != EquipSlot::None) {
+    } else if (info.bonus.speed_bonus_pct > 0) {
+      extra += std::format(" (-{}%Spd)", info.bonus.speed_bonus_pct);
+    } else if (info.bonus.damage_reduction > 0) {
       extra += std::format(" ({}%DR)", info.bonus.damage_reduction);
     }
 
@@ -942,13 +944,13 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
                          _gameState.player_accuracy(),
                          _gameState.player_evasion(),
                          _gameState.player_damage_reduction(),
-                         _gameState.auto_stim_tier));
+                         _gameState.auto_stim_tier()));
   print_line(CP_DEFAULT,
              std::format("Tools: Cut T{} Bio T{} Drl T{} Core T{}",
-                         _gameState.cutter_tier + 1,
-                         _gameState.harvester_tier + 1,
-                         _gameState.drill_tier + 1,
-                         _gameState.reactor_tier + 1));
+                         _gameState.cutter_tier() + 1,
+                         _gameState.harvester_tier() + 1,
+                         _gameState.drill_tier() + 1,
+                         _gameState.reactor_tier() + 1));
 }
 
 void TuiApp::drawGraphPane(int y, int x, int h, int w) {
@@ -1212,13 +1214,13 @@ void TuiApp::showShopDialog() {
     };
 
     std::array<std::string, 6> items = {
-        fmt_upg("Salvage Cutter", cutter_upgrades, _gameState.cutter_tier),
-        fmt_upg("Bio-Harvester", harvester_upgrades, _gameState.harvester_tier),
-        fmt_upg("Mining Drill", drill_upgrades, _gameState.drill_tier),
-        fmt_upg("Synth-Reactor", reactor_upgrades, _gameState.reactor_tier),
-        fmt_upg("Auto-Stim", auto_stim_upgrades, _gameState.auto_stim_tier),
+        fmt_upg("Salvage Cutter", cutter_upgrades, _gameState.cutter_tier()),
+        fmt_upg("Bio-Harvester", harvester_upgrades, _gameState.harvester_tier()),
+        fmt_upg("Mining Drill", drill_upgrades, _gameState.drill_tier()),
+        fmt_upg("Synth-Reactor", reactor_upgrades, _gameState.reactor_tier()),
+        fmt_upg("Auto-Stim", auto_stim_upgrades, _gameState.auto_stim_tier()),
         std::format("{:<14}: {} Slots -> +4 Slots ({})", "Vault Space",
-                    _gameState.bank_capacity,
+                    _gameState.bank.capacity,
                     money_string(_gameState.next_bank_slot_cost())),
     };
 
@@ -1258,26 +1260,17 @@ void TuiApp::showEquipmentDialog() {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
     int w = std::min(68, cols - 4);
-    int h = 16;
+    int h = 21;
     int y = (rows - h) / 2;
     int x = (cols - w) / 2;
 
     draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
-    const std::array<EquipSlot, 4> slots = {EquipSlot::Weapon, EquipSlot::Visor,
-                                            EquipSlot::ExoSuit,
-                                            EquipSlot::HoloShield};
-    for (int idx = 0; idx < 4; ++idx) {
-      EquipSlot slot = slots[idx];
+    for (int idx = 0; idx < static_cast<int>(EQUIP_SLOT_COUNT); ++idx) {
+      EquipSlot slot = static_cast<EquipSlot>(idx);
       ItemId id = _gameState.equipped_items.at(slot);
-      std::string desc = "Empty";
-      if (is_valid_item(id)) {
-        const auto& info = get_item_info(id);
-        desc = std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
-                           info.bonus.attack, info.bonus.strength,
-                           info.bonus.defence, info.bonus.damage_reduction);
-      }
+      std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
       bool sel = (idx == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
              (sel ? A_BOLD : A_NORMAL));
@@ -1288,16 +1281,18 @@ void TuiApp::showEquipmentDialog() {
               (sel ? A_BOLD : A_NORMAL));
     }
 
+    int stats_y = y + 3 + static_cast<int>(EQUIP_SLOT_COUNT);
     attron(COLOR_PAIR(CP_YELLOW));
-    mvprintw(y + 7, x + 3, "Combat Level: %d   │   HP: %d / %d",
+    mvprintw(stats_y, x + 3, "Combat Level: %d   │   HP: %d / %d",
              _gameState.combat_level(), _gameState.player_hp,
              _gameState.max_hp());
-    mvprintw(y + 8, x + 3, "Combat Mode: %s",
+    mvprintw(stats_y + 1, x + 3, "Combat Mode: %s",
              combat_style_name(_gameState.combat_style).c_str());
-    mvprintw(y + 9, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
+    mvprintw(stats_y + 2, x + 3,
+             "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
              _gameState.player_max_hit(), _gameState.player_accuracy(),
              _gameState.player_evasion());
-    mvprintw(y + 10, x + 3,
+    mvprintw(stats_y + 3, x + 3,
              "Damage Reduction: %d%%   │   Auto-Stim Threshold: %d HP",
              _gameState.player_damage_reduction(),
              _gameState.auto_eat_threshold_hp());
@@ -1408,7 +1403,7 @@ void TuiApp::showMilestonesDialog() {
       money_string(_gameState.credits),
       money_string(_gameState.total_credits_earned),
       money_string(_gameState.total_bank_value()),
-      _gameState.used_bank_slots(), _gameState.bank_capacity,
+      _gameState.used_bank_slots(), _gameState.bank.capacity,
       number_string(_gameState.bounty_tokens), _gameState.bounties_completed,
       number_string(_gameState.total_items_gathered),
       number_string(_gameState.total_monsters_killed), _gameState.player_deaths,

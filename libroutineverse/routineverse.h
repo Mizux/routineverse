@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-inline constexpr uint8_t MAX_HISTORY_POINTS = 60;
-
 // Items
 enum class ItemId : uint16_t {
   None,
@@ -151,6 +149,47 @@ enum class ItemId : uint16_t {
   ChronoShield,
   QuantumShield,
 
+  // Tools - Salvaging Cutters
+  ScrapCutter,
+  TitaniumCutter,
+  DurasteelCutter,
+  CobaltCutter,
+  TungstenCutter,
+  NeutroniumCutter,
+  ChronoCutter,
+
+  // Tools - Bio-Harvesters
+  ScrapHarvester,
+  TitaniumHarvester,
+  DurasteelHarvester,
+  CobaltHarvester,
+  TungstenHarvester,
+  NeutroniumHarvester,
+  ChronoHarvester,
+
+  // Tools - Mining Drills
+  ScrapDrill,
+  TitaniumDrill,
+  DurasteelDrill,
+  CobaltDrill,
+  TungstenDrill,
+  NeutroniumDrill,
+  ChronoDrill,
+
+  // Tools - Synth-Reactors
+  BasicReactor,
+  PlasteelReactor,
+  NanotubeReactor,
+  PositronicReactor,
+  PlasmaReactor,
+  QuantumReactor,
+  MainframeReactor,
+
+  // Cyberware - Auto-Stim Injectors
+  AutoStimMk1,
+  AutoStimMk2,
+  AutoStimMk3,
+
   // Enemy Salvage Loot
   ServoParts,
   HeavyChassis,
@@ -158,7 +197,7 @@ enum class ItemId : uint16_t {
   Microchip,
   SynthWeaveHide,
 };
-inline constexpr size_t ITEM_COUNT = 121;
+inline constexpr size_t ITEM_COUNT = 152;
 inline constexpr bool is_valid_item(ItemId id) {
   return id == ItemId::None ? false: true;
 }
@@ -177,6 +216,11 @@ enum class ItemCategory : uint8_t {
   Visor,
   ExoSuit,
   HoloShield,
+  Cutter,
+  Harvester,
+  Drill,
+  Reactor,
+  AutoStim,
   CyberLoot,
 };
 std::string item_category_name(ItemCategory cat);
@@ -186,6 +230,7 @@ struct Bonus {
   int strength = 0;          // Max hit bonus
   int defence = 0;           // Evasion bonus
   int damage_reduction = 0;  // Damage reduction %
+  int speed_bonus_pct = 0;   // Tool interval reduction % (or Auto-Stim threshold %)
 };
 
 struct ItemInfo {
@@ -194,20 +239,21 @@ struct ItemInfo {
   ItemCategory category;
   int price;
   int heal_amount;  // > 0 if usable stim/ration
-  int req_level;    // Attack level for weapons, Defence level for cyber-armor
+  int req_level;    // Required skill level to equip
   Bonus bonus{};
 };
 extern const std::array<ItemInfo, ITEM_COUNT> item_info;
 inline const ItemInfo& get_item_info(ItemId id) {
   return item_info[static_cast<int>(id)];
 }
+std::string item_equip_summary(ItemId id);
 
 // Monsters
 struct MonsterDrop {
-  ItemId item_id;
-  int chance_pct;  // 1..100
-  int min_qty;
-  int max_qty;
+  ItemId item_id = ItemId::None;
+  int chance_pct = 0;  // 1..100
+  int min_qty = 0;
+  int max_qty = 0;
 };
 
 struct MonsterInfo {
@@ -224,19 +270,25 @@ struct MonsterInfo {
   uint64_t credits_max;
   int bounty_req;
   bool is_boss;
-  std::array<MonsterDrop, 3> drops;
+  std::array<MonsterDrop, 4> drops;
 };
 inline constexpr int MONSTER_COUNT = 12;
 extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
 
-// Gears
+// Gears & Tools
 enum class EquipSlot : int8_t {
   None = -1,
   Weapon,
   Visor,
   ExoSuit,
   HoloShield,
+  Cutter,
+  Harvester,
+  Drill,
+  Reactor,
+  AutoStim,
 };
+inline constexpr size_t EQUIP_SLOT_COUNT = 9;
 std::string equip_slot_name(EquipSlot slot);
 inline constexpr EquipSlot equip_slot(ItemCategory cat) {
   switch (cat) {
@@ -248,6 +300,16 @@ inline constexpr EquipSlot equip_slot(ItemCategory cat) {
       return EquipSlot::ExoSuit;
     case ItemCategory::HoloShield:
       return EquipSlot::HoloShield;
+    case ItemCategory::Cutter:
+      return EquipSlot::Cutter;
+    case ItemCategory::Harvester:
+      return EquipSlot::Harvester;
+    case ItemCategory::Drill:
+      return EquipSlot::Drill;
+    case ItemCategory::Reactor:
+      return EquipSlot::Reactor;
+    case ItemCategory::AutoStim:
+      return EquipSlot::AutoStim;
     default:
       return EquipSlot::None;
   }
@@ -313,6 +375,7 @@ struct ShopUpgradeInfo {
   uint8_t req_skill_level;
   uint64_t cost_credits;
   uint8_t speed_bonus_pct;
+  ItemId item_id = ItemId::None;
 };
 inline constexpr int TOOL_TIER_COUNT = 7;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades;
@@ -322,11 +385,7 @@ extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
 inline constexpr int AUTO_STIM_TIER_COUNT = 4;
 extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
 
-// todo move inside GameState and/or create a BankClass ?
-struct BankSlot {
-  ItemId item_id = ItemId::None;
-  int qty = 0;
-};
+// Utility & Formatting functions
 std::string money_string(uint64_t value);
 std::string number_string(uint64_t value);
 
@@ -395,6 +454,12 @@ class GameState {
   uint64_t total_skill_xp() const;
   int mastery_level(int global_action_id) const;
 
+  int cutter_tier() const;
+  int harvester_tier() const;
+  int drill_tier() const;
+  int reactor_tier() const;
+  int auto_stim_tier() const;
+
   int action_effective_interval_ms(int global_action_id) const;
   bool can_perform_action(int global_action_id) const;
 
@@ -423,29 +488,52 @@ class GameState {
   uint64_t bounty_tokens = 0;
   uint64_t total_ticks_ms = 0;
 
-  // todo: use map SkillId -> uint64_t ?
   std::array<uint64_t, SKILL_COUNT> xp{};
   std::vector<uint64_t> action_mastery_xp;
 
-  int bank_capacity = 24;
-  std::vector<BankSlot> bank;
+  struct Bank {
+    struct Slot {
+      ItemId item_id = ItemId::None;
+      int qty = 0;
+    };
+
+    explicit Bank(int cap = 24) : capacity(cap) {}
+
+    int capacity = 24;
+    std::vector<Slot> items;
+
+    void clear();
+    bool empty() const { return items.empty(); }
+    size_t size() const { return items.size(); }
+    int used_slots() const { return static_cast<int>(items.size()); }
+    int item_qty(ItemId item_id) const;
+    uint64_t total_value() const;
+    bool can_store_item(ItemId item_id) const;
+    bool add_item(ItemId item_id, int qty);
+    bool remove_item(ItemId item_id, int qty);
+    uint64_t next_slot_cost() const;
+
+    const Slot& operator[](size_t idx) const { return items[idx]; }
+    Slot& operator[](size_t idx) { return items[idx]; }
+    auto begin() { return items.begin(); }
+    auto end() { return items.end(); }
+    auto begin() const { return items.begin(); }
+    auto end() const { return items.end(); }
+  };
+  Bank bank;
 
   std::map<EquipSlot, ItemId> equipped_items = {
       {EquipSlot::Weapon, ItemId::None},
       {EquipSlot::Visor, ItemId::None},
       {EquipSlot::ExoSuit, ItemId::None},
-      {EquipSlot::HoloShield, ItemId::None}};
+      {EquipSlot::HoloShield, ItemId::None},
+      {EquipSlot::Cutter, ItemId::None},
+      {EquipSlot::Harvester, ItemId::None},
+      {EquipSlot::Drill, ItemId::None},
+      {EquipSlot::Reactor, ItemId::None},
+      {EquipSlot::AutoStim, ItemId::None}};
   ItemId equipped_food_item = ItemId::None;
   int equipped_food_qty = 0;
-
-  // Cyber-Shop upgrade tiers
-  // todo why not having EquipSlot for tooling like we have with combat gear ?
-  // also make it items mean mobs can drop them for you too !
-  int cutter_tier = 0;
-  int harvester_tier = 0;
-  int drill_tier = 0;
-  int reactor_tier = 0;
-  int auto_stim_tier = 0;
 
   // Active activity state
   ActiveActivityType active_type = ActiveActivityType::None;
@@ -479,8 +567,10 @@ class GameState {
   std::vector<std::string> game_log;
 
   // History for Charts
-  // todo Add ctor with MAX_HISTORY_ENTRIES as argument with a default value
   struct History {
+    explicit History(size_t max_entries = 60) : max_entries(max_entries) {}
+
+    size_t max_entries = 60;
     std::list<uint64_t> credits;
     std::list<uint64_t> bank_value;
     std::list<int> total_level;

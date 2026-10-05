@@ -693,10 +693,10 @@ void MainWindow::updateAllUi() {
   if (_label_tools) {
     _label_tools->setText(
         QString("Cut T%1 | Bio T%2 | Drill T%3 | Core T%4")
-            .arg(_gameState.cutter_tier + 1)
-            .arg(_gameState.harvester_tier + 1)
-            .arg(_gameState.drill_tier + 1)
-            .arg(_gameState.reactor_tier + 1));
+            .arg(_gameState.cutter_tier() + 1)
+            .arg(_gameState.harvester_tier() + 1)
+            .arg(_gameState.drill_tier() + 1)
+            .arg(_gameState.reactor_tier() + 1));
   }
   if (_label_equipped_weapon) {
     ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
@@ -712,7 +712,7 @@ void MainWindow::updateAllUi() {
         QString("DR: %1% | Evasion: %2 | Auto-Stim: Mk %3")
             .arg(_gameState.player_damage_reduction())
             .arg(_gameState.player_evasion())
-            .arg(_gameState.auto_stim_tier));
+            .arg(_gameState.auto_stim_tier()));
   }
   if (_label_equipped_food) {
     if (is_valid_item(_gameState.equipped_food_item) &&
@@ -737,7 +737,7 @@ void MainWindow::updateAllUi() {
     _group_bank->setTitle(
         QString("Cyber-Vault (%1/%2 slots — Value: %3)")
             .arg(_gameState.used_bank_slots())
-            .arg(_gameState.bank_capacity)
+            .arg(_gameState.bank.capacity)
             .arg(QString::fromStdString(
                 money_string(_gameState.total_bank_value()))));
   }
@@ -912,7 +912,9 @@ void MainWindow::_fillTreeviewBank() {
       extra += QString(" (+%1 HP)").arg(info.heal_amount);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
       extra += QString(" (+%1 Str)").arg(info.bonus.strength);
-    } else if (equip_slot(info.category) != EquipSlot::None) {
+    } else if (info.bonus.speed_bonus_pct > 0) {
+      extra += QString(" (-%1% Cycle)").arg(info.bonus.speed_bonus_pct);
+    } else if (info.bonus.damage_reduction > 0) {
       extra += QString(" (%1% DR)").arg(info.bonus.damage_reduction);
     }
 
@@ -1120,28 +1122,28 @@ void WindowShop::updateShopUi() {
         .arg(nxt.cost_credits);
   };
 
-  _label_cutter->setText(format_tool(cutter_upgrades, _gameState.cutter_tier));
-  _btn_cutter->setEnabled(_gameState.cutter_tier + 1 < TOOL_TIER_COUNT);
+  _label_cutter->setText(format_tool(cutter_upgrades, _gameState.cutter_tier()));
+  _btn_cutter->setEnabled(_gameState.cutter_tier() + 1 < TOOL_TIER_COUNT);
 
   _label_harvester->setText(
-      format_tool(harvester_upgrades, _gameState.harvester_tier));
-  _btn_harvester->setEnabled(_gameState.harvester_tier + 1 < TOOL_TIER_COUNT);
+      format_tool(harvester_upgrades, _gameState.harvester_tier()));
+  _btn_harvester->setEnabled(_gameState.harvester_tier() + 1 < TOOL_TIER_COUNT);
 
-  _label_drill->setText(format_tool(drill_upgrades, _gameState.drill_tier));
-  _btn_drill->setEnabled(_gameState.drill_tier + 1 < TOOL_TIER_COUNT);
+  _label_drill->setText(format_tool(drill_upgrades, _gameState.drill_tier()));
+  _btn_drill->setEnabled(_gameState.drill_tier() + 1 < TOOL_TIER_COUNT);
 
   _label_reactor->setText(
-      format_tool(reactor_upgrades, _gameState.reactor_tier));
-  _btn_reactor->setEnabled(_gameState.reactor_tier + 1 < TOOL_TIER_COUNT);
+      format_tool(reactor_upgrades, _gameState.reactor_tier()));
+  _btn_reactor->setEnabled(_gameState.reactor_tier() + 1 < TOOL_TIER_COUNT);
 
   _label_autostim->setText(
-      format_tool(auto_stim_upgrades, _gameState.auto_stim_tier));
-  _btn_autostim->setEnabled(_gameState.auto_stim_tier + 1 <
+      format_tool(auto_stim_upgrades, _gameState.auto_stim_tier()));
+  _btn_autostim->setEnabled(_gameState.auto_stim_tier() + 1 <
                             AUTO_STIM_TIER_COUNT);
 
   _label_bank->setText(
       QString("%1 Slots -> +4 Slots for %2")
-          .arg(_gameState.bank_capacity)
+          .arg(_gameState.bank.capacity)
           .arg(QString::fromStdString(
                money_string(_gameState.next_bank_slot_cost()))));
 }
@@ -1200,11 +1202,8 @@ void WindowEquipment::_setupWidget() {
   QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
-  const std::array<EquipSlot, 4> equip_slots = {
-      EquipSlot::Weapon, EquipSlot::Visor, EquipSlot::ExoSuit,
-      EquipSlot::HoloShield};
-  for (int idx = 0; idx < 4; ++idx) {
-    EquipSlot slot = equip_slots[idx];
+  for (size_t idx = 0; idx < EQUIP_SLOT_COUNT; ++idx) {
+    EquipSlot slot = static_cast<EquipSlot>(idx);
     grid->addWidget(
         new QLabel(QString("<b>%1:</b>")
                        .arg(QString::fromStdString(equip_slot_name(slot))),
@@ -1214,7 +1213,7 @@ void WindowEquipment::_setupWidget() {
     grid->addWidget(_slot_labels[idx], idx, 1);
     _slot_buttons[idx] = new QPushButton("Unequip", grp_gear);
     connect(_slot_buttons[idx], &QPushButton::clicked, this,
-            [this, idx]() { onUnequipSlot(idx); });
+            [this, idx]() { onUnequipSlot(static_cast<int>(idx)); });
     grid->addWidget(_slot_buttons[idx], idx, 2);
   }
 
@@ -1236,20 +1235,10 @@ void WindowEquipment::_setupWidget() {
 }
 
 void WindowEquipment::updateEquipmentUi() {
-  const std::array<EquipSlot, 4> equip_slots = {
-      EquipSlot::Weapon, EquipSlot::Visor, EquipSlot::ExoSuit,
-      EquipSlot::HoloShield};
-  for (int idx = 0; idx < 4; ++idx) {
-    ItemId id = _gameState.equipped_items.at(equip_slots[idx]);
+  for (size_t idx = 0; idx < EQUIP_SLOT_COUNT; ++idx) {
+    ItemId id = _gameState.equipped_items.at(static_cast<EquipSlot>(idx));
     if (is_valid_item(id)) {
-      const auto& info = get_item_info(id);
-      _slot_labels[idx]->setText(
-          QString("%1 (+%2 Atk, +%3 Str, +%4 Def, %5% DR)")
-              .arg(info.name)
-              .arg(info.bonus.attack)
-              .arg(info.bonus.strength)
-              .arg(info.bonus.defence)
-              .arg(info.bonus.damage_reduction));
+      _slot_labels[idx]->setText(QString::fromStdString(item_equip_summary(id)));
       _slot_buttons[idx]->setEnabled(true);
     } else {
       _slot_labels[idx]->setText("Empty");
