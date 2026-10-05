@@ -892,10 +892,10 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
         money_string(static_cast<long long>(slot.qty) * info.price);
     if (info.heal_amount > 0) {
       extra += std::format(" (+{}HP)", info.heal_amount);
-    } else if (info.equip_slot == EquipSlot::Weapon) {
-      extra += std::format(" (+{}Str)", info.strength_bonus);
-    } else if (info.equip_slot != EquipSlot::None) {
-      extra += std::format(" ({}%DR)", info.damage_reduction);
+    } else if (equip_slot(info.category) == EquipSlot::Weapon) {
+      extra += std::format(" (+{}Str)", info.bonus.strength);
+    } else if (equip_slot(info.category) != EquipSlot::None) {
+      extra += std::format(" ({}%DR)", info.bonus.damage_reduction);
     }
 
     std::string line =
@@ -981,24 +981,24 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
 
   std::vector<double> values;
   if (item_idx == ITEM_CREDITS) {
-    for (long long v : _gameState.credits_history) values.push_back(v);
+    for (long long v : _gameState.history.credits) values.push_back(v);
     values.push_back(_gameState.credits);
   } else if (item_idx == ITEM_BANK_VALUE) {
-    for (long long v : _gameState.bank_value_history) values.push_back(v);
+    for (long long v : _gameState.history.bank_value) values.push_back(v);
     values.push_back(_gameState.total_bank_value());
   } else if (item_idx == ITEM_TOTAL_LEVEL) {
-    for (int v : _gameState.total_level_history) values.push_back(v);
+    for (int v : _gameState.history.total_level) values.push_back(v);
     values.push_back(_gameState.total_skill_level());
   } else if (item_idx == ITEM_TOTAL_XP) {
-    for (long long v : _gameState.total_xp_history) values.push_back(v);
+    for (long long v : _gameState.history.total_xp) values.push_back(v);
     values.push_back(_gameState.total_skill_xp());
   } else if (item_idx == ITEM_HP) {
-    for (int v : _gameState.hp_history) values.push_back(v);
+    for (int v : _gameState.history.hp) values.push_back(v);
     values.push_back(_gameState.player_hp);
   } else {
     int s_idx =
         std::clamp(item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
-    for (long long v : _gameState.skill_xp_history[s_idx]) values.push_back(v);
+    for (long long v : _gameState.history.skill_xp[s_idx]) values.push_back(v);
     values.push_back(_gameState.xp[s_idx]);
   }
 
@@ -1291,8 +1291,8 @@ void TuiApp::showEquipmentDialog() {
       if (is_valid_item(id)) {
         const auto& info = get_item_info(id);
         desc = std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
-                           info.attack_bonus, info.strength_bonus,
-                           info.defence_bonus, info.damage_reduction);
+                           info.bonus.attack, info.bonus.strength,
+                           info.bonus.defence, info.bonus.damage_reduction);
       }
       bool sel = (idx == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |

@@ -44,7 +44,7 @@ void window_main_button_equip_clicked_cb(MainWindow& window) {
         "Please select cyberware, a weapon, or a stim from the Cyber-Vault first.");
   } else {
     const auto& info = get_item_info(item_id);
-    if (info.equip_slot == EquipSlot::None && info.heal_amount <= 0) {
+    if (equip_slot(info.category) == EquipSlot::None && info.heal_amount <= 0) {
       QMessageBox::information(
           &window, "Equip Item",
           QString("%1 cannot be equipped or loaded into the Stim-Injector.")

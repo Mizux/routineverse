@@ -165,24 +165,24 @@ void HistoryChartView::updateChart(const GameState& gameState) {
 
   std::vector<double> values;
   if (_item_idx == ITEM_CREDITS) {
-    for (long long v : gameState.credits_history) values.push_back(v);
+    for (long long v : gameState.history.credits) values.push_back(v);
     values.push_back(gameState.credits);
   } else if (_item_idx == ITEM_BANK_VALUE) {
-    for (long long v : gameState.bank_value_history) values.push_back(v);
+    for (long long v : gameState.history.bank_value) values.push_back(v);
     values.push_back(gameState.total_bank_value());
   } else if (_item_idx == ITEM_TOTAL_LEVEL) {
-    for (int v : gameState.total_level_history) values.push_back(v);
+    for (int v : gameState.history.total_level) values.push_back(v);
     values.push_back(gameState.total_skill_level());
   } else if (_item_idx == ITEM_TOTAL_XP) {
-    for (long long v : gameState.total_xp_history) values.push_back(v);
+    for (long long v : gameState.history.total_xp) values.push_back(v);
     values.push_back(gameState.total_skill_xp());
   } else if (_item_idx == ITEM_HP) {
-    for (int v : gameState.hp_history) values.push_back(v);
+    for (int v : gameState.history.hp) values.push_back(v);
     values.push_back(gameState.player_hp);
   } else {
     int s_idx =
         std::clamp(_item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
-    for (long long v : gameState.skill_xp_history[s_idx]) values.push_back(v);
+    for (long long v : gameState.history.skill_xp[s_idx]) values.push_back(v);
     values.push_back(gameState.xp[s_idx]);
   }
 
@@ -930,10 +930,10 @@ void MainWindow::_fillTreeviewBank() {
         money_string(static_cast<long long>(slot.qty) * info.price));
     if (info.heal_amount > 0) {
       extra += QString(" (+%1 HP)").arg(info.heal_amount);
-    } else if (info.equip_slot == EquipSlot::Weapon) {
-      extra += QString(" (+%1 Str)").arg(info.strength_bonus);
-    } else if (info.equip_slot != EquipSlot::None) {
-      extra += QString(" (%1% DR)").arg(info.damage_reduction);
+    } else if (equip_slot(info.category) == EquipSlot::Weapon) {
+      extra += QString(" (+%1 Str)").arg(info.bonus.strength);
+    } else if (equip_slot(info.category) != EquipSlot::None) {
+      extra += QString(" (%1% DR)").arg(info.bonus.damage_reduction);
     }
 
     item->setText(0, QString::fromUtf8(info.name));
@@ -1266,10 +1266,10 @@ void WindowEquipment::updateEquipmentUi() {
       _slot_labels[idx]->setText(
           QString("%1 (+%2 Atk, +%3 Str, +%4 Def, %5% DR)")
               .arg(info.name)
-              .arg(info.attack_bonus)
-              .arg(info.strength_bonus)
-              .arg(info.defence_bonus)
-              .arg(info.damage_reduction));
+              .arg(info.bonus.attack)
+              .arg(info.bonus.strength)
+              .arg(info.bonus.defence)
+              .arg(info.bonus.damage_reduction));
       _slot_buttons[idx]->setEnabled(true);
     } else {
       _slot_labels[idx]->setText("Empty");

@@ -8,12 +8,6 @@
 
 inline constexpr uint8_t MAX_HISTORY_POINTS = 60;
 
-enum class ActiveActivityType : uint8_t {
-  None,
-  Skill,
-  Combat,
-};
-
 // Skills
 inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 
@@ -76,6 +70,20 @@ enum class ItemCategory : uint8_t {
   CyberLoot,
 };
 std::string item_category_name(ItemCategory cat);
+inline constexpr EquipSlot equip_slot(ItemCategory cat) {
+  switch (cat) {
+    case ItemCategory::Weapon:
+      return EquipSlot::Weapon;
+    case ItemCategory::Visor:
+      return EquipSlot::Visor;
+    case ItemCategory::ExoSuit:
+      return EquipSlot::ExoSuit;
+    case ItemCategory::HoloShield:
+      return EquipSlot::HoloShield;
+    default:
+      return EquipSlot::None;
+  }
+}
 
 enum class ItemId : uint16_t {
   None,
@@ -230,20 +238,21 @@ inline constexpr bool is_valid_item(ItemId id) {
   return id == ItemId::None ? false: true;
 }
 
-//! @todo remove equip_slop since ItemCategory already have the information
-//! @todo move all bonus in a struct
+struct Bonus {
+  int attack = 0;            // Accuracy bonus
+  int strength = 0;          // Max hit bonus
+  int defence = 0;           // Evasion bonus
+  int damage_reduction = 0;  // Damage reduction %
+};
+
 struct ItemInfo {
   ItemId id;
   const char* name;
   ItemCategory category;
   int price;
-  int heal_amount;       // > 0 if usable stim/ration
-  EquipSlot equip_slot;  // Weapon, Visor, ExoSuit, HoloShield, or None
-  int req_level;         // Attack level for weapons, Defence level for cyber-armor
-  int attack_bonus;      // Accuracy bonus
-  int strength_bonus;    // Max hit bonus
-  int defence_bonus;     // Evasion bonus
-  int damage_reduction;  // Damage reduction %
+  int heal_amount;  // > 0 if usable stim/ration
+  int req_level;    // Attack level for weapons, Defence level for cyber-armor
+  Bonus bonus{};
 };
 extern const std::array<ItemInfo, ITEM_COUNT> item_info;
 inline const ItemInfo& get_item_info(ItemId id) {
@@ -324,6 +333,12 @@ int level_for_xp(uint64_t xp);
 double level_progress_ratio(uint64_t xp);
 
 std::vector<int> actions_for_skill(SkillType skill);
+
+enum class ActiveActivityType : uint8_t {
+  None,
+  Skill,
+  Combat,
+};
 
 class GameState {
  public:
@@ -457,13 +472,15 @@ class GameState {
   std::vector<std::string> game_log;
 
   // History for Charts
-  //! @todo use an History struct with all this fields
-  std::vector<uint64_t> credits_history;
-  std::vector<uint64_t> bank_value_history;
-  std::vector<int> total_level_history;
-  std::vector<uint64_t> total_xp_history;
-  std::vector<int> hp_history;
-  std::array<std::vector<uint64_t>, SKILL_COUNT> skill_xp_history{};
+  struct History {
+    std::vector<uint64_t> credits;
+    std::vector<uint64_t> bank_value;
+    std::vector<int> total_level;
+    std::vector<uint64_t> total_xp;
+    std::vector<int> hp;
+    std::array<std::vector<uint64_t>, SKILL_COUNT> skill_xp{};
+  };
+  History history;
 
  private:
   void complete_skill_action(int global_action_id);
