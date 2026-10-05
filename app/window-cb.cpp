@@ -60,9 +60,8 @@ void window_main_button_sell_clicked_cb(MainWindow& window) {
   auto& gs = window.gameState();
   ItemId item_id = window.selectedBankItemId();
   if (!is_valid_item(item_id)) {
-    QMessageBox::information(
-        &window, "Liquidate Item",
-        "Please select an item in the Cyber-Vault to sell.");
+    QMessageBox::information(&window, "Liquidate Item",
+                             "Please select an item in the Cyber-Vault to sell.");
     return;
   }
   int have = gs.item_qty(item_id);
@@ -75,13 +74,12 @@ void window_main_button_sell_clicked_cb(MainWindow& window) {
     return;
   }
 
-  QString msg =
-      QString("Liquidating %1 (%2 Cr each)\nYou have %3 in your Cyber-Vault.")
-          .arg(info.name)
-          .arg(info.price)
-          .arg(have);
-  WindowInput dlg("Liquidate Vault Item", msg, "Quantity to sell:", 1, have,
-                  have, &window);
+  QString msg = QString("Liquidating %1 (%2 Cr each)\nYou have %3 in your Cyber-Vault.")
+                    .arg(info.name)
+                    .arg(info.price)
+                    .arg(have);
+  WindowInput dlg("Liquidate Vault Item", msg, "Quantity to sell:", 1, have, have,
+                  &window);
   if (dlg.exec() == QDialog::Accepted) {
     gs.sell_item(item_id, dlg.value());
     window.updateAllUi();
@@ -106,8 +104,7 @@ void window_main_button_sell_all_clicked_cb(MainWindow& window) {
 
 void window_main_button_shop_clicked_cb(MainWindow& window) {
   WindowShop dlg(window.gameState(), &window);
-  QObject::connect(&dlg, &WindowShop::stateChanged, &window,
-                   &MainWindow::updateAllUi);
+  QObject::connect(&dlg, &WindowShop::stateChanged, &window, &MainWindow::updateAllUi);
   dlg.exec();
   window.updateAllUi();
 }
@@ -126,9 +123,8 @@ void window_main_button_bestiary_clicked_cb(MainWindow& window) {
 }
 
 void window_main_button_history_clicked_cb(MainWindow& window) {
-  int item_idx = window.statusChartView()
-                     ? window.statusChartView()->itemIndex()
-                     : HistoryChartView::ITEM_CREDITS;
+  int item_idx = window.statusChartView() ? window.statusChartView()->itemIndex()
+                                          : HistoryChartView::ITEM_CREDITS;
   WindowHistory dlg(window.gameState(), item_idx, &window);
   dlg.exec();
 }
@@ -151,9 +147,9 @@ void window_main_button_save_clicked_cb(MainWindow& window) {
     window.gameState().add_log(std::format("Neural state saved to {}.", path));
     window.updateAllUi();
   } else {
-    QMessageBox::warning(&window, "Save Error",
-                         QString("Failed to save game to %1")
-                             .arg(QString::fromStdString(path)));
+    QMessageBox::warning(
+        &window, "Save Error",
+        QString("Failed to save game to %1").arg(QString::fromStdString(path)));
   }
 }
 
@@ -162,9 +158,9 @@ void window_main_button_load_clicked_cb(MainWindow& window) {
   if (window.gameState().load_from_file(path)) {
     window.updateAllUi();
   } else {
-    QMessageBox::information(&window, "Load State",
-                             QString("No save file found at %1")
-                                 .arg(QString::fromStdString(path)));
+    QMessageBox::information(
+        &window, "Load State",
+        QString("No save file found at %1").arg(QString::fromStdString(path)));
   }
 }
 
@@ -183,23 +179,32 @@ void window_main_button_docs_clicked_cb(MainWindow& window) {
           "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
           "• Extraction Protocols:\n"
           "  - Salvaging: Strip wiring, plasteel, nanotubes, and AI mainframe cores.\n"
-          "  - Bio-Harvest: Culture synth-biota and recover submerged Corp data-caches.\n"
+          "  - Bio-Harvest: Culture synth-biota and recover submerged Corp "
+          "data-caches.\n"
           "  - Farming: Cultivate hydroponic crops (Hydro-Wheat, Soy, Scallions, Nori, "
-          "Bamboo, Shiitake, Plasma Chili, Chrono-Lotus, Quantum Truffle) & mill Synth-Noodles.\n"
+          "Bamboo, Shiitake, Plasma Chili, Chrono-Lotus, Quantum Truffle) & mill "
+          "Synth-Noodles.\n"
           "  - Deep-Mining: Extract industrial ores and rare Data Crystals.\n\n"
           "• Processing, Smithing & Cyber-Fab:\n"
-          "  - Recycling: Process tech scrap into Raw Materials (with Carbon Cell procs).\n"
-          "  - Synth-Cook: Prep Synth-Noodles, cook high-healing Cyber-Ramen bowls, and "
+          "  - Recycling: Process tech scrap into Raw Materials (with Carbon Cell "
+          "procs).\n"
+          "  - Synth-Cook: Prep Synth-Noodles, cook high-healing Cyber-Ramen bowls, "
+          "and "
           "synthesize raw biota into combat stims.\n"
-          "  - Smithing: Smelt ores into Alloy Ingots and forge Mono-Blades & Exo-Suits.\n"
-          "  - Cyber-Fab: Combine Alloy Ingots with Recycled Raw Materials to fabricate "
+          "  - Smithing: Smelt ores into Alloy Ingots and forge Mono-Blades & "
+          "Exo-Suits.\n"
+          "  - Cyber-Fab: Combine Alloy Ingots with Recycled Raw Materials to "
+          "fabricate "
           "Visors, Holo-Shields, and high-tier Data Crystals.\n\n"
           "• Combat & Bounty Hunting:\n"
-          "  - Equip fabricated weapons, cyber-armor, and stims from your Cyber-Vault.\n"
+          "  - Equip fabricated weapons, cyber-armor, and stims from your "
+          "Cyber-Vault.\n"
           "  - Choose your Combat Mode (Precision = Accuracy, Overdrive = "
           "Strength, Evasive = Defence).\n"
-          "  - Neutralize Bounty Contract targets to earn Bounty XP and Bounty Tokens.\n"
-          "  - Unlock the Auto-Stim Injector in the Cyber-Shop to automatically heal during "
+          "  - Neutralize Bounty Contract targets to earn Bounty XP and Bounty "
+          "Tokens.\n"
+          "  - Unlock the Auto-Stim Injector in the Cyber-Shop to automatically heal "
+          "during "
           "combat!\n\n"
           "• Time & Offline Simulation:\n"
           "  - Use +1m / +10m Fast-Forward buttons to simulate idle bursts at "
@@ -221,11 +226,10 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
       "Hostiles Neutralized: {}   |   Flatlines: {}\n"
       "NEXUS-9 (Mainframe Boss) Kills: {}\n"
       "Simulated Uptime: {}m {}s",
-      gs.combat_level(), gs.total_skill_level(),
-      SKILL_COUNT * MAX_SKILL_LEVEL, number_string(gs.total_skill_xp()),
-      money_string(gs.credits), money_string(gs.total_credits_earned),
-      money_string(gs.total_bank_value()), gs.used_bank_slots(),
-      gs.bank.capacity, number_string(gs.bounty_tokens),
+      gs.combat_level(), gs.total_skill_level(), SKILL_COUNT * MAX_SKILL_LEVEL,
+      number_string(gs.total_skill_xp()), money_string(gs.credits),
+      money_string(gs.total_credits_earned), money_string(gs.total_bank_value()),
+      gs.used_bank_slots(), gs.bank.capacity, number_string(gs.bounty_tokens),
       gs.bounties_completed, number_string(gs.total_items_gathered),
       number_string(gs.total_monsters_killed), gs.player_deaths,
       gs.monster_kills[MONSTER_COUNT - 1], minutes, seconds);

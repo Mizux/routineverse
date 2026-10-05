@@ -240,20 +240,8 @@ const ItemInfo& get_item_info(ItemId id) {
        {0, 0, 0, 0}},
 
       // Hydro-Farmed Crops & Synth-Noodles
-      {ItemId::HydroWheat,
-       "Hydro-Wheat",
-       ItemCategory::Crop,
-       4,
-       0,
-       1,
-       {0, 0, 0, 0}},
-      {ItemId::SoyPods,
-       "Synth-Soy Pods",
-       ItemCategory::Crop,
-       10,
-       0,
-       1,
-       {0, 0, 0, 0}},
+      {ItemId::HydroWheat, "Hydro-Wheat", ItemCategory::Crop, 4, 0, 1, {0, 0, 0, 0}},
+      {ItemId::SoyPods, "Synth-Soy Pods", ItemCategory::Crop, 10, 0, 1, {0, 0, 0, 0}},
       {ItemId::NeonScallion,
        "Neon Scallion",
        ItemCategory::Crop,
@@ -454,20 +442,8 @@ const ItemInfo& get_item_info(ItemId id) {
        {0, 0, 0, 0}},
 
       // Deep-Mined Ores & Cells
-      {ItemId::CopperOre,
-       "Copper Ore",
-       ItemCategory::RawOre,
-       4,
-       0,
-       1,
-       {0, 0, 0, 0}},
-      {ItemId::SiliconOre,
-       "Silicon Ore",
-       ItemCategory::RawOre,
-       4,
-       0,
-       1,
-       {0, 0, 0, 0}},
+      {ItemId::CopperOre, "Copper Ore", ItemCategory::RawOre, 4, 0, 1, {0, 0, 0, 0}},
+      {ItemId::SiliconOre, "Silicon Ore", ItemCategory::RawOre, 4, 0, 1, {0, 0, 0, 0}},
       {ItemId::TitaniumOre,
        "Titanium Ore",
        ItemCategory::RawOre,
@@ -475,34 +451,10 @@ const ItemInfo& get_item_info(ItemId id) {
        0,
        1,
        {0, 0, 0, 0}},
-      {ItemId::CarbonCell,
-       "Carbon Cell",
-       ItemCategory::RawOre,
-       18,
-       0,
-       1,
-       {0, 0, 0, 0}},
-      {ItemId::SilverOre,
-       "Silver Ore",
-       ItemCategory::RawOre,
-       30,
-       0,
-       1,
-       {0, 0, 0, 0}},
-      {ItemId::GoldOre,
-       "Gold Ore",
-       ItemCategory::RawOre,
-       50,
-       0,
-       1,
-       {0, 0, 0, 0}},
-      {ItemId::CobaltOre,
-       "Cobalt Ore",
-       ItemCategory::RawOre,
-       70,
-       0,
-       1,
-       {0, 0, 0, 0}},
+      {ItemId::CarbonCell, "Carbon Cell", ItemCategory::RawOre, 18, 0, 1, {0, 0, 0, 0}},
+      {ItemId::SilverOre, "Silver Ore", ItemCategory::RawOre, 30, 0, 1, {0, 0, 0, 0}},
+      {ItemId::GoldOre, "Gold Ore", ItemCategory::RawOre, 50, 0, 1, {0, 0, 0, 0}},
+      {ItemId::CobaltOre, "Cobalt Ore", ItemCategory::RawOre, 70, 0, 1, {0, 0, 0, 0}},
       {ItemId::TungstenOre,
        "Tungsten Ore",
        ItemCategory::RawOre,
@@ -1123,13 +1075,7 @@ const ItemInfo& get_item_info(ItemId id) {
        0,
        1,
        {0, 0, 0, 0}},
-      {ItemId::Microchip,
-       "Microchip",
-       ItemCategory::CyberLoot,
-       3,
-       0,
-       1,
-       {0, 0, 0, 0}},
+      {ItemId::Microchip, "Microchip", ItemCategory::CyberLoot, 3, 0, 1, {0, 0, 0, 0}},
       {ItemId::SynthWeaveHide,
        "Synth-Weave Hide",
        ItemCategory::CyberLoot,
@@ -1143,22 +1089,22 @@ const ItemInfo& get_item_info(ItemId id) {
 
 const std::vector<SkillAction> skill_actions = {
     // Salvaging
-    {SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15,
-     ItemId::CopperWireScrap, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15, ItemId::CopperWireScrap,
+     1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Salvage Plasteel Hull", 10, 3500, 30,
      ItemId::PlasteelShards, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55,
-     ItemId::CarbonNanotubes, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55, ItemId::CarbonNanotubes,
+     1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Splice Optic Fibers", 35, 4500, 85,
      ItemId::OpticFiberBundle, 1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Pull Positronic Relay", 45, 5000, 120,
      ItemId::PositronicRelays, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Salvaging, "Drain Cryo-Cell Rack", 55, 5500, 165,
-     ItemId::CryoCellCore, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Salvaging, "Tap Plasma Conduit", 60, 6000, 220,
-     ItemId::PlasmaConduit, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Salvaging, "Hack Quantum Node", 75, 7500, 340,
-     ItemId::QuantumNode, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Drain Cryo-Cell Rack", 55, 5500, 165, ItemId::CryoCellCore,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Tap Plasma Conduit", 60, 6000, 220, ItemId::PlasmaConduit,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Salvaging, "Hack Quantum Node", 75, 7500, 340, ItemId::QuantumNode, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Rip AI Mainframe Core", 90, 9000, 500,
      ItemId::AiMainframeCore, 1, ItemId::None, 0, ItemId::None, 0},
 
@@ -1167,66 +1113,66 @@ const std::vector<SkillAction> skill_actions = {
      ItemId::RawKrillBiomass, 1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::BioHarvest, "Net Neon Eel", 5, 3400, 24, ItemId::RawNeonEel, 1,
      ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55,
-     ItemId::RawSynthCarp, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Harvest Synth-Carp", 20, 4000, 55, ItemId::RawSynthCarp, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::BioHarvest, "Extract Chrome Salmon", 35, 4500, 90,
      ItemId::RawChromeSalmon, 1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::BioHarvest, "Trap Cyber-Lobster", 45, 5200, 135,
      ItemId::RawCyberLobster, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195,
-     ItemId::RawPlasmaRay, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310,
-     ItemId::RawApexShark, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Snare Plasma Ray", 55, 6000, 195, ItemId::RawPlasmaRay, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::BioHarvest, "Harpoon Apex Shark", 70, 7200, 310, ItemId::RawApexShark,
+     1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::BioHarvest, "Clone Leviathan Cell", 85, 8500, 480,
      ItemId::RawLeviathanCell, 1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::BioHarvest, "Dredge Cyber-Kraken", 95, 9500, 650,
      ItemId::RawCyberKraken, 1, ItemId::None, 0, ItemId::None, 0},
 
     // Farming - Hydroponic Crops & Noodle Milling
-    {SkillType::Farming, "Cultivate Hydro-Wheat", 1, 2800, 14,
-     ItemId::HydroWheat, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Mill Synth-Noodles", 3, 2200, 20,
-     ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
-    {SkillType::Farming, "Grow Synth-Soy Pods", 10, 3200, 28, ItemId::SoyPods,
-     1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Harvest Neon Scallion", 22, 3600, 55,
-     ItemId::NeonScallion, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Cultivate Hydro-Wheat", 1, 2800, 14, ItemId::HydroWheat, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Mill Synth-Noodles", 3, 2200, 20, ItemId::SynthNoodles, 2,
+     ItemId::HydroWheat, 1, ItemId::None, 0},
+    {SkillType::Farming, "Grow Synth-Soy Pods", 10, 3200, 28, ItemId::SoyPods, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Neon Scallion", 22, 3600, 55, ItemId::NeonScallion, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::Farming, "Culture Glow-Nori", 35, 4200, 92, ItemId::GlowNori, 1,
      ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Harvest Cyber-Bamboo", 48, 4800, 145,
-     ItemId::BioBamboo, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Grow Spore-Shiitake", 62, 5500, 215,
-     ItemId::CyberShiitake, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Cultivate Plasma Chili", 75, 6500, 330,
-     ItemId::PlasmaChili, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::Farming, "Harvest Chrono-Lotus", 86, 7600, 490,
-     ItemId::ChronoLotus, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Cyber-Bamboo", 48, 4800, 145, ItemId::BioBamboo, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Grow Spore-Shiitake", 62, 5500, 215, ItemId::CyberShiitake, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Cultivate Plasma Chili", 75, 6500, 330, ItemId::PlasmaChili,
+     1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::Farming, "Harvest Chrono-Lotus", 86, 7600, 490, ItemId::ChronoLotus, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::Farming, "Forage Quantum Truffle", 94, 8800, 660,
      ItemId::QuantumTruffle, 1, ItemId::None, 0, ItemId::None, 0},
 
     // Recycling - Transforming Scrap into Basic / Raw Materials
-    {SkillType::Recycling, "Recycle Copper Scrap", 1, 2200, 22,
-     ItemId::CopperFilament, 1, ItemId::CopperWireScrap, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Copper Scrap", 1, 2200, 22, ItemId::CopperFilament,
+     1, ItemId::CopperWireScrap, 1, ItemId::None, 0},
     {SkillType::Recycling, "Recycle Plasteel Shards", 10, 2400, 42,
      ItemId::PlasteelPolymer, 1, ItemId::PlasteelShards, 1, ItemId::None, 0},
-    {SkillType::Recycling, "Recycle Nanotubes", 25, 2600, 75,
-     ItemId::CarbonFiberWeave, 1, ItemId::CarbonNanotubes, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Nanotubes", 25, 2600, 75, ItemId::CarbonFiberWeave,
+     1, ItemId::CarbonNanotubes, 1, ItemId::None, 0},
     {SkillType::Recycling, "Recycle Optic Fibers", 35, 2800, 110,
      ItemId::OpticSilicaGlass, 1, ItemId::OpticFiberBundle, 1, ItemId::None, 0},
     {SkillType::Recycling, "Recycle Positronic Relay", 45, 3000, 155,
      ItemId::PositronicWafer, 1, ItemId::PositronicRelays, 1, ItemId::None, 0},
     {SkillType::Recycling, "Recycle Cryo-Cell Core", 55, 3200, 210,
      ItemId::CryoCoolantGel, 1, ItemId::CryoCellCore, 1, ItemId::None, 0},
-    {SkillType::Recycling, "Recycle Plasma Conduit", 60, 3500, 280,
-     ItemId::PlasmaCoil, 1, ItemId::PlasmaConduit, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle Plasma Conduit", 60, 3500, 280, ItemId::PlasmaCoil,
+     1, ItemId::PlasmaConduit, 1, ItemId::None, 0},
     {SkillType::Recycling, "Recycle Quantum Node", 75, 3800, 410,
      ItemId::QuantumLattice, 1, ItemId::QuantumNode, 1, ItemId::None, 0},
-    {SkillType::Recycling, "Recycle AI Mainframe", 90, 4200, 600,
-     ItemId::NeuralMatrix, 1, ItemId::AiMainframeCore, 1, ItemId::None, 0},
+    {SkillType::Recycling, "Recycle AI Mainframe", 90, 4200, 600, ItemId::NeuralMatrix,
+     1, ItemId::AiMainframeCore, 1, ItemId::None, 0},
 
     // Synth-Cook - Noodles, Cyber-Ramen & Biota Stims
-    {SkillType::SynthCook, "Prep Synth-Noodles", 1, 2200, 20,
-     ItemId::SynthNoodles, 2, ItemId::HydroWheat, 1, ItemId::None, 0},
+    {SkillType::SynthCook, "Prep Synth-Noodles", 1, 2200, 20, ItemId::SynthNoodles, 2,
+     ItemId::HydroWheat, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Synth Krill Ration (+30 HP)", 1, 2600, 18,
      ItemId::KrillRation, 1, ItemId::RawKrillBiomass, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Synth Neon Eel (+50 HP)", 5, 2800, 34,
@@ -1236,8 +1182,7 @@ const std::vector<SkillAction> skill_actions = {
     {SkillType::SynthCook, "Synth Carp Pack (+80 HP)", 20, 3000, 70,
      ItemId::SynthCarpPack, 1, ItemId::RawSynthCarp, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Scallion Ramen (+125 HP)", 22, 3000, 85,
-     ItemId::ScallionRamen, 1, ItemId::SynthNoodles, 1, ItemId::NeonScallion,
-     1},
+     ItemId::ScallionRamen, 1, ItemId::SynthNoodles, 1, ItemId::NeonScallion, 1},
     {SkillType::SynthCook, "Synth Salmon Stim (+110 HP)", 35, 3200, 115,
      ItemId::ChromeSalmonStim, 1, ItemId::RawChromeSalmon, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Nori Ramen (+195 HP)", 38, 3300, 150,
@@ -1249,68 +1194,63 @@ const std::vector<SkillAction> skill_actions = {
     {SkillType::SynthCook, "Synth Plasma Ray (+220 HP)", 55, 3600, 240,
      ItemId::PlasmaRayInfusion, 1, ItemId::RawPlasmaRay, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Shiitake Ramen (+390 HP)", 64, 3800, 310,
-     ItemId::ShiitakeRamen, 1, ItemId::SynthNoodles, 1, ItemId::CyberShiitake,
-     1},
+     ItemId::ShiitakeRamen, 1, ItemId::SynthNoodles, 1, ItemId::CyberShiitake, 1},
     {SkillType::SynthCook, "Synth Shark Boost (+320 HP)", 70, 3800, 360,
      ItemId::ApexSharkBooster, 1, ItemId::RawApexShark, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Plasma Chili Ramen (+540 HP)", 76, 4100, 440,
-     ItemId::PlasmaChiliRamen, 1, ItemId::SynthNoodles, 1, ItemId::PlasmaChili,
-     1},
+     ItemId::PlasmaChiliRamen, 1, ItemId::SynthNoodles, 1, ItemId::PlasmaChili, 1},
     {SkillType::SynthCook, "Synth Leviathan Med (+480 HP)", 85, 4200, 540,
      ItemId::LeviathanNanomed, 1, ItemId::RawLeviathanCell, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Chrono-Lotus Ramen (+720 HP)", 88, 4400, 620,
-     ItemId::ChronoLotusRamen, 1, ItemId::SynthNoodles, 1, ItemId::ChronoLotus,
-     1},
+     ItemId::ChronoLotusRamen, 1, ItemId::SynthNoodles, 1, ItemId::ChronoLotus, 1},
     {SkillType::SynthCook, "Cook Truffle Ramen (+860 HP)", 94, 4600, 780,
-     ItemId::TruffleRamen, 1, ItemId::SynthNoodles, 1, ItemId::QuantumTruffle,
-     1},
+     ItemId::TruffleRamen, 1, ItemId::SynthNoodles, 1, ItemId::QuantumTruffle, 1},
     {SkillType::SynthCook, "Synth Kraken Elixir (+680 HP)", 95, 4600, 720,
      ItemId::KrakenBioElixir, 1, ItemId::RawCyberKraken, 1, ItemId::None, 0},
     {SkillType::SynthCook, "Cook Kraken Ramen (+980 HP)", 97, 4800, 880,
-     ItemId::QuantumKrakenRamen, 1, ItemId::SynthNoodles, 1,
-     ItemId::RawCyberKraken, 1},
+     ItemId::QuantumKrakenRamen, 1, ItemId::SynthNoodles, 1, ItemId::RawCyberKraken, 1},
 
     // Deep-Mining
-    {SkillType::DeepMining, "Mine Copper Vein", 1, 2800, 14, ItemId::CopperOre,
-     1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Silicon Deposit", 1, 2800, 14,
-     ItemId::SiliconOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Titanium Seam", 15, 3200, 35,
-     ItemId::TitaniumOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Carbon Cell Bed", 30, 3500, 55,
-     ItemId::CarbonCell, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Silver Vein", 35, 3800, 75, ItemId::SilverOre,
-     1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Gold Deposit", 40, 4200, 105, ItemId::GoldOre,
-     1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Cobalt Node", 50, 4800, 150,
-     ItemId::CobaltOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Tungsten Core", 70, 5800, 230,
-     ItemId::TungstenOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Copper Vein", 1, 2800, 14, ItemId::CopperOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Silicon Deposit", 1, 2800, 14, ItemId::SiliconOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Titanium Seam", 15, 3200, 35, ItemId::TitaniumOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Carbon Cell Bed", 30, 3500, 55, ItemId::CarbonCell, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Silver Vein", 35, 3800, 75, ItemId::SilverOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Gold Deposit", 40, 4200, 105, ItemId::GoldOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Cobalt Node", 50, 4800, 150, ItemId::CobaltOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Tungsten Core", 70, 5800, 230, ItemId::TungstenOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::DeepMining, "Mine Neutronium Rift", 80, 7000, 350,
      ItemId::NeutroniumOre, 1, ItemId::None, 0, ItemId::None, 0},
-    {SkillType::DeepMining, "Mine Chrono-Crystal", 88, 7800, 480,
-     ItemId::ChronoOre, 1, ItemId::None, 0, ItemId::None, 0},
+    {SkillType::DeepMining, "Mine Chrono-Crystal", 88, 7800, 480, ItemId::ChronoOre, 1,
+     ItemId::None, 0, ItemId::None, 0},
     {SkillType::DeepMining, "Mine Quantum Singularity", 96, 9500, 700,
      ItemId::QuantumOre, 1, ItemId::None, 0, ItemId::None, 0},
 
     // Smithing - Smelting Alloy Ingots & Forging Gear
-    {SkillType::Smithing, "Smelt Scrap-Alloy Ingot", 1, 2200, 16,
-     ItemId::ScrapAlloy, 1, ItemId::CopperOre, 1, ItemId::SiliconOre, 1},
-    {SkillType::Smithing, "Forge Scrap Vibro-Knife", 1, 2500, 35,
-     ItemId::ScrapBlade, 1, ItemId::ScrapAlloy, 2, ItemId::None, 0},
-    {SkillType::Smithing, "Forge Scrap Exo-Harness", 5, 2800, 80,
-     ItemId::ScrapExoSuit, 1, ItemId::ScrapAlloy, 5, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Scrap-Alloy Ingot", 1, 2200, 16, ItemId::ScrapAlloy, 1,
+     ItemId::CopperOre, 1, ItemId::SiliconOre, 1},
+    {SkillType::Smithing, "Forge Scrap Vibro-Knife", 1, 2500, 35, ItemId::ScrapBlade, 1,
+     ItemId::ScrapAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Scrap Exo-Harness", 5, 2800, 80, ItemId::ScrapExoSuit,
+     1, ItemId::ScrapAlloy, 5, ItemId::None, 0},
 
-    {SkillType::Smithing, "Smelt Titanium Ingot", 15, 2400, 32,
-     ItemId::TitaniumAlloy, 1, ItemId::TitaniumOre, 1, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Titanium Ingot", 15, 2400, 32, ItemId::TitaniumAlloy,
+     1, ItemId::TitaniumOre, 1, ItemId::None, 0},
     {SkillType::Smithing, "Forge Titanium Mono-Blade", 15, 2600, 65,
      ItemId::TitaniumBlade, 1, ItemId::TitaniumAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Titanium Flak-Jacket", 20, 2900, 150,
      ItemId::TitaniumExoSuit, 1, ItemId::TitaniumAlloy, 5, ItemId::None, 0},
 
-    {SkillType::Smithing, "Smelt Durasteel Ingot", 30, 2600, 55,
-     ItemId::DurasteelAlloy, 1, ItemId::TitaniumOre, 1, ItemId::CarbonCell, 2},
+    {SkillType::Smithing, "Smelt Durasteel Ingot", 30, 2600, 55, ItemId::DurasteelAlloy,
+     1, ItemId::TitaniumOre, 1, ItemId::CarbonCell, 2},
     {SkillType::Smithing, "Forge Durasteel Katana", 30, 2800, 110,
      ItemId::DurasteelBlade, 1, ItemId::DurasteelAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Durasteel Exo-Rig", 36, 3100, 260,
@@ -1321,23 +1261,22 @@ const std::vector<SkillAction> skill_actions = {
     {SkillType::Smithing, "Smelt Gold Superconductor", 40, 2600, 95,
      ItemId::GoldSuperconductor, 1, ItemId::GoldOre, 1, ItemId::None, 0},
 
-    {SkillType::Smithing, "Smelt Cobalt Ingot", 50, 2800, 115,
-     ItemId::CobaltAlloy, 1, ItemId::CobaltOre, 1, ItemId::CarbonCell, 4},
-    {SkillType::Smithing, "Forge Cobalt Laser-Edge", 50, 3000, 220,
-     ItemId::CobaltBlade, 1, ItemId::CobaltAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Smelt Cobalt Ingot", 50, 2800, 115, ItemId::CobaltAlloy, 1,
+     ItemId::CobaltOre, 1, ItemId::CarbonCell, 4},
+    {SkillType::Smithing, "Forge Cobalt Laser-Edge", 50, 3000, 220, ItemId::CobaltBlade,
+     1, ItemId::CobaltAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Cobalt Subdermal Rig", 56, 3300, 520,
      ItemId::CobaltExoSuit, 1, ItemId::CobaltAlloy, 5, ItemId::None, 0},
 
-    {SkillType::Smithing, "Smelt Tungsten Ingot", 70, 3000, 175,
-     ItemId::TungstenAlloy, 1, ItemId::TungstenOre, 1, ItemId::CarbonCell, 6},
+    {SkillType::Smithing, "Smelt Tungsten Ingot", 70, 3000, 175, ItemId::TungstenAlloy,
+     1, ItemId::TungstenOre, 1, ItemId::CarbonCell, 6},
     {SkillType::Smithing, "Forge Tungsten Mantis-Blade", 70, 3200, 340,
      ItemId::TungstenBlade, 1, ItemId::TungstenAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Tungsten Power-Armor", 76, 3500, 820,
      ItemId::TungstenExoSuit, 1, ItemId::TungstenAlloy, 5, ItemId::None, 0},
 
     {SkillType::Smithing, "Smelt Neutronium Ingot", 80, 3200, 260,
-     ItemId::NeutroniumAlloy, 1, ItemId::NeutroniumOre, 1, ItemId::CarbonCell,
-     8},
+     ItemId::NeutroniumAlloy, 1, ItemId::NeutroniumOre, 1, ItemId::CarbonCell, 8},
     {SkillType::Smithing, "Forge Neutronium Saber", 80, 3400, 520,
      ItemId::NeutroniumBlade, 1, ItemId::NeutroniumAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Neutronium Nano-Suit", 85, 3700, 1250,
@@ -1352,78 +1291,65 @@ const std::vector<SkillAction> skill_actions = {
 
     {SkillType::Smithing, "Smelt Quantum-Flux Ingot", 95, 3800, 550,
      ItemId::QuantumAlloy, 1, ItemId::QuantumOre, 1, ItemId::ChronoOre, 2},
-    {SkillType::Smithing, "Forge Quantum Blade", 96, 4000, 1150,
-     ItemId::QuantumBlade, 1, ItemId::QuantumAlloy, 2, ItemId::None, 0},
+    {SkillType::Smithing, "Forge Quantum Blade", 96, 4000, 1150, ItemId::QuantumBlade,
+     1, ItemId::QuantumAlloy, 2, ItemId::None, 0},
     {SkillType::Smithing, "Forge Quantum Exo-Suit", 99, 4400, 2600,
      ItemId::QuantumExoSuit, 1, ItemId::QuantumAlloy, 5, ItemId::None, 0},
 
     // Cyber-Fab - Fabricating Visors, Holo-Shields & Tech Cores from Ingots +
     // Recycled Materials
-    {SkillType::CyberFab, "Fab Scrap Optic Visor", 1, 2500, 40,
-     ItemId::ScrapVisor, 1, ItemId::ScrapAlloy, 1, ItemId::CopperFilament, 1},
-    {SkillType::CyberFab, "Fab Scrap Riot Buckler", 3, 2600, 55,
-     ItemId::ScrapShield, 1, ItemId::ScrapAlloy, 2, ItemId::CopperFilament, 1},
+    {SkillType::CyberFab, "Fab Scrap Optic Visor", 1, 2500, 40, ItemId::ScrapVisor, 1,
+     ItemId::ScrapAlloy, 1, ItemId::CopperFilament, 1},
+    {SkillType::CyberFab, "Fab Scrap Riot Buckler", 3, 2600, 55, ItemId::ScrapShield, 1,
+     ItemId::ScrapAlloy, 2, ItemId::CopperFilament, 1},
 
-    {SkillType::CyberFab, "Fab Titanium HUD Visor", 15, 2600, 75,
-     ItemId::TitaniumVisor, 1, ItemId::TitaniumAlloy, 1,
-     ItemId::PlasteelPolymer, 1},
+    {SkillType::CyberFab, "Fab Titanium HUD Visor", 15, 2600, 75, ItemId::TitaniumVisor,
+     1, ItemId::TitaniumAlloy, 1, ItemId::PlasteelPolymer, 1},
     {SkillType::CyberFab, "Fab Titanium Deflector", 18, 2700, 105,
-     ItemId::TitaniumShield, 1, ItemId::TitaniumAlloy, 2,
-     ItemId::PlasteelPolymer, 1},
+     ItemId::TitaniumShield, 1, ItemId::TitaniumAlloy, 2, ItemId::PlasteelPolymer, 1},
 
     {SkillType::CyberFab, "Fab Durasteel Tac-Helm", 30, 2800, 125,
-     ItemId::DurasteelVisor, 1, ItemId::DurasteelAlloy, 1,
-     ItemId::CarbonFiberWeave, 1},
+     ItemId::DurasteelVisor, 1, ItemId::DurasteelAlloy, 1, ItemId::CarbonFiberWeave, 1},
     {SkillType::CyberFab, "Fab Durasteel Barrier", 34, 2900, 175,
-     ItemId::DurasteelShield, 1, ItemId::DurasteelAlloy, 2,
-     ItemId::CarbonFiberWeave, 1},
-    {SkillType::CyberFab, "Fab Amber Datachip", 38, 2700, 140,
-     ItemId::AmberDatachip, 1, ItemId::SilverConductor, 1,
-     ItemId::OpticSilicaGlass, 1},
-
-    {SkillType::CyberFab, "Fab Sapphire Cortex", 45, 2900, 190,
-     ItemId::SapphireCortex, 1, ItemId::GoldSuperconductor, 1,
-     ItemId::PositronicWafer, 1},
-    {SkillType::CyberFab, "Fab Cobalt Neural Visor", 50, 3000, 240,
-     ItemId::CobaltVisor, 1, ItemId::CobaltAlloy, 1, ItemId::PositronicWafer,
+     ItemId::DurasteelShield, 1, ItemId::DurasteelAlloy, 2, ItemId::CarbonFiberWeave,
      1},
-    {SkillType::CyberFab, "Fab Cobalt Holo-Aegis", 54, 3100, 340,
-     ItemId::CobaltShield, 1, ItemId::CobaltAlloy, 2, ItemId::CryoCoolantGel,
-     1},
+    {SkillType::CyberFab, "Fab Amber Datachip", 38, 2700, 140, ItemId::AmberDatachip, 1,
+     ItemId::SilverConductor, 1, ItemId::OpticSilicaGlass, 1},
 
-    {SkillType::CyberFab, "Fab Ruby Laser Core", 62, 3100, 290,
-     ItemId::RubyLaserCore, 1, ItemId::GoldSuperconductor, 1,
-     ItemId::PlasmaCoil, 1},
+    {SkillType::CyberFab, "Fab Sapphire Cortex", 45, 2900, 190, ItemId::SapphireCortex,
+     1, ItemId::GoldSuperconductor, 1, ItemId::PositronicWafer, 1},
+    {SkillType::CyberFab, "Fab Cobalt Neural Visor", 50, 3000, 240, ItemId::CobaltVisor,
+     1, ItemId::CobaltAlloy, 1, ItemId::PositronicWafer, 1},
+    {SkillType::CyberFab, "Fab Cobalt Holo-Aegis", 54, 3100, 340, ItemId::CobaltShield,
+     1, ItemId::CobaltAlloy, 2, ItemId::CryoCoolantGel, 1},
+
+    {SkillType::CyberFab, "Fab Ruby Laser Core", 62, 3100, 290, ItemId::RubyLaserCore,
+     1, ItemId::GoldSuperconductor, 1, ItemId::PlasmaCoil, 1},
     {SkillType::CyberFab, "Fab Tungsten Cyber-Helm", 70, 3200, 370,
      ItemId::TungstenVisor, 1, ItemId::TungstenAlloy, 1, ItemId::PlasmaCoil, 1},
     {SkillType::CyberFab, "Fab Tungsten Pulse-Shield", 74, 3300, 530,
-     ItemId::TungstenShield, 1, ItemId::TungstenAlloy, 2, ItemId::PlasmaCoil,
-     1},
+     ItemId::TungstenShield, 1, ItemId::TungstenAlloy, 2, ItemId::PlasmaCoil, 1},
 
     {SkillType::CyberFab, "Fab Emerald Cryptokey", 78, 3300, 450,
-     ItemId::EmeraldCryptokey, 1, ItemId::NeutroniumAlloy, 1,
-     ItemId::QuantumLattice, 1},
+     ItemId::EmeraldCryptokey, 1, ItemId::NeutroniumAlloy, 1, ItemId::QuantumLattice,
+     1},
     {SkillType::CyberFab, "Fab Neutronium Mind-Crown", 81, 3400, 560,
-     ItemId::NeutroniumVisor, 1, ItemId::NeutroniumAlloy, 1,
-     ItemId::QuantumLattice, 1},
+     ItemId::NeutroniumVisor, 1, ItemId::NeutroniumAlloy, 1, ItemId::QuantumLattice, 1},
     {SkillType::CyberFab, "Fab Neutronium Forcefield", 83, 3500, 800,
-     ItemId::NeutroniumShield, 1, ItemId::NeutroniumAlloy, 2,
-     ItemId::QuantumLattice, 1},
+     ItemId::NeutroniumShield, 1, ItemId::NeutroniumAlloy, 2, ItemId::QuantumLattice,
+     1},
 
-    {SkillType::CyberFab, "Fab Chrono-Sync Visor", 89, 3700, 820,
-     ItemId::ChronoVisor, 1, ItemId::ChronoAlloy, 1, ItemId::QuantumLattice, 1},
-    {SkillType::CyberFab, "Fab Quantum Diamond", 90, 3600, 700,
-     ItemId::QuantumDiamond, 1, ItemId::ChronoAlloy, 1, ItemId::NeuralMatrix,
-     1},
+    {SkillType::CyberFab, "Fab Chrono-Sync Visor", 89, 3700, 820, ItemId::ChronoVisor,
+     1, ItemId::ChronoAlloy, 1, ItemId::QuantumLattice, 1},
+    {SkillType::CyberFab, "Fab Quantum Diamond", 90, 3600, 700, ItemId::QuantumDiamond,
+     1, ItemId::ChronoAlloy, 1, ItemId::NeuralMatrix, 1},
     {SkillType::CyberFab, "Fab Chrono-Phase Barrier", 92, 3800, 1180,
-     ItemId::ChronoShield, 1, ItemId::ChronoAlloy, 2, ItemId::QuantumLattice,
-     1},
+     ItemId::ChronoShield, 1, ItemId::ChronoAlloy, 2, ItemId::QuantumLattice, 1},
 
     {SkillType::CyberFab, "Fab Quantum Tachyon Visor", 97, 4000, 1200,
      ItemId::QuantumVisor, 1, ItemId::QuantumAlloy, 1, ItemId::NeuralMatrix, 1},
-    {SkillType::CyberFab, "Fab Quantum Shield", 98, 4100, 1750,
-     ItemId::QuantumShield, 1, ItemId::QuantumAlloy, 2, ItemId::NeuralMatrix,
-     1},
+    {SkillType::CyberFab, "Fab Quantum Shield", 98, 4100, 1750, ItemId::QuantumShield,
+     1, ItemId::QuantumAlloy, 2, ItemId::NeuralMatrix, 1},
 };
 
 const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
@@ -1634,8 +1560,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades = {{
-    {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0,
-     ItemId::ScrapCutter},
+    {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0, ItemId::ScrapCutter},
     {1, "Titanium Cutter", "-6% Salvaging Interval", 10, 200, 6,
      ItemId::TitaniumCutter},
     {2, "Durasteel Cutter", "-12% Salvaging Interval", 25, 750, 12,
@@ -1651,25 +1576,23 @@ const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades = {{
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades = {{
-    {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0,
-     ItemId::ScrapHarvester},
+    {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0, ItemId::ScrapHarvester},
     {1, "Titanium Bio-Rig", "-6% Bio-Harvest/Farming Interval", 10, 200, 6,
      ItemId::TitaniumHarvester},
-    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest/Farming Interval", 25, 750,
-     12, ItemId::DurasteelHarvester},
-    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest/Farming Interval", 40, 2500,
-     18, ItemId::CobaltHarvester},
-    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest/Farming Interval", 55, 8000,
-     24, ItemId::TungstenHarvester},
-    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest/Farming Interval", 70,
-     25000, 30, ItemId::NeutroniumHarvester},
-    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest/Farming Interval", 85,
-     80000, 38, ItemId::ChronoHarvester},
+    {2, "Durasteel Bio-Sampler", "-12% Bio-Harvest/Farming Interval", 25, 750, 12,
+     ItemId::DurasteelHarvester},
+    {3, "Cobalt Gene-Extractor", "-18% Bio-Harvest/Farming Interval", 40, 2500, 18,
+     ItemId::CobaltHarvester},
+    {4, "Tungsten Drone-Trawler", "-24% Bio-Harvest/Farming Interval", 55, 8000, 24,
+     ItemId::TungstenHarvester},
+    {5, "Neutronium Bio-Harvester", "-30% Bio-Harvest/Farming Interval", 70, 25000, 30,
+     ItemId::NeutroniumHarvester},
+    {6, "Chrono Stasis-Harvester", "-38% Bio-Harvest/Farming Interval", 85, 80000, 38,
+     ItemId::ChronoHarvester},
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades = {{
-    {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0,
-     ItemId::ScrapDrill},
+    {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0, ItemId::ScrapDrill},
     {1, "Titanium Impact Drill", "-6% Deep-Mining Interval", 10, 200, 6,
      ItemId::TitaniumDrill},
     {2, "Durasteel Sonic Drill", "-12% Deep-Mining Interval", 25, 750, 12,
@@ -1685,32 +1608,29 @@ const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades = {{
 }};
 
 const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades = {{
-    {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0,
-     ItemId::BasicReactor},
-    {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP",
-     10, 250, 5, ItemId::PlasteelReactor},
-    {2, "Nanotube Induction Core",
-     "-10% Recycling/Synth-Cook Interval & +10% XP", 25, 900, 10,
-     ItemId::NanotubeReactor},
-    {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP",
-     45, 3000, 15, ItemId::PositronicReactor},
-    {4, "Plasma Fusion Furnace", "-20% Recycling/Synth-Cook Interval & +20% XP",
-     60, 10000, 20, ItemId::PlasmaReactor},
-    {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP",
-     75, 30000, 26, ItemId::QuantumReactor},
-    {6, "AI Mainframe Reactor", "-34% Recycling/Synth-Cook Interval & +34% XP",
-     90, 95000, 34, ItemId::MainframeReactor},
+    {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0, ItemId::BasicReactor},
+    {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP", 10, 250,
+     5, ItemId::PlasteelReactor},
+    {2, "Nanotube Induction Core", "-10% Recycling/Synth-Cook Interval & +10% XP", 25,
+     900, 10, ItemId::NanotubeReactor},
+    {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP", 45, 3000,
+     15, ItemId::PositronicReactor},
+    {4, "Plasma Fusion Furnace", "-20% Recycling/Synth-Cook Interval & +20% XP", 60,
+     10000, 20, ItemId::PlasmaReactor},
+    {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP", 75, 30000,
+     26, ItemId::QuantumReactor},
+    {6, "AI Mainframe Reactor", "-34% Recycling/Synth-Cook Interval & +34% XP", 90,
+     95000, 34, ItemId::MainframeReactor},
 }};
 
 const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades = {{
-    {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0,
-     ItemId::None},
-    {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500,
-     25, ItemId::AutoStimMk1},
-    {2, "Auto-Stim — Mk II", "Auto-injects equipped stim below 40% HP", 1,
-     12000, 40, ItemId::AutoStimMk2},
-    {3, "Auto-Stim — Mk III", "Auto-injects equipped stim below 55% HP", 1,
-     50000, 55, ItemId::AutoStimMk3},
+    {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0, ItemId::None},
+    {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500, 25,
+     ItemId::AutoStimMk1},
+    {2, "Auto-Stim — Mk II", "Auto-injects equipped stim below 40% HP", 1, 12000, 40,
+     ItemId::AutoStimMk2},
+    {3, "Auto-Stim — Mk III", "Auto-injects equipped stim below 55% HP", 1, 50000, 55,
+     ItemId::AutoStimMk3},
 }};
 
 std::string skill_name(SkillType skill) {
@@ -1854,19 +1774,17 @@ std::string item_equip_summary(ItemId id) {
     case ItemCategory::Cutter:
     case ItemCategory::Harvester:
     case ItemCategory::Drill:
-      return std::format("{} (-{}% Cycle)", info.name,
-                         info.bonus.speed_bonus_pct);
+      return std::format("{} (-{}% Cycle)", info.name, info.bonus.speed_bonus_pct);
     case ItemCategory::Reactor:
       return std::format("{} (-{}% Cycle, +{}% XP)", info.name,
-                         info.bonus.speed_bonus_pct,
-                         info.bonus.speed_bonus_pct);
+                         info.bonus.speed_bonus_pct, info.bonus.speed_bonus_pct);
     case ItemCategory::AutoStim:
       return std::format("{} (Auto-Stim <= {}% HP)", info.name,
                          info.bonus.speed_bonus_pct);
     default:
       return std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
-                         info.bonus.attack, info.bonus.strength,
-                         info.bonus.defence, info.bonus.damage_reduction);
+                         info.bonus.attack, info.bonus.strength, info.bonus.defence,
+                         info.bonus.damage_reduction);
   }
 }
 
@@ -1882,9 +1800,7 @@ std::string combat_style_name(CombatStyle style) {
   return "Unknown";
 }
 
-std::string money_string(uint64_t value) {
-  return number_string(value) + " Cr";
-}
+std::string money_string(uint64_t value) { return number_string(value) + " Cr"; }
 
 std::string number_string(uint64_t value) {
   std::string raw = std::to_string(value);
@@ -1919,9 +1835,9 @@ double level_progress_ratio(uint64_t xp) {
   uint64_t cur_base = xp_for_level(lvl);
   uint64_t next_base = xp_for_level(lvl + 1);
   if (next_base <= cur_base) return 1.0;
-  return std::clamp(static_cast<double>(xp - cur_base) /
-                        static_cast<double>(next_base - cur_base),
-                    0.0, 1.0);
+  return std::clamp(
+      static_cast<double>(xp - cur_base) / static_cast<double>(next_base - cur_base),
+      0.0, 1.0);
 }
 
 std::vector<int> actions_for_skill(SkillType skill) {
@@ -1935,17 +1851,17 @@ std::vector<int> actions_for_skill(SkillType skill) {
 std::string action_recipe(const SkillAction& act) {
   std::string io_str;
   if (is_valid_item(act.input_item_1)) {
-    io_str += std::format("{}x{}", act.input_qty_1,
-                          get_item_info(act.input_item_1).name);
+    io_str +=
+        std::format("{}x{}", act.input_qty_1, get_item_info(act.input_item_1).name);
   }
   if (is_valid_item(act.input_item_2)) {
-    io_str += std::format("+{}x{}", act.input_qty_2,
-                          get_item_info(act.input_item_2).name);
+    io_str +=
+        std::format("+{}x{}", act.input_qty_2, get_item_info(act.input_item_2).name);
   }
   if (is_valid_item(act.product_item)) {
     if (!io_str.empty()) io_str += " -> ";
-    io_str += std::format("{}x{}", act.product_qty,
-                          get_item_info(act.product_item).name);
+    io_str +=
+        std::format("{}x{}", act.product_qty, get_item_info(act.product_item).name);
   } else if (io_str.empty()) {
     io_str = "XP+Cell+Cr";
   }
@@ -2030,8 +1946,7 @@ void GameState::new_game() {
 void GameState::add_log(const std::string& entry) {
   game_log.push_back(entry);
   if (game_log.size() > 120) {
-    game_log.erase(game_log.begin(),
-                   game_log.begin() + (game_log.size() - 120));
+    game_log.erase(game_log.begin(), game_log.begin() + (game_log.size() - 120));
   }
 }
 
@@ -2096,8 +2011,7 @@ int GameState::mastery_level(int global_action_id) const {
 
 namespace {
 template <size_t N>
-int find_upgrade_tier(const std::array<ShopUpgradeInfo, N>& upgrades,
-                      ItemId id) {
+int find_upgrade_tier(const std::array<ShopUpgradeInfo, N>& upgrades, ItemId id) {
   if (!is_valid_item(id)) return 0;
   for (size_t i = 0; i < N; ++i) {
     if (upgrades[i].item_id == id) return static_cast<int>(upgrades[i].tier);
@@ -2107,13 +2021,11 @@ int find_upgrade_tier(const std::array<ShopUpgradeInfo, N>& upgrades,
 }  // namespace
 
 int GameState::cutter_tier() const {
-  return find_upgrade_tier(cutter_upgrades,
-                           equipped_items.at(EquipSlot::Cutter));
+  return find_upgrade_tier(cutter_upgrades, equipped_items.at(EquipSlot::Cutter));
 }
 
 int GameState::harvester_tier() const {
-  return find_upgrade_tier(harvester_upgrades,
-                           equipped_items.at(EquipSlot::Harvester));
+  return find_upgrade_tier(harvester_upgrades, equipped_items.at(EquipSlot::Harvester));
 }
 
 int GameState::drill_tier() const {
@@ -2121,13 +2033,11 @@ int GameState::drill_tier() const {
 }
 
 int GameState::reactor_tier() const {
-  return find_upgrade_tier(reactor_upgrades,
-                           equipped_items.at(EquipSlot::Reactor));
+  return find_upgrade_tier(reactor_upgrades, equipped_items.at(EquipSlot::Reactor));
 }
 
 int GameState::auto_stim_tier() const {
-  return find_upgrade_tier(auto_stim_upgrades,
-                           equipped_items.at(EquipSlot::AutoStim));
+  return find_upgrade_tier(auto_stim_upgrades, equipped_items.at(EquipSlot::AutoStim));
 }
 
 int GameState::action_effective_interval_ms(int global_action_id) const {
@@ -2174,12 +2084,10 @@ bool GameState::can_perform_action(int global_action_id) const {
   }
   const auto& act = skill_actions[global_action_id];
   if (skill_level(act.skill) < act.req_level) return false;
-  if (is_valid_item(act.input_item_1) &&
-      item_qty(act.input_item_1) < act.input_qty_1) {
+  if (is_valid_item(act.input_item_1) && item_qty(act.input_item_1) < act.input_qty_1) {
     return false;
   }
-  if (is_valid_item(act.input_item_2) &&
-      item_qty(act.input_item_2) < act.input_qty_2) {
+  if (is_valid_item(act.input_item_2) && item_qty(act.input_item_2) < act.input_qty_2) {
     return false;
   }
   return true;
@@ -2192,22 +2100,21 @@ bool GameState::start_skill_action(int global_action_id) {
   }
   const auto& act = skill_actions[global_action_id];
   if (skill_level(act.skill) < act.req_level) {
-    add_log(std::format("Requires {} Level {} to execute {}.",
-                        skill_name(act.skill), act.req_level, act.name));
+    add_log(std::format("Requires {} Level {} to execute {}.", skill_name(act.skill),
+                        act.req_level, act.name));
     return false;
   }
   if (!can_perform_action(global_action_id)) {
     std::string req_str;
     if (is_valid_item(act.input_item_1)) {
-      req_str = std::format("{}x {}", act.input_qty_1,
-                            get_item_info(act.input_item_1).name);
+      req_str =
+          std::format("{}x {}", act.input_qty_1, get_item_info(act.input_item_1).name);
     }
     if (is_valid_item(act.input_item_2)) {
       req_str += std::format(" + {}x {}", act.input_qty_2,
                              get_item_info(act.input_item_2).name);
     }
-    add_log(
-        std::format("Missing components for {}: need {}.", act.name, req_str));
+    add_log(std::format("Missing components for {}: need {}.", act.name, req_str));
     return false;
   }
 
@@ -2216,8 +2123,8 @@ bool GameState::start_skill_action(int global_action_id) {
   active_progress_ms = 0;
   active_target_ms = action_effective_interval_ms(global_action_id);
   status_banner = std::format("{} ({})", act.name, skill_name(act.skill));
-  add_log(std::format("Started {} ({:.2f}s cycle).", act.name,
-                      active_target_ms / 1000.0));
+  add_log(
+      std::format("Started {} ({:.2f}s cycle).", act.name, active_target_ms / 1000.0));
   return true;
 }
 
@@ -2234,8 +2141,8 @@ bool GameState::start_combat(int monster_id) {
   monster_hp = mon.max_hp;
   player_attack_timer_ms = 0;
   monster_attack_timer_ms = 0;
-  status_banner = std::format("Engaging {} (Lv {}) in {}", mon.name,
-                              mon.combat_level, mon.zone_name);
+  status_banner = std::format("Engaging {} (Lv {}) in {}", mon.name, mon.combat_level,
+                              mon.zone_name);
   add_log(std::format("Engaged hostile {} ({} HP) in {}.", mon.name, mon.max_hp,
                       mon.zone_name));
   return true;
@@ -2312,8 +2219,7 @@ void GameState::complete_skill_action(int global_action_id) {
       get_item_info(act.product_item).heal_amount > 0) {
     // Synthesis success chance (75% base + mastery/level bonus up to 99%)
     int cook_chance = std::min(
-        99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 +
-                m_lvl / 4);
+        99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 + m_lvl / 4);
     if (rand_int(1, 100) <= cook_chance) {
       add_item(act.product_item, qty, false);
       total_items_gathered += qty;
@@ -2336,8 +2242,7 @@ void GameState::complete_skill_action(int global_action_id) {
     }
     credits += 2 + act.req_level / 5;
     total_credits_earned += 2 + act.req_level / 5;
-  } else if (act.skill == SkillType::Farming &&
-             !is_valid_item(act.input_item_1)) {
+  } else if (act.skill == SkillType::Farming && !is_valid_item(act.input_item_1)) {
     // 20% chance to harvest bonus Hydro-Wheat alongside hydroponic crops!
     if (rand_int(1, 100) <= 20) {
       add_item(ItemId::HydroWheat, 1, false);
@@ -2345,8 +2250,8 @@ void GameState::complete_skill_action(int global_action_id) {
   } else if (act.skill == SkillType::DeepMining) {
     // 8% chance to unearth a rare Data Crystal while deep-mining!
     if (rand_int(1, 100) <= 8) {
-      auto gem_id = static_cast<ItemId>(
-          static_cast<int>(ItemId::AmberDatachip) + rand_int(0, 4));
+      auto gem_id =
+          static_cast<ItemId>(static_cast<int>(ItemId::AmberDatachip) + rand_int(0, 4));
       if (add_item(gem_id, 1, false)) {
         add_log(std::format("While deep-mining, you extracted a rare {}!",
                             get_item_info(gem_id).name));
@@ -2528,11 +2433,11 @@ void GameState::on_monster_defeated(int monster_id) {
   }
 
   if (loot_str.empty()) {
-    add_log(std::format("Neutralized {}! Siphoned {}.", mon.name,
-                        money_string(cr_drop)));
+    add_log(
+        std::format("Neutralized {}! Siphoned {}.", mon.name, money_string(cr_drop)));
   } else {
-    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.",
-                        mon.name, money_string(cr_drop), loot_str));
+    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.", mon.name,
+                        money_string(cr_drop), loot_str));
   }
 
   // Respawn monster
@@ -2559,17 +2464,15 @@ void GameState::assign_new_bounty_contract() {
   int c_lvl = combat_level();
   for (int i = 0; i < MONSTER_COUNT; ++i) {
     if (monster_info[i].bounty_req <= b_lvl &&
-        monster_info[i].combat_level <= c_lvl + 15 &&
-        !monster_info[i].is_boss) {
+        monster_info[i].combat_level <= c_lvl + 15 && !monster_info[i].is_boss) {
       eligible.push_back(i);
     }
   }
   if (eligible.empty()) eligible.push_back(0);
-  bounty_target_id =
-      eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
+  bounty_target_id = eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
   bounty_remaining = rand_int(6, 15);
-  add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
-                      bounty_remaining, monster_info[bounty_target_id].name,
+  add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).", bounty_remaining,
+                      monster_info[bounty_target_id].name,
                       monster_info[bounty_target_id].zone_name));
 }
 
@@ -2643,14 +2546,13 @@ bool GameState::can_store_item(ItemId item_id) const {
 bool GameState::add_item(ItemId item_id, int qty, bool log_drop) {
   if (!is_valid_item(item_id) || qty <= 0) return false;
   if (!bank.add_item(item_id, qty)) {
-    add_log(std::format("Cyber-Vault is full ({}/{})! Could not store {}!",
-                        bank.size(), bank.capacity,
-                        get_item_info(item_id).name));
+    add_log(std::format("Cyber-Vault is full ({}/{})! Could not store {}!", bank.size(),
+                        bank.capacity, get_item_info(item_id).name));
     return false;
   }
   if (log_drop) {
-    add_log(std::format("Stored {}x {} in Cyber-Vault.", qty,
-                        get_item_info(item_id).name));
+    add_log(
+        std::format("Stored {}x {} in Cyber-Vault.", qty, get_item_info(item_id).name));
   }
   return true;
 }
@@ -2668,8 +2570,8 @@ bool GameState::sell_item(ItemId item_id, int qty) {
   remove_item(item_id, sell_q);
   credits += value;
   total_credits_earned += value;
-  add_log(std::format("Liquidated {}x {} for {}.", sell_q,
-                      get_item_info(item_id).name, money_string(value)));
+  add_log(std::format("Liquidated {}x {} for {}.", sell_q, get_item_info(item_id).name,
+                      money_string(value)));
   return true;
 }
 
@@ -2706,8 +2608,8 @@ bool GameState::equip_item(ItemId item_id) {
   switch (slot) {
     case EquipSlot::Weapon:
       if (skill_level(SkillType::Attack) < info.req_level) {
-        add_log(std::format("Requires Attack Level {} to equip {}.",
-                            info.req_level, info.name));
+        add_log(std::format("Requires Attack Level {} to equip {}.", info.req_level,
+                            info.name));
         return false;
       }
       break;
@@ -2715,24 +2617,23 @@ bool GameState::equip_item(ItemId item_id) {
     case EquipSlot::Armor:
     case EquipSlot::Shield:
       if (skill_level(SkillType::Defence) < info.req_level) {
-        add_log(std::format("Requires Defence Level {} to equip {}.",
-                            info.req_level, info.name));
+        add_log(std::format("Requires Defence Level {} to equip {}.", info.req_level,
+                            info.name));
         return false;
       }
       break;
     case EquipSlot::Cutter:
       if (skill_level(SkillType::Salvaging) < info.req_level) {
-        add_log(std::format("Requires Salvaging Level {} to equip {}.",
-                            info.req_level, info.name));
+        add_log(std::format("Requires Salvaging Level {} to equip {}.", info.req_level,
+                            info.name));
         return false;
       }
       break;
     case EquipSlot::Harvester:
       if (std::max(skill_level(SkillType::BioHarvest),
                    skill_level(SkillType::Farming)) < info.req_level) {
-        add_log(
-            std::format("Requires Bio-Harvest or Farming Level {} to equip {}.",
-                        info.req_level, info.name));
+        add_log(std::format("Requires Bio-Harvest or Farming Level {} to equip {}.",
+                            info.req_level, info.name));
         return false;
       }
       break;
@@ -2746,9 +2647,8 @@ bool GameState::equip_item(ItemId item_id) {
     case EquipSlot::Reactor:
       if (std::max(skill_level(SkillType::Recycling),
                    skill_level(SkillType::SynthCook)) < info.req_level) {
-        add_log(std::format(
-            "Requires Recycling or Synth-Cook Level {} to equip {}.",
-            info.req_level, info.name));
+        add_log(std::format("Requires Recycling or Synth-Cook Level {} to equip {}.",
+                            info.req_level, info.name));
         return false;
       }
       break;
@@ -2765,8 +2665,7 @@ bool GameState::equip_item(ItemId item_id) {
     add_item(old_item, 1, false);
   }
   equipped_items[slot] = item_id;
-  add_log(std::format("Installed {} in {} slot.", info.name,
-                      equip_slot_name(slot)));
+  add_log(std::format("Installed {} in {} slot.", info.name, equip_slot_name(slot)));
   return true;
 }
 
@@ -2794,8 +2693,8 @@ bool GameState::equip_food(ItemId item_id) {
   if (equipped_food_item == item_id) {
     remove_item(item_id, have);
     equipped_food_qty += have;
-    add_log(std::format("Loaded {}x {} into Stim-Injector ({} total).", have,
-                        info.name, equipped_food_qty));
+    add_log(std::format("Loaded {}x {} into Stim-Injector ({} total).", have, info.name,
+                        equipped_food_qty));
     return true;
   }
 
@@ -2810,8 +2709,8 @@ bool GameState::equip_food(ItemId item_id) {
   remove_item(item_id, have);
   equipped_food_item = item_id;
   equipped_food_qty = have;
-  add_log(std::format("Loaded {}x {} (+{} HP each).", have, info.name,
-                      info.heal_amount));
+  add_log(
+      std::format("Loaded {}x {} (+{} HP each).", have, info.name, info.heal_amount));
   return true;
 }
 
@@ -2840,8 +2739,8 @@ bool GameState::eat_food() {
 void GameState::check_auto_eat() {
   if (auto_stim_tier() <= 0) return;
   int threshold = auto_eat_threshold_hp();
-  while (player_hp > 0 && player_hp <= threshold &&
-         is_valid_item(equipped_food_item) && equipped_food_qty > 0) {
+  while (player_hp > 0 && player_hp <= threshold && is_valid_item(equipped_food_item) &&
+         equipped_food_qty > 0) {
     int heal = get_item_info(equipped_food_item).heal_amount;
     equipped_food_qty--;
     player_hp = std::min(max_hp(), player_hp + heal);
@@ -2852,17 +2751,15 @@ void GameState::check_auto_eat() {
   }
 }
 
-uint64_t GameState::next_bank_slot_cost() const {
-  return bank.next_slot_cost();
-}
+uint64_t GameState::next_bank_slot_cost() const { return bank.next_slot_cost(); }
 
 bool GameState::buy_cutter_upgrade() {
   int cur_t = cutter_tier();
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = cutter_upgrades[cur_t + 1];
   if (skill_level(SkillType::Salvaging) < upg.req_skill_level) {
-    add_log(std::format("Requires Salvaging Level {} to buy {}.",
-                        upg.req_skill_level, upg.name));
+    add_log(std::format("Requires Salvaging Level {} to buy {}.", upg.req_skill_level,
+                        upg.name));
     return false;
   }
   if (credits < upg.cost_credits) {
@@ -2872,8 +2769,7 @@ bool GameState::buy_cutter_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Cutter] = upg.item_id;
-  add_log(
-      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
+  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2881,8 +2777,8 @@ bool GameState::buy_harvester_upgrade() {
   int cur_t = harvester_tier();
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = harvester_upgrades[cur_t + 1];
-  if (std::max(skill_level(SkillType::BioHarvest),
-               skill_level(SkillType::Farming)) < upg.req_skill_level) {
+  if (std::max(skill_level(SkillType::BioHarvest), skill_level(SkillType::Farming)) <
+      upg.req_skill_level) {
     add_log(std::format("Requires Bio-Harvest or Farming Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
@@ -2894,8 +2790,7 @@ bool GameState::buy_harvester_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Harvester] = upg.item_id;
-  add_log(
-      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
+  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2904,8 +2799,8 @@ bool GameState::buy_drill_upgrade() {
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = drill_upgrades[cur_t + 1];
   if (skill_level(SkillType::DeepMining) < upg.req_skill_level) {
-    add_log(std::format("Requires Deep-Mining Level {} to buy {}.",
-                        upg.req_skill_level, upg.name));
+    add_log(std::format("Requires Deep-Mining Level {} to buy {}.", upg.req_skill_level,
+                        upg.name));
     return false;
   }
   if (credits < upg.cost_credits) {
@@ -2915,8 +2810,7 @@ bool GameState::buy_drill_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Drill] = upg.item_id;
-  add_log(
-      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
+  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2925,8 +2819,8 @@ bool GameState::buy_reactor_upgrade() {
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = reactor_upgrades[cur_t + 1];
   if (skill_level(SkillType::Recycling) < upg.req_skill_level) {
-    add_log(std::format("Requires Recycling Level {} to buy {}.",
-                        upg.req_skill_level, upg.name));
+    add_log(std::format("Requires Recycling Level {} to buy {}.", upg.req_skill_level,
+                        upg.name));
     return false;
   }
   if (credits < upg.cost_credits) {
@@ -2936,8 +2830,7 @@ bool GameState::buy_reactor_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::Reactor] = upg.item_id;
-  add_log(
-      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
+  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2952,8 +2845,7 @@ bool GameState::buy_auto_stim_upgrade() {
   }
   credits -= upg.cost_credits;
   equipped_items[EquipSlot::AutoStim] = upg.item_id;
-  add_log(
-      std::format("Purchased & installed {} ({})!", upg.name, upg.description));
+  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
@@ -2966,9 +2858,8 @@ bool GameState::buy_bank_slot() {
   }
   credits -= cost;
   bank.capacity += 4;
-  add_log(
-      std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
-                  bank.capacity));
+  add_log(std::format("Purchased +4 Vault Slots! Cyber-Vault capacity is now {}.",
+                      bank.capacity));
   return true;
 }
 
@@ -3069,8 +2960,7 @@ bool GameState::save_to_file(const std::string& path) const {
   }
   out << action_mastery_xp.size() << "\n";
   for (size_t i = 0; i < action_mastery_xp.size(); ++i) {
-    out << action_mastery_xp[i]
-        << (i + 1 == action_mastery_xp.size() ? "\n" : " ");
+    out << action_mastery_xp[i] << (i + 1 == action_mastery_xp.size() ? "\n" : " ");
   }
   out << bank.capacity << " " << bank.size() << "\n";
   for (const auto& s : bank) {
@@ -3080,13 +2970,12 @@ bool GameState::save_to_file(const std::string& path) const {
     auto slot = static_cast<EquipSlot>(i);
     out << static_cast<int>(equipped_items.at(slot)) << " ";
   }
-  out << static_cast<int>(equipped_food_item) << " " << equipped_food_qty
-      << "\n";
+  out << static_cast<int>(equipped_food_item) << " " << equipped_food_qty << "\n";
   out << static_cast<int>(active_type) << " " << active_action_id << " "
       << active_monster_id << " " << player_hp << " " << monster_hp << " "
       << static_cast<int>(combat_style) << "\n";
-  out << bounty_target_id << " " << bounty_remaining << " "
-      << bounties_completed << "\n";
+  out << bounty_target_id << " " << bounty_remaining << " " << bounties_completed
+      << "\n";
   out << total_items_gathered << " " << total_monsters_killed << " "
       << total_credits_earned << " " << player_deaths << "\n";
   return out.good();
@@ -3141,8 +3030,8 @@ bool GameState::load_from_file(const std::string& path) {
     auto food_id = static_cast<ItemId>(raw_food_id);
     equipped_food_item = is_valid_item(food_id) ? food_id : ItemId::None;
   } else {
-    for (const auto& slot : {EquipSlot::Weapon, EquipSlot::Head,
-                             EquipSlot::Armor, EquipSlot::Shield}) {
+    for (const auto& slot :
+         {EquipSlot::Weapon, EquipSlot::Head, EquipSlot::Armor, EquipSlot::Shield}) {
       int raw_id = -1;
       in >> raw_id;
       auto id = static_cast<ItemId>(raw_id);
@@ -3165,14 +3054,13 @@ bool GameState::load_from_file(const std::string& path) {
     equipped_items[EquipSlot::Reactor] =
         reactor_upgrades[std::clamp(r_t, 0, TOOL_TIER_COUNT - 1)].item_id;
     equipped_items[EquipSlot::AutoStim] =
-        auto_stim_upgrades[std::clamp(a_t, 0, AUTO_STIM_TIER_COUNT - 1)]
-            .item_id;
+        auto_stim_upgrades[std::clamp(a_t, 0, AUTO_STIM_TIER_COUNT - 1)].item_id;
   }
 
   int act_t = 0;
   int style_t = 0;
-  in >> act_t >> active_action_id >> active_monster_id >> player_hp >>
-      monster_hp >> style_t;
+  in >> act_t >> active_action_id >> active_monster_id >> player_hp >> monster_hp >>
+      style_t;
   active_type = static_cast<ActiveActivityType>(std::clamp(act_t, 0, 2));
   combat_style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
 
@@ -3183,13 +3071,11 @@ bool GameState::load_from_file(const std::string& path) {
   if (active_type == ActiveActivityType::Skill && active_action_id >= 0 &&
       active_action_id < static_cast<int>(skill_actions.size())) {
     active_target_ms = action_effective_interval_ms(active_action_id);
-    status_banner =
-        std::format("{} ({})", skill_actions[active_action_id].name,
-                    skill_name(skill_actions[active_action_id].skill));
-  } else if (active_type == ActiveActivityType::Combat &&
-             active_monster_id >= 0 && active_monster_id < MONSTER_COUNT) {
-    status_banner =
-        std::format("Engaging {}", monster_info[active_monster_id].name);
+    status_banner = std::format("{} ({})", skill_actions[active_action_id].name,
+                                skill_name(skill_actions[active_action_id].skill));
+  } else if (active_type == ActiveActivityType::Combat && active_monster_id >= 0 &&
+             active_monster_id < MONSTER_COUNT) {
+    status_banner = std::format("Engaging {}", monster_info[active_monster_id].name);
   } else {
     status_banner = "Standby — Select a Skill or Hostile Target";
   }

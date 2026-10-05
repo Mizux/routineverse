@@ -263,8 +263,7 @@ class WindowBestiary : public QDialog {
   Q_OBJECT
 
  public:
-  explicit WindowBestiary(const GameState& gameState,
-                          QWidget* parent = nullptr);
+  explicit WindowBestiary(const GameState& gameState, QWidget* parent = nullptr);
   virtual ~WindowBestiary() = default;
 
   WindowBestiary(const WindowBestiary&) = delete;
@@ -304,9 +303,8 @@ class WindowInput : public QDialog {
   Q_OBJECT
 
  public:
-  WindowInput(const QString& title, const QString& message,
-              const QString& question, int min_val, int max_val,
-              int initial_val, QWidget* parent = nullptr);
+  WindowInput(const QString& title, const QString& message, const QString& question,
+              int min_val, int max_val, int initial_val, QWidget* parent = nullptr);
   virtual ~WindowInput() = default;
 
   WindowInput(const WindowInput&) = delete;

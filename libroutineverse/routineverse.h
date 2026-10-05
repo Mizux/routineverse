@@ -229,8 +229,7 @@ struct Bonus {
   int strength = 0;          // Max hit bonus
   int defence = 0;           // Evasion bonus
   int damage_reduction = 0;  // Damage reduction %
-  int speed_bonus_pct =
-      0;  // Tool interval reduction % (or Auto-Stim threshold %)
+  int speed_bonus_pct = 0;   // Tool interval reduction % (or Auto-Stim threshold %)
 };
 
 struct ItemInfo {
@@ -381,8 +380,7 @@ extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
 extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
 inline constexpr int AUTO_STIM_TIER_COUNT = 4;
-extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT>
-    auto_stim_upgrades;
+extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
 
 // Utility & Formatting functions
 std::string money_string(uint64_t value);

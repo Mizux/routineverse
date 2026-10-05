@@ -59,9 +59,8 @@ void draw_btop_box(int y, int x, int h, int w, const std::string& title,
                    const std::string& right_hint = "", bool active = false,
                    short custom_border_cp = 0) {
   if (h < 2 || w < 4) return;
-  short b_cp = custom_border_cp
-                   ? custom_border_cp
-                   : (active ? CP_BORDER_ACTIVE : CP_BORDER);
+  short b_cp =
+      custom_border_cp ? custom_border_cp : (active ? CP_BORDER_ACTIVE : CP_BORDER);
 
   attron(COLOR_PAIR(b_cp) | (active ? A_BOLD : A_NORMAL));
   mvaddstr(y, x, "╭");
@@ -164,8 +163,7 @@ std::vector<std::string> wrap_text(const std::string& text, int max_width) {
     while (words >> word) {
       if (current.empty()) {
         current = word;
-      } else if (static_cast<int>(current.size() + 1 + word.size()) <=
-                 max_width) {
+      } else if (static_cast<int>(current.size() + 1 + word.size()) <= max_width) {
         current += " " + word;
       } else {
         lines.push_back(current);
@@ -226,8 +224,7 @@ void TuiApp::clampCursors() {
     if (acts.empty()) {
       _actionCursor = 0;
     } else {
-      _actionCursor =
-          std::clamp(_actionCursor, 0, static_cast<int>(acts.size()) - 1);
+      _actionCursor = std::clamp(_actionCursor, 0, static_cast<int>(acts.size()) - 1);
     }
   }
   _monsterCursor = std::clamp(_monsterCursor, 0, MONSTER_COUNT - 1);
@@ -256,8 +253,7 @@ int TuiApp::run() {
   while (_running) {
     auto now = std::chrono::steady_clock::now();
     int elapsed_ms = static_cast<int>(
-        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick)
-            .count());
+        std::chrono::duration_cast<std::chrono::milliseconds>(now - last_tick).count());
     if (elapsed_ms >= 50) {
       _gameState.tick(std::min(elapsed_ms, 1000));
       last_tick = now;
@@ -372,8 +368,7 @@ int TuiApp::run() {
         _forceCombatView = !isCombatView();
         if (_forceCombatView && _skillCursor < NON_COMBAT_SKILL_COUNT) {
           _skillCursor = static_cast<int>(SkillType::Attack);
-        } else if (!_forceCombatView &&
-                   _skillCursor >= NON_COMBAT_SKILL_COUNT) {
+        } else if (!_forceCombatView && _skillCursor >= NON_COMBAT_SKILL_COUNT) {
           _skillCursor = static_cast<int>(SkillType::Salvaging);
         }
         _focus = FocusPane::Actions;
@@ -501,9 +496,8 @@ int TuiApp::run() {
 
       case KEY_MOUSE: {
         MEVENT ev;
-        if (getmouse(&ev) == OK &&
-            (ev.bstate & (BUTTON1_CLICKED | BUTTON1_PRESSED |
-                          BUTTON1_DOUBLE_CLICKED))) {
+        if (getmouse(&ev) == OK && (ev.bstate & (BUTTON1_CLICKED | BUTTON1_PRESSED |
+                                                 BUTTON1_DOUBLE_CLICKED))) {
           int rows, cols;
           getmaxyx(stdscr, rows, cols);
           int left_w = std::max(26, cols * 24 / 100);
@@ -530,8 +524,7 @@ int TuiApp::run() {
                   }
                 }
               } else {
-                auto acts =
-                    actions_for_skill(static_cast<SkillType>(_skillCursor));
+                auto acts = actions_for_skill(static_cast<SkillType>(_skillCursor));
                 int idx = ev.y - 5;
                 if (idx >= 0 && idx < static_cast<int>(acts.size())) {
                   _actionCursor = idx;
@@ -574,8 +567,8 @@ void TuiApp::drawDashboard() {
   getmaxyx(stdscr, rows, cols);
 
   if (rows < 22 || cols < 78) {
-    draw_btop_box(0, 0, rows, cols, "Routineverse TUI — Terminal Too Small", "",
-                  true, CP_RED);
+    draw_btop_box(0, 0, rows, cols, "Routineverse TUI — Terminal Too Small", "", true,
+                  CP_RED);
     attron(COLOR_PAIR(CP_YELLOW) | A_BOLD);
     mvprintw(rows / 2 - 1, 4, "Please resize terminal to at least 80x24");
     mvprintw(rows / 2, 4, "Current size: %dx%d", cols, rows);
@@ -603,8 +596,7 @@ void TuiApp::drawDashboard() {
 
   drawBankPane(main_y, left_w + center_w, bank_h, right_w);
   drawStatusPane(main_y + bank_h, left_w + center_w, status_h, right_w);
-  drawGraphPane(main_y + bank_h + status_h, left_w + center_w, graph_h,
-                right_w);
+  drawGraphPane(main_y + bank_h + status_h, left_w + center_w, graph_h, right_w);
 
   drawLogPane(main_y + main_h, 0, log_h, cols);
   drawBottomKeyBar(rows - 1, cols);
@@ -620,10 +612,9 @@ void TuiApp::drawTopBar(int cols) {
 
   std::string right_stats = std::format(
       "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
-      number_string(_gameState.credits),
-      number_string(_gameState.bounty_tokens), _gameState.combat_level(),
-      _gameState.total_skill_level(), SKILL_COUNT * MAX_SKILL_LEVEL,
-      _gameState.player_hp, _gameState.max_hp());
+      number_string(_gameState.credits), number_string(_gameState.bounty_tokens),
+      _gameState.combat_level(), _gameState.total_skill_level(),
+      SKILL_COUNT * MAX_SKILL_LEVEL, _gameState.player_hp, _gameState.max_hp());
 
   int rx = std::max(30, cols - static_cast<int>(right_stats.size()) - 1);
   mvaddstr(0, rx, right_stats.c_str());
@@ -642,8 +633,7 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   for (int i = 0; i < SKILL_COUNT && row < y + h - 1; ++i) {
-    if (i == NON_COMBAT_SKILL_COUNT && h >= SKILL_COUNT + 4 &&
-        row < y + h - 2) {
+    if (i == NON_COMBAT_SKILL_COUNT && h >= SKILL_COUNT + 4 && row < y + h - 2) {
       attron(COLOR_PAIR(CP_DIM));
       mvaddstr(row++, x + 2, "── Combat & Bounty ─");
       attroff(COLOR_PAIR(CP_DIM));
@@ -656,12 +646,11 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
     int pct = static_cast<int>(std::round(level_progress_ratio(s_xp) * 100.0));
 
     bool is_sel = (i == _skillCursor);
-    bool is_training =
-        (_gameState.active_type == ActiveActivityType::Skill &&
-         _gameState.active_action_id >= 0 &&
-         skill_actions[_gameState.active_action_id].skill == sk) ||
-        (_gameState.active_type == ActiveActivityType::Combat &&
-         i >= NON_COMBAT_SKILL_COUNT);
+    bool is_training = (_gameState.active_type == ActiveActivityType::Skill &&
+                        _gameState.active_action_id >= 0 &&
+                        skill_actions[_gameState.active_action_id].skill == sk) ||
+                       (_gameState.active_type == ActiveActivityType::Combat &&
+                        i >= NON_COMBAT_SKILL_COUNT);
 
     short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
                       : (is_training ? CP_GREEN : CP_DEFAULT);
@@ -710,8 +699,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-18s %-5s %-4s %-4s %s", "Lv", "Protocol",
-             "Cycle", "XP", "Mst", "Schematic / Output");
+    mvprintw(row++, x + 2, "%-3s %-18s %-5s %-4s %-4s %s", "Lv", "Protocol", "Cycle",
+             "XP", "Mst", "Schematic / Output");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     auto act_ids = actions_for_skill(sk);
@@ -721,8 +710,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       start_idx = _actionCursor - visible_rows + 1;
     }
 
-    for (int i = start_idx;
-         i < static_cast<int>(act_ids.size()) && row < y + h - 1; ++i) {
+    for (int i = start_idx; i < static_cast<int>(act_ids.size()) && row < y + h - 1;
+         ++i) {
       int id = act_ids[i];
       const auto& act = skill_actions[id];
       bool is_sel = (i == _actionCursor);
@@ -731,8 +720,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       bool unlocked = (_gameState.skill_level(sk) >= act.req_level);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
-                        : (is_running ? CP_GREEN
-                                      : (unlocked ? CP_DEFAULT : CP_DIM));
+                        : (is_running ? CP_GREEN : (unlocked ? CP_DEFAULT : CP_DIM));
       attron(COLOR_PAIR(cp) | ((is_sel || is_running) ? A_BOLD : A_NORMAL));
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
@@ -742,8 +730,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       if (static_cast<int>(aname.size()) > 18) aname = aname.substr(0, 18);
 
       std::string line =
-          std::format("{:>2}  {:<18} {:>4.1f}s {:>4} {:>3}  {}", act.req_level,
-                      aname, eff_s, act.xp, m_lvl, action_recipe(act));
+          std::format("{:>2}  {:<18} {:>4.1f}s {:>4} {:>3}  {}", act.req_level, aname,
+                      eff_s, act.xp, m_lvl, action_recipe(act));
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -757,11 +745,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     int row = y + 1;
     // Player vs Hostile live HUD
-    double plr_hp_r = static_cast<double>(_gameState.player_hp) /
-                      std::max(1, _gameState.max_hp());
+    double plr_hp_r =
+        static_cast<double>(_gameState.player_hp) / std::max(1, _gameState.max_hp());
     attron(COLOR_PAIR(CP_GREEN) | A_BOLD);
-    mvprintw(row, x + 2, "You HP %4d/%-4d ", _gameState.player_hp,
-             _gameState.max_hp());
+    mvprintw(row, x + 2, "You HP %4d/%-4d ", _gameState.player_hp, _gameState.max_hp());
     attroff(COLOR_PAIR(CP_GREEN) | A_BOLD);
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_hp_r,
                       plr_hp_r > 0.35 ? CP_GREEN : CP_RED);
@@ -774,20 +761,17 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     int cur_mhp = (_gameState.active_type == ActiveActivityType::Combat)
                       ? _gameState.monster_hp
                       : cur_mon.max_hp;
-    double mon_hp_r =
-        static_cast<double>(cur_mhp) / std::max(1, cur_mon.max_hp);
+    double mon_hp_r = static_cast<double>(cur_mhp) / std::max(1, cur_mon.max_hp);
 
     attron(COLOR_PAIR(CP_RED) | A_BOLD);
     mvprintw(row, x + 2, "Foe HP %4d/%-4d ", cur_mhp, cur_mon.max_hp);
     attroff(COLOR_PAIR(CP_RED) | A_BOLD);
-    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_hp_r,
-                      CP_RED);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_hp_r, CP_RED);
 
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
         "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat_style),
-        _gameState.bounty_remaining,
-        monster_info[_gameState.bounty_target_id].name);
+        _gameState.bounty_remaining, monster_info[_gameState.bounty_target_id].name);
     if (static_cast<int>(style_task.size()) > inner_w) {
       style_task = style_task.substr(0, inner_w);
     }
@@ -795,21 +779,19 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_YELLOW));
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-18s %-13s %-5s %-4s %-4s %-5s", "Lv",
-             "Hostile", "Sector", "HP", "Max", "Bnt", "Kills");
+    mvprintw(row++, x + 2, "%-3s %-18s %-13s %-5s %-4s %-4s %-5s", "Lv", "Hostile",
+             "Sector", "HP", "Max", "Bnt", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     for (int i = 0; i < MONSTER_COUNT && row < y + h - 1; ++i) {
       const auto& mon = monster_info[i];
       bool is_sel = (i == _monsterCursor);
-      bool is_fighting =
-          (_gameState.active_type == ActiveActivityType::Combat &&
-           _gameState.active_monster_id == i);
+      bool is_fighting = (_gameState.active_type == ActiveActivityType::Combat &&
+                          _gameState.active_monster_id == i);
       bool is_task = (i == _gameState.bounty_target_id);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
-                        : (is_fighting ? CP_RED
-                                       : (is_task ? CP_YELLOW : CP_DEFAULT));
+                        : (is_fighting ? CP_RED : (is_task ? CP_YELLOW : CP_DEFAULT));
       attron(COLOR_PAIR(cp) | ((is_sel || is_fighting) ? A_BOLD : A_NORMAL));
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
@@ -820,9 +802,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       if (static_cast<int>(zname.size()) > 13) zname = zname.substr(0, 13);
 
       std::string line = std::format(
-          "{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level,
-          mname, zname, mon.max_hp, mon.max_hit, mon.bounty_req,
-          _gameState.monster_kills[i]);
+          "{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level, mname, zname,
+          mon.max_hp, mon.max_hit, mon.bounty_req, _gameState.monster_kills[i]);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -872,8 +853,7 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
     std::string iname = info.name;
     if (static_cast<int>(iname.size()) > 16) iname = iname.substr(0, 16);
 
-    std::string extra =
-        money_string(static_cast<long long>(slot.qty) * info.price);
+    std::string extra = money_string(static_cast<long long>(slot.qty) * info.price);
     if (info.heal_amount > 0) {
       extra += std::format(" (+{}HP)", info.heal_amount);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
@@ -884,8 +864,7 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
       extra += std::format(" ({}%DR)", info.bonus.damage_reduction);
     }
 
-    std::string line =
-        std::format("{:<16} {:>5} {}", iname, slot.qty, extra);
+    std::string line = std::format("{:<16} {:>5} {}", iname, slot.qty, extra);
     if (static_cast<int>(line.size()) > inner_w) {
       line = line.substr(0, inner_w);
     }
@@ -901,24 +880,19 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   int row = y + 1;
 
   ItemId w_id = _gameState.equipped_items.at(EquipSlot::Weapon);
-  std::string w_str =
-      is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
+  std::string w_str = is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
 
   w_id = _gameState.equipped_items.at(EquipSlot::Shield);
-  std::string w_shield =
-      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+  std::string w_shield = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
   w_id = _gameState.equipped_items.at(EquipSlot::Head);
-  std::string w_visor =
-      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+  std::string w_visor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
   w_id = _gameState.equipped_items.at(EquipSlot::Armor);
-  std::string w_armor =
-      is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+  std::string w_armor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
 
   std::string food_str =
-      (is_valid_item(_gameState.equipped_food_item) &&
-       _gameState.equipped_food_qty > 0)
+      (is_valid_item(_gameState.equipped_food_item) && _gameState.equipped_food_qty > 0)
           ? std::format("{}x {} (+{}HP)", _gameState.equipped_food_qty,
                         get_item_info(_gameState.equipped_food_item).name,
                         get_item_info(_gameState.equipped_food_item).heal_amount)
@@ -933,24 +907,21 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(cp));
   };
 
-  print_line(CP_RED, std::format("Weapon: {} (MaxHit {})", w_str,
-                                  _gameState.player_max_hit()));
+  print_line(CP_RED,
+             std::format("Weapon: {} (MaxHit {})", w_str, _gameState.player_max_hit()));
   print_line(CP_MAGENTA, std::format("Shield: {}", w_shield));
   print_line(CP_CYAN, std::format("Visor: {}", w_visor));
   print_line(CP_BORDER, std::format("Armor: {}", w_armor));
   print_line(CP_GREEN, std::format("Stim [f]: {}", food_str));
-  print_line(CP_YELLOW,
-             std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoStim: Mk{}",
-                         _gameState.player_accuracy(),
-                         _gameState.player_evasion(),
-                         _gameState.player_damage_reduction(),
-                         _gameState.auto_stim_tier()));
+  print_line(
+      CP_YELLOW,
+      std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoStim: Mk{}",
+                  _gameState.player_accuracy(), _gameState.player_evasion(),
+                  _gameState.player_damage_reduction(), _gameState.auto_stim_tier()));
   print_line(CP_DEFAULT,
              std::format("Tools: Cut T{} Bio T{} Drl T{} Core T{}",
-                         _gameState.cutter_tier() + 1,
-                         _gameState.harvester_tier() + 1,
-                         _gameState.drill_tier() + 1,
-                         _gameState.reactor_tier() + 1));
+                         _gameState.cutter_tier() + 1, _gameState.harvester_tier() + 1,
+                         _gameState.drill_tier() + 1, _gameState.reactor_tier() + 1));
 }
 
 void TuiApp::drawGraphPane(int y, int x, int h, int w) {
@@ -982,8 +953,7 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
     for (int v : _gameState.history.hp) values.push_back(v);
     values.push_back(_gameState.player_hp);
   } else {
-    int s_idx =
-        std::clamp(item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
+    int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0, int{SKILL_COUNT} - 1);
     for (long long v : _gameState.history.skill_xp[s_idx]) values.push_back(v);
     values.push_back(_gameState.xp[s_idx]);
   }
@@ -1051,8 +1021,7 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
 }
 
 void TuiApp::drawLogPane(int y, int x, int h, int w) {
-  draw_btop_box(y, x, h, w, "Cyber-Log & Telemetry",
-                "[+]/[]]Fast-Forward +1m/+10m");
+  draw_btop_box(y, x, h, w, "Cyber-Log & Telemetry", "[+]/[]]Fast-Forward +1m/+10m");
   int inner_w = w - 4;
   int max_lines = std::max(1, h - 2);
   int total = static_cast<int>(_gameState.game_log.size());
@@ -1152,9 +1121,7 @@ void TuiApp::actionCycleAttackStyle() {
                                  combat_style_name(_gameState.combat_style)));
 }
 
-void TuiApp::actionNewBountyContract() {
-  _gameState.assign_new_bounty_contract();
-}
+void TuiApp::actionNewBountyContract() { _gameState.assign_new_bounty_contract(); }
 
 void TuiApp::actionFastForward(int seconds) {
   _gameState.add_log(
@@ -1195,8 +1162,8 @@ void TuiApp::showShopDialog() {
     int y = (rows - h) / 2;
     int x = (cols - w) / 2;
 
-    draw_btop_box(y, x, h, w, "Cyber-Shop & Tool Upgrades",
-                  "[Enter]Buy [Esc]Close", true, CP_YELLOW);
+    draw_btop_box(y, x, h, w, "Cyber-Shop & Tool Upgrades", "[Enter]Buy [Esc]Close",
+                  true, CP_YELLOW);
 
     attron(COLOR_PAIR(CP_GREEN) | A_BOLD);
     mvprintw(y + 1, x + 3, "Available Credits: %s",
@@ -1208,9 +1175,8 @@ void TuiApp::showShopDialog() {
         return std::format("{:<14}: {} (MAX TIER)", label, arr[tier].name);
       }
       const auto& nxt = arr[tier + 1];
-      return std::format("{:<14}: {} -> {} (Lv {}, {} Cr)", label,
-                         arr[tier].name, nxt.name, nxt.req_skill_level,
-                         nxt.cost_credits);
+      return std::format("{:<14}: {} -> {} (Lv {}, {} Cr)", label, arr[tier].name,
+                         nxt.name, nxt.req_skill_level, nxt.cost_credits);
     };
 
     std::array<std::string, 6> items = {
@@ -1226,14 +1192,12 @@ void TuiApp::showShopDialog() {
 
     for (int i = 0; i < 6; ++i) {
       bool sel = (i == cursor);
-      attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
-             (sel ? A_BOLD : A_NORMAL));
+      attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
       for (int c = 0; c < w - 6; ++c) mvaddch(y + 3 + i, x + 3 + c, ' ');
       std::string s = items[i];
       if (static_cast<int>(s.size()) > w - 6) s = s.substr(0, w - 6);
       mvaddstr(y + 3 + i, x + 3, s.c_str());
-      attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
-              (sel ? A_BOLD : A_NORMAL));
+      attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
     }
 
     refresh();
@@ -1272,38 +1236,32 @@ void TuiApp::showEquipmentDialog() {
       ItemId id = _gameState.equipped_items.at(slot);
       std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
       bool sel = (idx == cursor);
-      attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
-             (sel ? A_BOLD : A_NORMAL));
+      attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
       for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + idx, x + 3 + c, ' ');
       mvprintw(y + 2 + idx, x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
                desc.c_str());
-      attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) |
-              (sel ? A_BOLD : A_NORMAL));
+      attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
     }
 
     int stats_y = y + 3 + static_cast<int>(EQUIP_SLOT_COUNT);
     attron(COLOR_PAIR(CP_YELLOW));
     mvprintw(stats_y, x + 3, "Combat Level: %d   │   HP: %d / %d",
-             _gameState.combat_level(), _gameState.player_hp,
-             _gameState.max_hp());
+             _gameState.combat_level(), _gameState.player_hp, _gameState.max_hp());
     mvprintw(stats_y + 1, x + 3, "Combat Mode: %s",
              combat_style_name(_gameState.combat_style).c_str());
-    mvprintw(stats_y + 2, x + 3,
-             "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
+    mvprintw(stats_y + 2, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
              _gameState.player_max_hit(), _gameState.player_accuracy(),
              _gameState.player_evasion());
     mvprintw(stats_y + 3, x + 3,
              "Damage Reduction: %d%%   │   Auto-Stim Threshold: %d HP",
-             _gameState.player_damage_reduction(),
-             _gameState.auto_eat_threshold_hp());
+             _gameState.player_damage_reduction(), _gameState.auto_eat_threshold_hp());
     attroff(COLOR_PAIR(CP_YELLOW));
 
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
     int slot_count = _gameState.equipped_items.size();
-    if (ch == KEY_UP || ch == 'k')
-      cursor = (cursor + slot_count - 1) % slot_count;
+    if (ch == KEY_UP || ch == 'k') cursor = (cursor + slot_count - 1) % slot_count;
     if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
       _gameState.unequip_slot(static_cast<EquipSlot>(cursor));
@@ -1319,12 +1277,10 @@ void TuiApp::showBestiaryDialog() {
     oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
                        mon.combat_level, mon.name, mon.zone_name, mon.max_hp,
                        mon.max_hit, _gameState.monster_kills[i]);
-    oss << std::format("   Salvage: {}-{} Cr", mon.credits_min,
-                       mon.credits_max);
+    oss << std::format("   Salvage: {}-{} Cr", mon.credits_min, mon.credits_max);
     for (const auto& d : mon.drops) {
       if (is_valid_item(d.item_id)) {
-        oss << std::format(", {} ({}%)", get_item_info(d.item_id).name,
-                           d.chance_pct);
+        oss << std::format(", {} ({}%)", get_item_info(d.item_id).name, d.chance_pct);
       }
     }
     oss << "\n";
@@ -1339,11 +1295,10 @@ void TuiApp::showHistoryDialog(int initial_item) {
     erase();
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    std::string title =
-        std::format("Telemetry History — {} ({}/{})", itemName(item_idx),
-                    item_idx + 1, TOTAL_ITEMS);
-    draw_btop_box(0, 0, rows, cols, title, "[Left/Right]Metric [Esc]Close",
-                  true, CP_CYAN);
+    std::string title = std::format("Telemetry History — {} ({}/{})",
+                                    itemName(item_idx), item_idx + 1, TOTAL_ITEMS);
+    draw_btop_box(0, 0, rows, cols, title, "[Left/Right]Metric [Esc]Close", true,
+                  CP_CYAN);
     renderBrailleChart(2, 2, rows - 4, cols - 4, item_idx, true);
     refresh();
 
@@ -1400,12 +1355,10 @@ void TuiApp::showMilestonesDialog() {
       "Simulated Uptime: {}m {}s",
       _gameState.combat_level(), _gameState.total_skill_level(),
       SKILL_COUNT * MAX_SKILL_LEVEL, number_string(_gameState.total_skill_xp()),
-      money_string(_gameState.credits),
-      money_string(_gameState.total_credits_earned),
-      money_string(_gameState.total_bank_value()),
-      _gameState.used_bank_slots(), _gameState.bank.capacity,
-      number_string(_gameState.bounty_tokens), _gameState.bounties_completed,
-      number_string(_gameState.total_items_gathered),
+      money_string(_gameState.credits), money_string(_gameState.total_credits_earned),
+      money_string(_gameState.total_bank_value()), _gameState.used_bank_slots(),
+      _gameState.bank.capacity, number_string(_gameState.bounty_tokens),
+      _gameState.bounties_completed, number_string(_gameState.total_items_gathered),
       number_string(_gameState.total_monsters_killed), _gameState.player_deaths,
       _gameState.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
   showMessageModal("Operative Telemetry & Milestones", text, CP_YELLOW);
@@ -1434,8 +1387,8 @@ void TuiApp::showHelpDialog() {
       CP_CYAN);
 }
 
-void TuiApp::showMessageModal(const std::string& title,
-                              const std::string& message, int border_color) {
+void TuiApp::showMessageModal(const std::string& title, const std::string& message,
+                              int border_color) {
   timeout(-1);
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
@@ -1450,8 +1403,7 @@ void TuiApp::showMessageModal(const std::string& title,
 
   while (true) {
     draw_btop_box(y, x, h, w, title, "[Enter/Esc]Close", true, border_color);
-    for (int i = 0; i < visible && (scroll + i) < static_cast<int>(lines.size());
-         ++i) {
+    for (int i = 0; i < visible && (scroll + i) < static_cast<int>(lines.size()); ++i) {
       attron(COLOR_PAIR(CP_DEFAULT));
       mvaddstr(y + 2 + i, x + 3, lines[scroll + i].c_str());
       attroff(COLOR_PAIR(CP_DEFAULT));
@@ -1470,8 +1422,7 @@ void TuiApp::showMessageModal(const std::string& title,
   timeout(100);
 }
 
-bool TuiApp::showConfirmModal(const std::string& title,
-                              const std::string& message) {
+bool TuiApp::showConfirmModal(const std::string& title, const std::string& message) {
   timeout(-1);
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
@@ -1507,8 +1458,7 @@ bool TuiApp::showConfirmModal(const std::string& title,
       timeout(100);
       return false;
     }
-    if (ch == KEY_LEFT || ch == KEY_RIGHT || ch == '\t' || ch == 'h' ||
-        ch == 'l') {
+    if (ch == KEY_LEFT || ch == KEY_RIGHT || ch == '\t' || ch == 'h' || ch == 'l') {
       yes = !yes;
     }
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
@@ -1518,10 +1468,9 @@ bool TuiApp::showConfirmModal(const std::string& title,
   }
 }
 
-int TuiApp::showInputSpinModal(const std::string& title,
-                               const std::string& message,
-                               const std::string& question, int min_val,
-                               int max_val, int initial_val, int unit_price) {
+int TuiApp::showInputSpinModal(const std::string& title, const std::string& message,
+                               const std::string& question, int min_val, int max_val,
+                               int initial_val, int unit_price) {
   timeout(-1);
   int val = std::clamp(initial_val, min_val, max_val);
   int rows, cols;
@@ -1533,8 +1482,8 @@ int TuiApp::showInputSpinModal(const std::string& title,
   int x = (cols - w) / 2;
 
   while (true) {
-    draw_btop_box(y, x, h, w, title, "[Left/Right]Adjust [Enter]OK [Esc]Cancel",
-                  true, CP_CYAN);
+    draw_btop_box(y, x, h, w, title, "[Left/Right]Adjust [Enter]OK [Esc]Cancel", true,
+                  CP_CYAN);
     for (size_t i = 0; i < lines.size(); ++i) {
       mvaddstr(y + 2 + static_cast<int>(i), x + 3, lines[i].c_str());
     }

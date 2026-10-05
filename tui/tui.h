@@ -37,8 +37,7 @@ class TuiApp {
   void drawBottomKeyBar(int y, int cols);
 
   // Braille chart helper
-  void renderBrailleChart(int y, int x, int h, int w, int item_idx,
-                          bool show_axes);
+  void renderBrailleChart(int y, int x, int h, int w, int item_idx, bool show_axes);
 
   // Actions & Modals (1:1 parity with Qt6 MainWindow & Dialogs)
   void actionStartSelected();
