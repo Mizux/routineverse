@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -473,12 +474,15 @@ class GameState {
 
   // History for Charts
   struct History {
-    std::vector<uint64_t> credits;
-    std::vector<uint64_t> bank_value;
-    std::vector<int> total_level;
-    std::vector<uint64_t> total_xp;
-    std::vector<int> hp;
-    std::array<std::vector<uint64_t>, SKILL_COUNT> skill_xp{};
+    std::list<uint64_t> credits;
+    std::list<uint64_t> bank_value;
+    std::list<int> total_level;
+    std::list<uint64_t> total_xp;
+    std::list<int> hp;
+    std::array<std::list<uint64_t>, SKILL_COUNT> skill_xp{};
+
+    void clear();
+    void add_record(const GameState& state);
   };
   History history;
 

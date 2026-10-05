@@ -1077,12 +1077,7 @@ void GameState::new_game() {
   player_deaths = 0;
 
   game_log.clear();
-  history.credits.clear();
-  history.bank_value.clear();
-  history.total_level.clear();
-  history.total_xp.clear();
-  history.hp.clear();
-  for (auto& vec : history.skill_xp) vec.clear();
+  history.clear();
   history_timer_ms_ = 0;
 
   status_banner = "Strip Copper Wiring (Salvaging)";
@@ -1099,22 +1094,35 @@ void GameState::add_log(const std::string& entry) {
   }
 }
 
-void GameState::record_history_snapshot() {
-  auto push_capped = [](auto& vec, auto val) {
-    vec.push_back(val);
-    if (static_cast<int>(vec.size()) > MAX_HISTORY_POINTS) {
-      vec.erase(vec.begin());
+void GameState::History::clear() {
+  credits.clear();
+  bank_value.clear();
+  total_level.clear();
+  total_xp.clear();
+  hp.clear();
+  for (auto& list : skill_xp) list.clear();
+}
+
+void GameState::History::add_record(const GameState& state) {
+  auto push_capped = [](auto& list, auto val) {
+    list.push_back(val);
+    if (list.size() > MAX_HISTORY_POINTS) {
+      list.pop_front();
     }
   };
 
-  push_capped(history.credits, credits);
-  push_capped(history.bank_value, total_bank_value());
-  push_capped(history.total_level, total_skill_level());
-  push_capped(history.total_xp, total_skill_xp());
-  push_capped(history.hp, player_hp);
-  for (int i = 0; i < SKILL_COUNT; ++i) {
-    push_capped(history.skill_xp[i], xp[i]);
+  push_capped(credits, state.credits);
+  push_capped(bank_value, state.total_bank_value());
+  push_capped(total_level, state.total_skill_level());
+  push_capped(total_xp, state.total_skill_xp());
+  push_capped(hp, state.player_hp);
+  for (size_t i = 0; i < SKILL_COUNT; ++i) {
+    push_capped(skill_xp[i], state.xp[i]);
   }
+}
+
+void GameState::record_history_snapshot() {
+  history.add_record(*this);
 }
 
 int GameState::skill_level(SkillType skill) const {
