@@ -1,6 +1,6 @@
 #include <clocale>
 
-#include "tui.h"
+#include "tui.hpp"
 
 int main() {
   std::setlocale(LC_ALL, "");

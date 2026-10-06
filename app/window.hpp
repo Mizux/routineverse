@@ -25,7 +25,7 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 
-#include "routineverse.h"
+#include "routineverse.hpp"
 
 class HistoryChartView : public QChartView {
   Q_OBJECT

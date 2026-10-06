@@ -10,12 +10,12 @@ set(QT_VERSION_MAJOR 6)
 # Executable
 add_executable(routineverse)
 target_sources(routineverse PRIVATE
-  config.h
+  config.hpp
   main.cpp
   window-cb.cpp
-  window-cb.h
+  window-cb.hpp
   window.cpp
-  window.h
+  window.hpp
 )
 target_include_directories(routineverse PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

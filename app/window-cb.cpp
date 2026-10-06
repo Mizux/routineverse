@@ -1,13 +1,13 @@
-#include "window-cb.h"
+#include "window-cb.hpp"
 
 #include <QDialog>
 #include <QMessageBox>
 #include <format>
 #include <string>
 
-#include "config.h"
-#include "routineverse.h"
-#include "window.h"
+#include "config.hpp"
+#include "routineverse.hpp"
+#include "window.hpp"
 
 void window_main_button_start_clicked_cb(MainWindow& window) {
   auto& gs = window.gameState();

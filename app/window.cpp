@@ -1,4 +1,4 @@
-#include "window.h"
+#include "window.hpp"
 
 #include <QApplication>
 #include <QBoxLayout>
@@ -31,9 +31,9 @@
 #include <format>
 #include <string>
 
-#include "config.h"
-#include "routineverse.h"
-#include "window-cb.h"
+#include "config.hpp"
+#include "routineverse.hpp"
+#include "window-cb.hpp"
 
 // ============================================================================
 // HistoryChartView Implementation

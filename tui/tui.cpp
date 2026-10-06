@@ -1,4 +1,4 @@
-#include "tui.h"
+#include "tui.hpp"
 
 #include <ncurses.h>
 
@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "config.h"
-#include "routineverse.h"
+#include "config.hpp"
+#include "routineverse.hpp"
 
 namespace {
 

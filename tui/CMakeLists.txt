@@ -11,7 +11,7 @@ add_executable(routineverse-tui)
 target_sources(routineverse-tui PRIVATE
   main.cpp
   tui.cpp
-  tui.h
+  tui.hpp
 )
 target_include_directories(routineverse-tui PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
