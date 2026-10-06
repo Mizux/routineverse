@@ -606,7 +606,7 @@ ItemId MainWindow::selectedBankItemId() const {
   if (!_treeview_bank) return ItemId::None;
   auto* item = _treeview_bank->currentItem();
   if (!item) return ItemId::None;
-  return static_cast<ItemId>(item->data(0, Qt::UserRole).toInt());
+  return item_id_or_none(item->data(0, Qt::UserRole).toInt());
 }
 
 void MainWindow::updateLiveProgressOnly() {
@@ -902,7 +902,7 @@ void MainWindow::_fillTreeviewBank() {
     item->setText(1, QString::fromStdString(item_category_name(info.category)));
     item->setText(2, QString::number(slot.qty));
     item->setText(3, extra);
-    item->setData(0, Qt::UserRole, static_cast<int>(slot.item_id));
+    item->setData(0, Qt::UserRole, item_id_to_int(slot.item_id));
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
 
     if (slot.item_id == prev_item_id) {
@@ -961,7 +961,7 @@ void MainWindow::onMonsterDoubleClicked() {
 void MainWindow::onBankDoubleClicked() { window_main_button_equip_clicked_cb(*this); }
 
 void MainWindow::onAttackStyleChanged(int idx) {
-  _gameState.combat.style = static_cast<CombatStyle>(std::clamp(idx, 0, 2));
+  _gameState.combat.style = combat_style_or_default(idx);
   updateAllUi();
 }
 
@@ -1163,8 +1163,8 @@ void WindowEquipment::_setupWidget() {
   QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
-  for (size_t idx = 0; idx < EQUIP_SLOT_COUNT; ++idx) {
-    EquipSlot slot = static_cast<EquipSlot>(idx);
+  for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
+    EquipSlot slot = all_equip_slots[idx];
     grid->addWidget(
         new QLabel(
             QString("<b>%1:</b>").arg(QString::fromStdString(equip_slot_name(slot))),
@@ -1196,8 +1196,8 @@ void WindowEquipment::_setupWidget() {
 }
 
 void WindowEquipment::updateEquipmentUi() {
-  for (size_t idx = 0; idx < EQUIP_SLOT_COUNT; ++idx) {
-    ItemId id = _gameState.equipment.at(static_cast<EquipSlot>(idx));
+  for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
+    ItemId id = _gameState.equipment.at(all_equip_slots[idx]);
     if (is_valid_item(id)) {
       _slot_labels[idx]->setText(QString::fromStdString(item_equip_summary(id)));
       _slot_buttons[idx]->setEnabled(true);
@@ -1237,7 +1237,7 @@ void WindowEquipment::updateEquipmentUi() {
 }
 
 void WindowEquipment::onUnequipSlot(int slot_idx) {
-  _gameState.unequip_slot(static_cast<EquipSlot>(slot_idx));
+  _gameState.unequip_slot(equip_slot_or_none(slot_idx));
   updateEquipmentUi();
   emit stateChanged();
 }

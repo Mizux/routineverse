@@ -13,7 +13,7 @@
 namespace {
 
 std::mt19937& rng() {
-  static std::mt19937 gen(std::random_device{}());
+  static thread_local std::mt19937 gen(std::random_device{}());
   return gen;
 }
 
@@ -1084,7 +1084,11 @@ const ItemInfo& get_item_info(ItemId id) {
        1,
        {0, 0, 0, 0}},
   })};
-  return item_info[static_cast<size_t>(id)];
+  size_t idx = static_cast<size_t>(id);
+  if (idx >= item_info.size()) {
+    return item_info[0];
+  }
+  return item_info[idx];
 }
 
 const std::vector<SkillAction> skill_actions = {
@@ -1852,16 +1856,16 @@ std::string action_recipe(const SkillAction& act) {
   std::string io_str;
   if (is_valid_item(act.input_item_1)) {
     io_str +=
-        std::format("{}x{}", act.input_qty_1, get_item_info(act.input_item_1).name);
+        std::format("{}x {}", act.input_qty_1, get_item_info(act.input_item_1).name);
   }
   if (is_valid_item(act.input_item_2)) {
     io_str +=
-        std::format("+{}x{}", act.input_qty_2, get_item_info(act.input_item_2).name);
+        std::format(" + {}x {}", act.input_qty_2, get_item_info(act.input_item_2).name);
   }
   if (is_valid_item(act.product_item)) {
     if (!io_str.empty()) io_str += " -> ";
     io_str +=
-        std::format("{}x{}", act.product_qty, get_item_info(act.product_item).name);
+        std::format("{}x {}", act.product_qty, get_item_info(act.product_item).name);
   } else if (io_str.empty()) {
     io_str = "XP+Cell+Cr";
   }
@@ -2208,6 +2212,7 @@ bool GameState::start_combat(int monster_id) {
                         mon.bounty_req, mon.name));
     return false;
   }
+  check_auto_eat();
   active_type = ActiveActivityType::Combat;
   combat.active_monster_id = monster_id;
   combat.monster_hp = mon.max_hp;
@@ -2230,8 +2235,10 @@ void GameState::stop_activity() {
 void GameState::gain_xp(SkillType skill, uint64_t amount) {
   if (amount <= 0) return;
   int old_lvl = skill_level(skill);
-  // Reactor tier grants a global XP bonus
-  uint64_t bonus = (amount * reactor_tier() * 2) / 100;
+  uint64_t bonus = 0;
+  if (skill == SkillType::Recycling || skill == SkillType::SynthCook) {
+    bonus = (amount * equipment.speed_bonus_pct(EquipSlot::Reactor)) / 100;
+  }
   skills.xp[skill] += (amount + bonus);
   int new_lvl = skill_level(skill);
   if (new_lvl > old_lvl) {
@@ -2322,7 +2329,7 @@ void GameState::complete_skill_action(int global_action_id) {
     // 8% chance to unearth a rare Data Crystal while deep-mining!
     if (rand_int(1, 100) <= 8) {
       auto gem_id =
-          static_cast<ItemId>(static_cast<int>(ItemId::AmberDatachip) + rand_int(0, 4));
+          data_crystal_ids[rand_int(0, static_cast<int>(data_crystal_ids.size()) - 1)];
       if (add_item(gem_id, 1, false)) {
         add_log(std::format("While deep-mining, you extracted a rare {}!",
                             get_item_info(gem_id).name));
@@ -2733,6 +2740,15 @@ bool GameState::equip_item(ItemId item_id) {
   if (item_qty(item_id) <= 0) return false;
 
   ItemId old_item = equipment.at(slot);
+  if (is_valid_item(old_item)) {
+    bool removing_frees_slot = (bank.item_qty(item_id) == 1);
+    bool can_store_old = removing_frees_slot || bank.can_store_item(old_item);
+    if (!can_store_old) {
+      add_log("Cyber-Vault is full! Cannot unequip current item.");
+      return false;
+    }
+  }
+
   remove_item(item_id, 1);
   if (is_valid_item(old_item)) {
     add_item(old_item, 1, false);
@@ -2768,22 +2784,28 @@ bool GameState::equip_food(ItemId item_id) {
     equipment.food_qty += have;
     add_log(std::format("Loaded {}x {} into Stim-Injector ({} total).", have, info.name,
                         equipment.food_qty));
+    check_auto_eat();
     return true;
   }
 
   // Return old equipped stim to vault if any
   if (is_valid_item(equipment.food_item) && equipment.food_qty > 0) {
-    if (!can_store_item(equipment.food_item)) {
+    bool frees_slot = (have == bank.item_qty(item_id));
+    bool can_store = frees_slot || bank.can_store_item(equipment.food_item);
+    if (!can_store) {
       add_log("Cyber-Vault is full! Cannot swap equipped stims.");
       return false;
     }
+    remove_item(item_id, have);
     add_item(equipment.food_item, equipment.food_qty, false);
+  } else {
+    remove_item(item_id, have);
   }
-  remove_item(item_id, have);
   equipment.food_item = item_id;
   equipment.food_qty = have;
   add_log(
       std::format("Loaded {}x {} (+{} HP each).", have, info.name, info.heal_amount));
+  check_auto_eat();
   return true;
 }
 
@@ -2812,7 +2834,7 @@ bool GameState::eat_food() {
 void GameState::check_auto_eat() {
   if (auto_stim_tier() <= 0) return;
   int threshold = auto_eat_threshold_hp();
-  while (combat.player_hp > 0 && combat.player_hp <= threshold &&
+  while (combat.player_hp <= threshold &&
          is_valid_item(equipment.food_item) && equipment.food_qty > 0) {
     int heal = get_item_info(equipment.food_item).heal_amount;
     equipment.food_qty--;
@@ -2891,9 +2913,10 @@ bool GameState::buy_reactor_upgrade() {
   int cur_t = reactor_tier();
   if (cur_t + 1 >= TOOL_TIER_COUNT) return false;
   const auto& upg = reactor_upgrades[cur_t + 1];
-  if (skill_level(SkillType::Recycling) < upg.req_skill_level) {
-    add_log(std::format("Requires Recycling Level {} to buy {}.", upg.req_skill_level,
-                        upg.name));
+  if (std::max(skill_level(SkillType::Recycling),
+               skill_level(SkillType::SynthCook)) < upg.req_skill_level) {
+    add_log(std::format("Requires Recycling or Synth-Cook Level {} to buy {}.",
+                        upg.req_skill_level, upg.name));
     return false;
   }
   if (credits < upg.cost_credits) {
@@ -2996,6 +3019,14 @@ int GameState::auto_eat_threshold_hp() const {
 
 std::string GameState::default_save_path() {
   const char* home = std::getenv("HOME");
+#if defined(_WIN32)
+  if (!home || std::string_view(home).empty()) {
+    home = std::getenv("USERPROFILE");
+  }
+  if (!home || std::string_view(home).empty()) {
+    home = std::getenv("APPDATA");
+  }
+#endif
   if (!home || std::string_view(home).empty()) {
     return "routineverse.save";
   }
@@ -3006,10 +3037,19 @@ std::string GameState::default_save_path() {
 }
 
 bool GameState::save_to_file(const std::string& path) const {
-  std::ofstream out(path);
+  std::filesystem::path final_path(path);
+  std::filesystem::path tmp_path = final_path;
+  tmp_path += ".tmp";
+
+  std::error_code ec;
+  if (final_path.has_parent_path()) {
+    std::filesystem::create_directories(final_path.parent_path(), ec);
+  }
+
+  std::ofstream out(tmp_path);
   if (!out.is_open()) return false;
 
-  out << "ROUTINEVERSE_SAVE_V2\n";
+  out << "ROUTINEVERSE_SAVE_V3\n";
   out << credits << " " << bounty_tokens << " " << total_ticks_ms << "\n";
   for (size_t i = 0; i < all_skills.size(); ++i) {
     out << skill_xp(all_skills[i]) << (i + 1 == all_skills.size() ? "\n" : " ");
@@ -3021,21 +3061,36 @@ bool GameState::save_to_file(const std::string& path) const {
   }
   out << bank.capacity << " " << bank.size() << "\n";
   for (const auto& s : bank) {
-    out << static_cast<int>(s.item_id) << " " << s.qty << "\n";
+    out << item_id_to_int(s.item_id) << " " << s.qty << "\n";
   }
-  for (size_t i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-    auto slot = static_cast<EquipSlot>(i);
-    out << static_cast<int>(equipment.at(slot)) << " ";
+  for (EquipSlot slot : all_equip_slots) {
+    out << item_id_to_int(equipment.at(slot)) << " ";
   }
-  out << static_cast<int>(equipment.food_item) << " " << equipment.food_qty << "\n";
-  out << static_cast<int>(active_type) << " " << active_action_id << " "
+  out << item_id_to_int(equipment.food_item) << " " << equipment.food_qty << "\n";
+  out << activity_type_to_int(active_type) << " " << active_action_id << " "
       << combat.active_monster_id << " " << combat.player_hp << " " << combat.monster_hp
-      << " " << static_cast<int>(combat.style) << "\n";
-  out << combat.bounty_target_id << " " << combat.bounty_remaining << " "
+      << " " << combat_style_to_int(combat.style) << "\n";
+  out << static_cast<unsigned int>(combat.bounty_target_id) << " "
+      << static_cast<unsigned int>(combat.bounty_remaining) << " "
       << combat.bounties_completed << "\n";
   out << stats.total_items_gathered << " " << stats.total_monsters_killed << " "
       << stats.total_credits_earned << " " << stats.player_deaths << "\n";
-  return out.good();
+  for (size_t i = 0; i < stats.monster_kills.size(); ++i) {
+    out << stats.monster_kills[i] << (i + 1 == stats.monster_kills.size() ? "\n" : " ");
+  }
+
+  if (!out.good()) {
+    std::filesystem::remove(tmp_path, ec);
+    return false;
+  }
+  out.close();
+
+  std::filesystem::rename(tmp_path, final_path, ec);
+  if (ec) {
+    std::filesystem::remove(tmp_path, ec);
+    return false;
+  }
+  return true;
 }
 
 bool GameState::load_from_file(const std::string& path) {
@@ -3044,64 +3099,73 @@ bool GameState::load_from_file(const std::string& path) {
 
   std::string header;
   if (!(in >> header) ||
-      (header != "ROUTINEVERSE_SAVE_V1" && header != "ROUTINEVERSE_SAVE_V2")) {
+      (header != "ROUTINEVERSE_SAVE_V1" && header != "ROUTINEVERSE_SAVE_V2" &&
+       header != "ROUTINEVERSE_SAVE_V3")) {
     return false;
   }
 
-  in >> credits >> bounty_tokens >> total_ticks_ms;
-  for (SkillType sk : all_skills) in >> skills.xp[sk];
+  uint64_t loaded_credits = 0;
+  uint64_t loaded_tokens = 0;
+  uint64_t loaded_ticks = 0;
+  if (!(in >> loaded_credits >> loaded_tokens >> loaded_ticks)) return false;
+  credits = loaded_credits;
+  bounty_tokens = loaded_tokens;
+  total_ticks_ms = loaded_ticks;
+
+  for (SkillType sk : all_skills) {
+    uint64_t xp_val = 0;
+    if (!(in >> xp_val)) return false;
+    skills.xp[sk] = xp_val;
+  }
 
   size_t m_sz = 0;
-  in >> m_sz;
+  if (!(in >> m_sz)) return false;
   skills.action_mastery_xp.assign(skill_actions.size(), 0);
   for (size_t i = 0; i < m_sz; ++i) {
     uint64_t val = 0;
-    in >> val;
+    if (!(in >> val)) return false;
     if (i < skills.action_mastery_xp.size()) skills.action_mastery_xp[i] = val;
   }
 
+  int b_cap = 24;
   size_t b_sz = 0;
-  in >> bank.capacity >> b_sz;
+  if (!(in >> b_cap >> b_sz)) return false;
+  bank.capacity = std::max(24, b_cap);
   bank.clear();
   for (size_t i = 0; i < b_sz; ++i) {
     int raw_id = -1;
     int qty = 0;
-    in >> raw_id >> qty;
-    auto id = static_cast<ItemId>(raw_id);
+    if (!(in >> raw_id >> qty)) return false;
+    ItemId id = item_id_or_none(raw_id);
     if (is_valid_item(id) && qty > 0) {
       bank.items.push_back(Bank::Slot{id, qty});
     }
   }
 
-  if (header == "ROUTINEVERSE_SAVE_V2") {
-    for (size_t i = 0; i < EQUIP_SLOT_COUNT; ++i) {
-      auto slot = static_cast<EquipSlot>(i);
+  if (header == "ROUTINEVERSE_SAVE_V2" || header == "ROUTINEVERSE_SAVE_V3") {
+    for (EquipSlot slot : all_equip_slots) {
       int raw_id = -1;
-      in >> raw_id;
-      auto id = static_cast<ItemId>(raw_id);
-      equipment[slot] = is_valid_item(id) ? id : ItemId::None;
+      if (!(in >> raw_id)) return false;
+      equipment[slot] = item_id_or_none(raw_id);
     }
 
     int raw_food_id = -1;
-    in >> raw_food_id >> equipment.food_qty;
-    auto food_id = static_cast<ItemId>(raw_food_id);
-    equipment.food_item = is_valid_item(food_id) ? food_id : ItemId::None;
+    if (!(in >> raw_food_id >> equipment.food_qty)) return false;
+    equipment.food_item = item_id_or_none(raw_food_id);
   } else {
     for (const auto& slot :
          {EquipSlot::Weapon, EquipSlot::Head, EquipSlot::Armor, EquipSlot::Shield}) {
       int raw_id = -1;
-      in >> raw_id;
-      auto id = static_cast<ItemId>(raw_id);
-      equipment[slot] = is_valid_item(id) ? id : ItemId::None;
+      if (!(in >> raw_id)) return false;
+      equipment[slot] = item_id_or_none(raw_id);
     }
 
     int raw_food_id = -1;
-    in >> raw_food_id >> equipment.food_qty;
-    auto food_id = static_cast<ItemId>(raw_food_id);
-    equipment.food_item = is_valid_item(food_id) ? food_id : ItemId::None;
+    if (!(in >> raw_food_id >> equipment.food_qty)) return false;
+    equipment.food_item = item_id_or_none(raw_food_id);
 
     int c_t = 0, h_t = 0, d_t = 0, r_t = 0, a_t = 0;
-    in >> c_t >> h_t >> d_t >> r_t >> a_t;
+    if (!(in >> c_t >> h_t >> d_t >> r_t >> a_t)) return false;
     equipment[EquipSlot::Cutter] =
         cutter_upgrades[std::clamp(c_t, 0, TOOL_TIER_COUNT - 1)].item_id;
     equipment[EquipSlot::Harvester] =
@@ -3116,14 +3180,32 @@ bool GameState::load_from_file(const std::string& path) {
 
   int act_t = 0;
   int style_t = 0;
-  in >> act_t >> active_action_id >> combat.active_monster_id >> combat.player_hp >>
-      combat.monster_hp >> style_t;
-  active_type = static_cast<ActiveActivityType>(std::clamp(act_t, 0, 2));
-  combat.style = static_cast<CombatStyle>(std::clamp(style_t, 0, 2));
+  if (!(in >> act_t >> active_action_id >> combat.active_monster_id >> combat.player_hp >>
+        combat.monster_hp >> style_t)) {
+    return false;
+  }
+  active_type = activity_type_or_none(act_t);
+  combat.style = combat_style_or_default(style_t);
 
-  in >> combat.bounty_target_id >> combat.bounty_remaining >> combat.bounties_completed;
-  in >> stats.total_items_gathered >> stats.total_monsters_killed >>
-      stats.total_credits_earned >> stats.player_deaths;
+  int b_tid = 0, b_rem = 0, b_comp = 0;
+  if (!(in >> b_tid >> b_rem >> b_comp)) return false;
+  combat.bounty_target_id = static_cast<uint8_t>(std::clamp(b_tid, 0, MONSTER_COUNT - 1));
+  combat.bounty_remaining = static_cast<uint8_t>(std::max(0, b_rem));
+  combat.bounties_completed = static_cast<uint16_t>(std::max(0, b_comp));
+
+  if (!(in >> stats.total_items_gathered >> stats.total_monsters_killed >>
+        stats.total_credits_earned >> stats.player_deaths)) {
+    return false;
+  }
+
+  if (header == "ROUTINEVERSE_SAVE_V3") {
+    for (size_t i = 0; i < stats.monster_kills.size(); ++i) {
+      uint16_t kills = 0;
+      if (in >> kills) {
+        stats.monster_kills[i] = kills;
+      }
+    }
+  }
 
   if (active_type == ActiveActivityType::Skill && active_action_id >= 0 &&
       active_action_id < static_cast<int>(skill_actions.size())) {

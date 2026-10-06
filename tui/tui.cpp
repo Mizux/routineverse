@@ -1127,8 +1127,7 @@ void TuiApp::actionSellAllBank() {
 }
 
 void TuiApp::actionCycleAttackStyle() {
-  int next = (static_cast<int>(_gameState.combat.style) + 1) % 3;
-  _gameState.combat.style = static_cast<CombatStyle>(next);
+  _gameState.combat.style = next_combat_style(_gameState.combat.style);
   _gameState.add_log(std::format("Switched combat mode to {}.",
                                  combat_style_name(_gameState.combat.style)));
 }
@@ -1243,14 +1242,14 @@ void TuiApp::showEquipmentDialog() {
     draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
-    for (int idx = 0; idx < static_cast<int>(EQUIP_SLOT_COUNT); ++idx) {
-      EquipSlot slot = static_cast<EquipSlot>(idx);
+    for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
+      EquipSlot slot = all_equip_slots[idx];
       ItemId id = _gameState.equipment.at(slot);
       std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
-      bool sel = (idx == cursor);
+      bool sel = (static_cast<int>(idx) == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
-      for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + idx, x + 3 + c, ' ');
-      mvprintw(y + 2 + idx, x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
+      for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + static_cast<int>(idx), x + 3 + c, ' ');
+      mvprintw(y + 2 + static_cast<int>(idx), x + 3, "%-11s: %s", equip_slot_name(slot).c_str(),
                desc.c_str());
       attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
     }
@@ -1273,11 +1272,11 @@ void TuiApp::showEquipmentDialog() {
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
-    int slot_count = _gameState.equipment.size();
+    int slot_count = static_cast<int>(all_equip_slots.size());
     if (ch == KEY_UP || ch == 'k') cursor = (cursor + slot_count - 1) % slot_count;
     if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
-      _gameState.unequip_slot(static_cast<EquipSlot>(cursor));
+      _gameState.unequip_slot(equip_slot_or_none(cursor));
     }
   }
   timeout(100);
