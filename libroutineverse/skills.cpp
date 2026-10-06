@@ -287,64 +287,22 @@ const std::vector<SkillAction> skill_actions = {
 
 std::string skill_name(SkillType skill) {
   switch (skill) {
-    case SkillType::Salvaging:
-      return "Salvaging";
-    case SkillType::Fishing:
-      return "Fishing";
-    case SkillType::Farming:
-      return "Farming";
-    case SkillType::Recycling:
-      return "Recycling";
-    case SkillType::SynthCook:
-      return "Synth-Cook";
-    case SkillType::DeepMining:
-      return "Deep-Mining";
-    case SkillType::Smithing:
-      return "Smithing";
-    case SkillType::CyberFab:
-      return "Cyber-Fab";
-    case SkillType::Attack:
-      return "Attack";
-    case SkillType::Strength:
-      return "Strength";
-    case SkillType::Defence:
-      return "Defence";
-    case SkillType::Hitpoints:
-      return "Hitpoints";
-    case SkillType::Bounty:
-      return "Bounty";
+#define X(id, name, short_name, is_combat) \
+    case SkillType::id: \
+      return name;
+    RV_SKILL_TYPE_LIST(X)
+#undef X
   }
   return "Unknown";
 }
 
 std::string skill_short_name(SkillType skill) {
   switch (skill) {
-    case SkillType::Salvaging:
-      return "SLV";
-    case SkillType::Fishing:
-      return "FSH";
-    case SkillType::Farming:
-      return "FRM";
-    case SkillType::Recycling:
-      return "REC";
-    case SkillType::SynthCook:
-      return "SYN";
-    case SkillType::DeepMining:
-      return "MIN";
-    case SkillType::Smithing:
-      return "SMT";
-    case SkillType::CyberFab:
-      return "FAB";
-    case SkillType::Attack:
-      return "ATK";
-    case SkillType::Strength:
-      return "STR";
-    case SkillType::Defence:
-      return "DEF";
-    case SkillType::Hitpoints:
-      return "HP";
-    case SkillType::Bounty:
-      return "BNT";
+#define X(id, name, short_name, is_combat) \
+    case SkillType::id: \
+      return short_name;
+    RV_SKILL_TYPE_LIST(X)
+#undef X
   }
   return "???";
 }

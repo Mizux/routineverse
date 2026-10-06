@@ -655,7 +655,8 @@ void MainWindow::updateLiveProgressOnly() {
     _progressbar_monster_hp->setValue(std::clamp(chp, 0, mhp));
     _progressbar_monster_hp->setFormat(
         QString("%1: %2 / %3 HP")
-            .arg(monster_info[std::clamp(mon_id, 0, MONSTER_COUNT - 1)].name)
+            .arg(QString::fromStdString(
+                monster_name(monster_info[std::clamp(mon_id, 0, MONSTER_COUNT - 1)].id)))
             .arg(chp)
             .arg(mhp));
   }
@@ -714,7 +715,7 @@ void MainWindow::updateAllUi() {
   if (_label_bounty_task) {
     const auto& mon = monster_info[_gameState.combat.bounty_target_id];
     _label_bounty_task->setText(
-        QString("Bounty: %1x %2").arg(_gameState.combat.bounty_remaining).arg(mon.name));
+        QString("Bounty: %1x %2").arg(_gameState.combat.bounty_remaining).arg(monster_name(mon.id).c_str()));
   }
   if (_group_bank) {
     _group_bank->setTitle(
@@ -846,7 +847,7 @@ void MainWindow::_fillTreeviewMonsters() {
     const auto& mon = monster_info[i];
     auto* item = new QTreeWidgetItem(_treeview_monsters);
 
-    QString m_name = QString::fromUtf8(mon.name);
+    QString m_name = QString::fromStdString(monster_name(mon.id));
     if (_gameState.active_type == ActiveActivityType::Combat &&
         _gameState.combat.active_monster_id == i) {
       m_name = "⚔ " + m_name;
@@ -1282,7 +1283,7 @@ void WindowBestiary::_setupWidget() {
     }
 
     item->setText(0, QString::number(mon.combat_level));
-    item->setText(1, QString::fromUtf8(mon.name));
+    item->setText(1, QString::fromStdString(monster_name(mon.id)));
     item->setText(2, QString::fromUtf8(mon.zone_name));
     item->setText(3, QString("%1 HP / %2").arg(mon.max_hp).arg(mon.max_hit));
     item->setText(4, QString("You %1% / Foe %2%")

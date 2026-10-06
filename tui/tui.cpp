@@ -805,7 +805,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     std::string style_task = std::format(
         "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat.style),
         _gameState.combat.bounty_remaining,
-        monster_info[_gameState.combat.bounty_target_id].name);
+        monster_name(monster_info[_gameState.combat.bounty_target_id].id));
     if (static_cast<int>(style_task.size()) > inner_w) {
       style_task = style_task.substr(0, inner_w);
     }
@@ -830,7 +830,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
       std::string mname =
-          (is_fighting ? "* " : (is_task ? "! " : "")) + std::string(mon.name);
+          (is_fighting ? "* " : (is_task ? "! " : "")) + monster_name(mon.id);
       if (static_cast<int>(mname.size()) > 18) mname = mname.substr(0, 18);
       std::string zname = mon.zone_name;
       if (static_cast<int>(zname.size()) > 13) zname = zname.substr(0, 13);
@@ -1315,7 +1315,7 @@ void TuiApp::showBestiaryDialog() {
   for (int i = 0; i < MONSTER_COUNT; ++i) {
     const auto& mon = monster_info[i];
     oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
-                       mon.combat_level, mon.name, mon.zone_name, mon.max_hp,
+                       mon.combat_level, monster_name(mon.id), mon.zone_name, mon.max_hp,
                        mon.max_hit, _gameState.stats.monster_kills[i]);
     oss << std::format("   Salvage: {}-{} Cr", mon.credits_min, mon.credits_max);
     for (const auto& d : mon.drops) {

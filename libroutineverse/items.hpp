@@ -6,197 +6,193 @@
 #include <optional>
 #include <string>
 
+#define RV_ITEM_ID_LIST(X) \
+  X(None) \
+  /* Scrap & Tech Nodes */ \
+  X(CopperWireScrap) \
+  X(PlasteelShards) \
+  X(CarbonNanotubes) \
+  X(OpticFiberBundle) \
+  X(PositronicRelays) \
+  X(CryoCellCore) \
+  X(PlasmaConduit) \
+  X(QuantumNode) \
+  X(AiMainframeCore) \
+  /* Recycled Basic / Raw Materials */ \
+  X(CopperFilament) \
+  X(PlasteelPolymer) \
+  X(CarbonFiberWeave) \
+  X(OpticSilicaGlass) \
+  X(PositronicWafer) \
+  X(CryoCoolantGel) \
+  X(PlasmaCoil) \
+  X(QuantumLattice) \
+  X(NeuralMatrix) \
+  /* Raw Synth-Biota */ \
+  X(RawKrillBiomass) \
+  X(RawNeonEel) \
+  X(RawSynthCarp) \
+  X(RawChromeSalmon) \
+  X(RawCyberLobster) \
+  X(RawPlasmaRay) \
+  X(RawApexShark) \
+  X(RawLeviathanCell) \
+  X(RawCyberKraken) \
+  /* Hydro-Farmed Crops & Synth-Noodles */ \
+  X(HydroWheat) \
+  X(SoyPods) \
+  X(NeonScallion) \
+  X(GlowNori) \
+  X(BioBamboo) \
+  X(CyberShiitake) \
+  X(PlasmaChili) \
+  X(ChronoLotus) \
+  X(QuantumTruffle) \
+  X(SynthNoodles) \
+  /* Synthesized Stims, Cyber-Ramen & Toxic Slag */ \
+  X(KrillRation) \
+  X(NeonEelSkewer) \
+  X(SynthCarpPack) \
+  X(ChromeSalmonStim) \
+  X(CyberLobsterMeal) \
+  X(PlasmaRayInfusion) \
+  X(ApexSharkBooster) \
+  X(LeviathanNanomed) \
+  X(KrakenBioElixir) \
+  X(ShoyuRamen) \
+  X(ScallionRamen) \
+  X(NoriRamen) \
+  X(BambooRamen) \
+  X(ShiitakeRamen) \
+  X(PlasmaChiliRamen) \
+  X(ChronoLotusRamen) \
+  X(TruffleRamen) \
+  X(QuantumKrakenRamen) \
+  X(SynthProteinBar) \
+  X(ToxicSlag) \
+  /* Deep-Mined Ores & Cells */ \
+  X(CopperOre) \
+  X(SiliconOre) \
+  X(TitaniumOre) \
+  X(CarbonCell) \
+  X(SilverOre) \
+  X(GoldOre) \
+  X(CobaltOre) \
+  X(TungstenOre) \
+  X(NeutroniumOre) \
+  X(ChronoOre) \
+  X(QuantumOre) \
+  /* Refined Alloys & Conductors */ \
+  X(ScrapAlloy) \
+  X(TitaniumAlloy) \
+  X(DurasteelAlloy) \
+  X(SilverConductor) \
+  X(GoldSuperconductor) \
+  X(CobaltAlloy) \
+  X(TungstenAlloy) \
+  X(NeutroniumAlloy) \
+  X(ChronoAlloy) \
+  X(QuantumAlloy) \
+  /* Data Crystals */ \
+  X(AmberDatachip) \
+  X(SapphireCortex) \
+  X(RubyLaserCore) \
+  X(EmeraldCryptokey) \
+  X(QuantumDiamond) \
+  /* Weapons - Mono-Blades */ \
+  X(ScrapBlade) \
+  X(TitaniumBlade) \
+  X(DurasteelBlade) \
+  X(CobaltBlade) \
+  X(TungstenBlade) \
+  X(NeutroniumBlade) \
+  X(ChronoBlade) \
+  X(QuantumBlade) \
+  /* Visors */ \
+  X(ScrapVisor) \
+  X(TitaniumVisor) \
+  X(DurasteelVisor) \
+  X(CobaltVisor) \
+  X(TungstenVisor) \
+  X(NeutroniumVisor) \
+  X(ChronoVisor) \
+  X(QuantumVisor) \
+  /* Exo-Suits */ \
+  X(ScrapExoSuit) \
+  X(TitaniumExoSuit) \
+  X(DurasteelExoSuit) \
+  X(CobaltExoSuit) \
+  X(TungstenExoSuit) \
+  X(NeutroniumExoSuit) \
+  X(ChronoExoSuit) \
+  X(QuantumExoSuit) \
+  /* Holo-Shields */ \
+  X(ScrapShield) \
+  X(TitaniumShield) \
+  X(DurasteelShield) \
+  X(CobaltShield) \
+  X(TungstenShield) \
+  X(NeutroniumShield) \
+  X(ChronoShield) \
+  X(QuantumShield) \
+  /* Tools - Salvaging Cutters */ \
+  X(ScrapCutter) \
+  X(TitaniumCutter) \
+  X(DurasteelCutter) \
+  X(CobaltCutter) \
+  X(TungstenCutter) \
+  X(NeutroniumCutter) \
+  X(ChronoCutter) \
+  /* Tools - Bio-Harvesters */ \
+  X(ScrapHarvester) \
+  X(TitaniumHarvester) \
+  X(DurasteelHarvester) \
+  X(CobaltHarvester) \
+  X(TungstenHarvester) \
+  X(NeutroniumHarvester) \
+  X(ChronoHarvester) \
+  /* Tools - Mining Drills */ \
+  X(ScrapDrill) \
+  X(TitaniumDrill) \
+  X(DurasteelDrill) \
+  X(CobaltDrill) \
+  X(TungstenDrill) \
+  X(NeutroniumDrill) \
+  X(ChronoDrill) \
+  /* Tools - Synth-Reactors */ \
+  X(BasicReactor) \
+  X(PlasteelReactor) \
+  X(NanotubeReactor) \
+  X(PositronicReactor) \
+  X(PlasmaReactor) \
+  X(QuantumReactor) \
+  X(MainframeReactor) \
+  /* Cyberware - Auto-Stim Injectors */ \
+  X(AutoStimMk1) \
+  X(AutoStimMk2) \
+  X(AutoStimMk3) \
+  /* Enemy Salvage Loot */ \
+  X(ServoParts) \
+  X(HeavyChassis) \
+  X(ApexCyberCore) \
+  X(Microchip) \
+  X(SynthWeaveHide)
+
 enum class ItemId : uint16_t {
-  None,
-  // Scrap & Tech Nodes
-  CopperWireScrap,
-  PlasteelShards,
-  CarbonNanotubes,
-  OpticFiberBundle,
-  PositronicRelays,
-  CryoCellCore,
-  PlasmaConduit,
-  QuantumNode,
-  AiMainframeCore,
-
-  // Recycled Basic / Raw Materials
-  CopperFilament,
-  PlasteelPolymer,
-  CarbonFiberWeave,
-  OpticSilicaGlass,
-  PositronicWafer,
-  CryoCoolantGel,
-  PlasmaCoil,
-  QuantumLattice,
-  NeuralMatrix,
-
-  // Raw Synth-Biota
-  RawKrillBiomass,
-  RawNeonEel,
-  RawSynthCarp,
-  RawChromeSalmon,
-  RawCyberLobster,
-  RawPlasmaRay,
-  RawApexShark,
-  RawLeviathanCell,
-  RawCyberKraken,
-
-  // Hydro-Farmed Crops & Synth-Noodles
-  HydroWheat,
-  SoyPods,
-  NeonScallion,
-  GlowNori,
-  BioBamboo,
-  CyberShiitake,
-  PlasmaChili,
-  ChronoLotus,
-  QuantumTruffle,
-  SynthNoodles,
-
-  // Synthesized Stims, Cyber-Ramen & Toxic Slag
-  KrillRation,
-  NeonEelSkewer,
-  SynthCarpPack,
-  ChromeSalmonStim,
-  CyberLobsterMeal,
-  PlasmaRayInfusion,
-  ApexSharkBooster,
-  LeviathanNanomed,
-  KrakenBioElixir,
-  ShoyuRamen,
-  ScallionRamen,
-  NoriRamen,
-  BambooRamen,
-  ShiitakeRamen,
-  PlasmaChiliRamen,
-  ChronoLotusRamen,
-  TruffleRamen,
-  QuantumKrakenRamen,
-  SynthProteinBar,
-  ToxicSlag,
-
-  // Deep-Mined Ores & Cells
-  CopperOre,
-  SiliconOre,
-  TitaniumOre,
-  CarbonCell,
-  SilverOre,
-  GoldOre,
-  CobaltOre,
-  TungstenOre,
-  NeutroniumOre,
-  ChronoOre,
-  QuantumOre,
-
-  // Refined Alloys & Conductors
-  ScrapAlloy,
-  TitaniumAlloy,
-  DurasteelAlloy,
-  SilverConductor,
-  GoldSuperconductor,
-  CobaltAlloy,
-  TungstenAlloy,
-  NeutroniumAlloy,
-  ChronoAlloy,
-  QuantumAlloy,
-
-  // Data Crystals
-  AmberDatachip,
-  SapphireCortex,
-  RubyLaserCore,
-  EmeraldCryptokey,
-  QuantumDiamond,
-
-  // Weapons - Mono-Blades
-  ScrapBlade,
-  TitaniumBlade,
-  DurasteelBlade,
-  CobaltBlade,
-  TungstenBlade,
-  NeutroniumBlade,
-  ChronoBlade,
-  QuantumBlade,
-
-  // Visors
-  ScrapVisor,
-  TitaniumVisor,
-  DurasteelVisor,
-  CobaltVisor,
-  TungstenVisor,
-  NeutroniumVisor,
-  ChronoVisor,
-  QuantumVisor,
-
-  // Exo-Suits
-  ScrapExoSuit,
-  TitaniumExoSuit,
-  DurasteelExoSuit,
-  CobaltExoSuit,
-  TungstenExoSuit,
-  NeutroniumExoSuit,
-  ChronoExoSuit,
-  QuantumExoSuit,
-
-  // Holo-Shields
-  ScrapShield,
-  TitaniumShield,
-  DurasteelShield,
-  CobaltShield,
-  TungstenShield,
-  NeutroniumShield,
-  ChronoShield,
-  QuantumShield,
-
-  // Tools - Salvaging Cutters
-  ScrapCutter,
-  TitaniumCutter,
-  DurasteelCutter,
-  CobaltCutter,
-  TungstenCutter,
-  NeutroniumCutter,
-  ChronoCutter,
-
-  // Tools - Bio-Harvesters
-  ScrapHarvester,
-  TitaniumHarvester,
-  DurasteelHarvester,
-  CobaltHarvester,
-  TungstenHarvester,
-  NeutroniumHarvester,
-  ChronoHarvester,
-
-  // Tools - Mining Drills
-  ScrapDrill,
-  TitaniumDrill,
-  DurasteelDrill,
-  CobaltDrill,
-  TungstenDrill,
-  NeutroniumDrill,
-  ChronoDrill,
-
-  // Tools - Synth-Reactors
-  BasicReactor,
-  PlasteelReactor,
-  NanotubeReactor,
-  PositronicReactor,
-  PlasmaReactor,
-  QuantumReactor,
-  MainframeReactor,
-
-  // Cyberware - Auto-Stim Injectors
-  AutoStimMk1,
-  AutoStimMk2,
-  AutoStimMk3,
-
-  // Enemy Salvage Loot
-  ServoParts,
-  HeavyChassis,
-  ApexCyberCore,
-  Microchip,
-  SynthWeaveHide,
+#define X(id) id,
+  RV_ITEM_ID_LIST(X)
+#undef X
 };
 
-inline constexpr size_t ITEM_COUNT = 152;
+inline constexpr std::array all_item_ids{std::to_array<ItemId>({
+#define X(id) ItemId::id,
+    RV_ITEM_ID_LIST(X)
+#undef X
+})};
+
+inline constexpr size_t ITEM_COUNT = all_item_ids.size();
+
+std::string item_name(ItemId id);
 
 inline constexpr bool is_valid_item(ItemId id) noexcept {
   return id != ItemId::None && static_cast<size_t>(id) < ITEM_COUNT;

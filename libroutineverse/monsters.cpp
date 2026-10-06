@@ -1,7 +1,9 @@
 #include "monsters.hpp"
 
+#include <format>
+
 const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
-    {"Stray Servo-Drone",
+    {MonsterId::StrayServoDrone,
      "Neon Slums",
      1,
      30,
@@ -18,7 +20,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::ServoParts, 100, 1, 1},
        {ItemId::KrillRation, 25, 1, 2},
        {ItemId::ScrapCutter, 12, 1, 1}}}},
-    {"Bio-Vat Hound",
+    {MonsterId::BioVatHound,
      "Neon Slums",
      4,
      65,
@@ -35,7 +37,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::SynthProteinBar, 70, 1, 2},
        {ItemId::ServoParts, 100, 1, 1},
        {ItemId::TitaniumHarvester, 10, 1, 1}}}},
-    {"Street Scavenger",
+    {MonsterId::StreetScavenger,
      "Neon Slums",
      9,
      110,
@@ -52,7 +54,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::SynthCarpPack, 40, 1, 2},
        {ItemId::ServoParts, 100, 1, 1},
        {ItemId::TitaniumCutter, 10, 1, 1}}}},
-    {"Chrome Gang Punk",
+    {MonsterId::ChromeGangPunk,
      "Back-Alley Sector",
      14,
      160,
@@ -69,7 +71,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::TitaniumOre, 45, 2, 4},
        {ItemId::ServoParts, 100, 1, 1},
        {ItemId::TitaniumDrill, 10, 1, 1}}}},
-    {"Riot Enforcer Bot",
+    {MonsterId::RiotEnforcerBot,
      "Industrial Sector",
      24,
      280,
@@ -86,7 +88,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::DurasteelBlade, 12, 1, 1},
        {ItemId::CarbonCell, 40, 3, 6},
        {ItemId::DurasteelCutter, 10, 1, 1}}}},
-    {"Chem-Mutant Brute",
+    {MonsterId::ChemMutantBrute,
      "Industrial Sector",
      36,
      450,
@@ -103,7 +105,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::CobaltOre, 45, 2, 5},
        {ItemId::CyberLobsterMeal, 35, 2, 4},
        {ItemId::DurasteelHarvester, 10, 1, 1}}}},
-    {"Cryo-Sec Mech",
+    {MonsterId::CryoSecMech,
      "Industrial Sector",
      48,
      650,
@@ -120,7 +122,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::CobaltExoSuit, 10, 1, 1},
        {ItemId::SapphireCortex, 25, 1, 2},
        {ItemId::CobaltDrill, 8, 1, 1}}}},
-    {"Corp Shadow-Op",
+    {MonsterId::CorpShadowOp,
      "Megacorp Plaza",
      60,
      880,
@@ -137,7 +139,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::TungstenOre, 45, 2, 5},
        {ItemId::PlasmaRayInfusion, 40, 2, 4},
        {ItemId::PositronicReactor, 8, 1, 1}}}},
-    {"Cobalt Cyber-Ninja",
+    {MonsterId::CobaltCyberNinja,
      "Megacorp Plaza",
      74,
      1150,
@@ -154,7 +156,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::RubyLaserCore, 30, 1, 2},
        {ItemId::ApexSharkBooster, 35, 2, 4},
        {ItemId::TungstenCutter, 8, 1, 1}}}},
-    {"Neutronium Cyborg",
+    {MonsterId::NeutroniumCyborg,
      "Megacorp Plaza",
      88,
      1500,
@@ -171,7 +173,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::NeutroniumExoSuit, 8, 1, 1},
        {ItemId::EmeraldCryptokey, 30, 1, 2},
        {ItemId::NeutroniumDrill, 7, 1, 1}}}},
-    {"Apex Cyber-Wyrm",
+    {MonsterId::ApexCyberWyrm,
      "Orbital Spire",
      110,
      2150,
@@ -188,7 +190,7 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::ChronoBlade, 15, 1, 1},
        {ItemId::QuantumOre, 30, 1, 3},
        {ItemId::ChronoHarvester, 6, 1, 1}}}},
-    {"NEXUS-9, Rogue Overmind",
+    {MonsterId::Nexus9RogueOvermind,
      "Mainframe Core [BOSS]",
      150,
      3500,
@@ -207,3 +209,28 @@ const std::array<MonsterInfo, MONSTER_COUNT> monster_info = {{
        {ItemId::MainframeReactor, 5, 1, 1}}}},
 }};
 
+std::string monster_name(MonsterId monster) {
+  switch (monster) {
+#define X(id, name) \
+    case MonsterId::id: \
+      return name;
+    RV_MONSTER_ID_LIST(X)
+#undef X
+  }
+  return "Unknown";
+}
+
+const MonsterInfo& get_monster_info(MonsterId id) {
+  size_t idx = static_cast<size_t>(id);
+  if (idx < monster_info.size()) {
+    return monster_info[idx];
+  }
+  return monster_info[0];
+}
+
+std::string monster_summary(MonsterId id) {
+  const auto& mon = get_monster_info(id);
+  return std::format("{} (Lv {}, {} HP, MaxHit {}, {})",
+                     monster_name(id), mon.combat_level, mon.max_hp,
+                     mon.max_hit, mon.zone_name);
+}

@@ -332,7 +332,7 @@ bool GameState::start_combat(int monster_id) {
   const auto& mon = monster_info[monster_id];
   if (skill_level(SkillType::Bounty) < mon.bounty_req) {
     add_log(std::format("Requires Bounty Level {} clearance to engage {}.",
-                        mon.bounty_req, mon.name));
+                        mon.bounty_req, monster_name(mon.id)));
     return false;
   }
   check_auto_eat();
@@ -341,9 +341,9 @@ bool GameState::start_combat(int monster_id) {
   combat.monster_hp = mon.max_hp;
   combat.player_attack_timer_ms = 0;
   combat.monster_attack_timer_ms = 0;
-  status_banner = std::format("Engaging {} (Lv {}) in {}", mon.name, mon.combat_level,
+  status_banner = std::format("Engaging {} (Lv {}) in {}", monster_name(mon.id), mon.combat_level,
                               mon.zone_name);
-  add_log(std::format("Engaged hostile {} ({} HP) in {}.", mon.name, mon.max_hp,
+  add_log(std::format("Engaged hostile {} ({} HP) in {}.", monster_name(mon.id), mon.max_hp,
                       mon.zone_name));
   return true;
 }
@@ -635,9 +635,9 @@ void GameState::on_monster_defeated(int monster_id) {
 
   if (loot_str.empty()) {
     add_log(
-        std::format("Neutralized {}! Siphoned {}.", mon.name, money_string(cr_drop)));
+        std::format("Neutralized {}! Siphoned {}.", monster_name(mon.id), money_string(cr_drop)));
   } else {
-    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.", mon.name,
+    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.", monster_name(mon.id),
                         money_string(cr_drop), loot_str));
   }
 
@@ -655,7 +655,7 @@ void GameState::on_player_defeated() {
   add_log(
       std::format("CRITICAL FLATLINE fighting {}! Trauma Team reconstructed "
                   "you in Neo-Sector for {}.",
-                  monster_info[combat.active_monster_id].name, money_string(lost_cr)));
+                  monster_name(monster_info[combat.active_monster_id].id), money_string(lost_cr)));
   stop_activity();
 }
 
@@ -675,7 +675,7 @@ void GameState::assign_new_bounty_contract() {
   combat.bounty_remaining = rand_int(6, 15);
   add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
                       combat.bounty_remaining,
-                      monster_info[combat.bounty_target_id].name,
+                      monster_name(monster_info[combat.bounty_target_id].id),
                       monster_info[combat.bounty_target_id].zone_name));
 }
 
@@ -1339,7 +1339,7 @@ bool GameState::load_from_file(const std::string& path) {
              combat.active_monster_id >= 0 &&
              combat.active_monster_id < MONSTER_COUNT) {
     status_banner =
-        std::format("Engaging {}", monster_info[combat.active_monster_id].name);
+        std::format("Engaging {}", monster_name(monster_info[combat.active_monster_id].id));
   } else {
     status_banner = "Standby — Select a Skill or Hostile Target";
   }

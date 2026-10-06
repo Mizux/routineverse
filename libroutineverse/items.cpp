@@ -1120,3 +1120,7 @@ std::string item_equip_summary(ItemId id) {
   }
 }
 
+std::string item_name(ItemId id) {
+  return get_item_info(id).name;
+}
+

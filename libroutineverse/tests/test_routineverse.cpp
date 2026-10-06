@@ -61,6 +61,23 @@ void test_enum_safety() {
   TEST_CHECK(activity_type_or_none(2) == ActiveActivityType::Combat);
   TEST_CHECK(activity_type_or_none(99) == ActiveActivityType::None);
 
+  // Item name helper
+  TEST_CHECK(item_name(ItemId::CopperWireScrap) == "Copper Wire Scrap");
+
+  // MonsterId helpers
+  TEST_CHECK(all_monster_ids.size() == MONSTER_COUNT);
+  TEST_CHECK(monster_id_or_default(0) == MonsterId::StrayServoDrone);
+  TEST_CHECK(monster_name(MonsterId::StrayServoDrone) == "Stray Servo-Drone");
+  TEST_CHECK(!monster_summary(MonsterId::StrayServoDrone).empty());
+  TEST_CHECK(get_monster_info(MonsterId::StrayServoDrone).combat_level == 1);
+
+  // Skill name helpers
+  TEST_CHECK(skill_name(SkillType::Salvaging) == "Salvaging");
+  TEST_CHECK(skill_short_name(SkillType::Salvaging) == "SLV");
+
+  // Activity type name helper
+  TEST_CHECK(activity_type_name(ActiveActivityType::Skill) == "Skill");
+
   std::cout << "[PASSED] test_enum_safety" << std::endl;
 }
 

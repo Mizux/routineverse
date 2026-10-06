@@ -6,18 +6,23 @@
 #include <optional>
 #include <string>
 
+#define RV_COMBAT_STYLE_LIST(X) \
+  X(Accurate, "Precision (Accuracy)") \
+  X(Aggressive, "Overdrive (Strength)") \
+  X(Defensive, "Evasive (Defence)")
+
 enum class CombatStyle : uint8_t {
-  Accurate,    // Trains Precision (+accuracy)
-  Aggressive,  // Trains Strength (+max hit)
-  Defensive,   // Trains Defence (+evasion)
+#define X(name, str) name,
+  RV_COMBAT_STYLE_LIST(X)
+#undef X
 };
 
 std::string combat_style_name(CombatStyle style);
 
 inline constexpr std::array all_combat_styles{std::to_array<CombatStyle>({
-    CombatStyle::Accurate,
-    CombatStyle::Aggressive,
-    CombatStyle::Defensive,
+#define X(name, str) CombatStyle::name,
+    RV_COMBAT_STYLE_LIST(X)
+#undef X
 })};
 
 inline constexpr std::optional<CombatStyle> combat_style_from_int(int val) noexcept {
@@ -50,13 +55,24 @@ inline constexpr CombatStyle next_combat_style(CombatStyle style) noexcept {
   return CombatStyle::Accurate;
 }
 
+#define RV_ACTIVE_ACTIVITY_TYPE_LIST(X) \
+  X(None, -1, "None") \
+  X(Skill, 0, "Skill") \
+  X(Combat, 1, "Combat")
+
 enum class ActiveActivityType : int8_t {
-  None = -1,
-  Skill,
-  Combat,
+#define X(name, val, str) name = val,
+  RV_ACTIVE_ACTIVITY_TYPE_LIST(X)
+#undef X
 };
-inline constexpr std::array all_activity_types{std::to_array<ActiveActivityType>(
-    {ActiveActivityType::None, ActiveActivityType::Skill, ActiveActivityType::Combat})};
+
+std::string activity_type_name(ActiveActivityType type);
+
+inline constexpr std::array all_activity_types{std::to_array<ActiveActivityType>({
+#define X(name, val, str) ActiveActivityType::name,
+    RV_ACTIVE_ACTIVITY_TYPE_LIST(X)
+#undef X
+})};
 
 inline constexpr std::optional<ActiveActivityType> activity_type_from_int(int val) noexcept {
   if (val >= 0 && static_cast<size_t>(val) < all_activity_types.size()) {
@@ -75,4 +91,3 @@ inline constexpr ActiveActivityType activity_type_or_none(int val) noexcept {
 inline constexpr int activity_type_to_int(ActiveActivityType type) noexcept {
   return static_cast<int>(type);
 }
-
