@@ -12,25 +12,28 @@
 #include <vector>
 
 #include "config.h"
+#include "routineverse.h"
 
 namespace {
 
 enum ColorPair : short {
   CP_DEFAULT = 1,
-  CP_BORDER = 2,
-  CP_BORDER_ACTIVE = 3,
-  CP_TITLE = 4,
-  CP_KEY = 5,
-  CP_GREEN = 6,
-  CP_YELLOW = 7,
-  CP_RED = 8,
-  CP_CYAN = 9,
-  CP_MAGENTA = 10,
-  CP_SELECTED = 11,
-  CP_HEADER_BAR = 12,
-  CP_DIM = 13,
-  CP_GRAPH_LINE = 14,
-  CP_GRAPH_REF = 15,
+  CP_BORDER,
+  CP_BORDER_ACTIVE,
+  CP_TITLE,
+  CP_KEY,
+  CP_RED,
+  CP_GREEN,
+  CP_BLUE,
+  CP_YELLOW,
+  CP_CYAN,
+  CP_MAGENTA,
+  CP_WHITE,
+  CP_SELECTED,
+  CP_HEADER_BAR,
+  CP_DIM,
+  CP_GRAPH_LINE,
+  CP_GRAPH_REF,
 };
 
 void init_btop_colors() {
@@ -43,11 +46,13 @@ void init_btop_colors() {
   init_pair(CP_BORDER_ACTIVE, COLOR_CYAN, -1);
   init_pair(CP_TITLE, COLOR_WHITE, -1);
   init_pair(CP_KEY, COLOR_RED, -1);
-  init_pair(CP_GREEN, COLOR_GREEN, -1);
-  init_pair(CP_YELLOW, COLOR_YELLOW, -1);
   init_pair(CP_RED, COLOR_RED, -1);
+  init_pair(CP_GREEN, COLOR_GREEN, -1);
+  init_pair(CP_BLUE, COLOR_BLUE, -1);
+  init_pair(CP_YELLOW, COLOR_YELLOW, -1);
   init_pair(CP_CYAN, COLOR_CYAN, -1);
   init_pair(CP_MAGENTA, COLOR_MAGENTA, -1);
+  init_pair(CP_WHITE, COLOR_WHITE, -1);
   init_pair(CP_SELECTED, COLOR_BLACK, COLOR_CYAN);
   init_pair(CP_HEADER_BAR, COLOR_WHITE, COLOR_BLUE);
   init_pair(CP_DIM, COLOR_BLUE, -1);
@@ -696,14 +701,38 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     mvprintw(row++, x + 2, "%s", banner.c_str());
     attroff(COLOR_PAIR(CP_YELLOW) | A_BOLD);
 
-    draw_progress_bar(row++, x + 2, std::max(10, inner_w - 8), ratio, CP_GREEN);
+    const SkillType active_skill = skill_actions[_gameState.active_action_id].skill;
+    ColorPair active_cp = CP_GREEN;
+    switch(active_skill) {
+      case SkillType::Salvaging:
+      active_cp = CP_WHITE;
+      break;
+      case SkillType::Fishing:
+      active_cp = CP_BLUE;
+      break;
+      case SkillType::Farming:
+      case SkillType::SynthCook:
+      active_cp = CP_GREEN;
+      break;
+      case SkillType::Recycling:
+      case SkillType::Smithing:
+      active_cp = CP_RED;
+      break;
+      case SkillType::DeepMining:
+      case SkillType::CyberFab:
+      active_cp = CP_YELLOW;
+      break;
+      default:
+      break;
+    }
+    draw_progress_bar(row++, x + 2, std::max(10, inner_w - 8), ratio, active_cp);
     attron(COLOR_PAIR(CP_CYAN) | A_BOLD);
     mvprintw(row - 1, x + 2 + std::max(10, inner_w - 7), "%3d%%",
              static_cast<int>(ratio * 100.0));
     attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-18s %-5s %-4s %-4s %s", "Lv", "Protocol", "Cycle",
+    mvprintw(row++, x + 2, "%-3s %-24s %-5s %-4s %-4s %s", "Lv", "Protocol", "Cycle",
              "XP", "Mst", "Schematic / Output");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
@@ -731,10 +760,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       double eff_s = _gameState.action_effective_interval_ms(id) / 1000.0;
       int m_lvl = _gameState.mastery_level(id);
       std::string aname = (is_running ? "* " : "") + std::string(act.name);
-      if (static_cast<int>(aname.size()) > 18) aname = aname.substr(0, 18);
+      if (static_cast<int>(aname.size()) > 24) aname = aname.substr(0, 24);
 
       std::string line =
-          std::format("{:>2}  {:<18} {:>4.1f}s {:>4} {:>3}  {}", act.req_level, aname,
+          std::format("{:>2}  {:<24} {:>4.1f}s {:>4} {:>3}  {}", act.req_level, aname,
                       eff_s, act.xp, m_lvl, action_recipe(act));
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
