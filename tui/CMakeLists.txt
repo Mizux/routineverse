@@ -15,7 +15,6 @@ target_sources(routineverse-tui PRIVATE
 )
 target_include_directories(routineverse-tui PRIVATE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/app>
   ${CURSES_INCLUDE_DIRS}
 )
 target_compile_definitions(routineverse-tui PRIVATE

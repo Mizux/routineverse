@@ -2,6 +2,7 @@ add_library(libroutineverse SHARED)
 target_sources(libroutineverse PRIVATE
   combat.cpp
   combat.hpp
+  config.hpp
   game_state.cpp
   game_state.hpp
   gears.cpp
@@ -31,7 +32,7 @@ set_target_properties(libroutineverse PROPERTIES
   SOVERSION ${PROJECT_VERSION_MAJOR}
   POSITION_INDEPENDENT_CODE ON
   WINDOWS_EXPORT_ALL_SYMBOLS ON
-  PUBLIC_HEADER "combat.hpp;game_state.hpp;gears.hpp;items.hpp;monsters.hpp;routineverse.hpp;skills.hpp;utils.hpp"
+  PUBLIC_HEADER "combat.hpp;config.hpp;game_state.hpp;gears.hpp;items.hpp;monsters.hpp;routineverse.hpp;skills.hpp;utils.hpp"
 )
 if(APPLE)
   set_target_properties(libroutineverse PROPERTIES INSTALL_RPATH "@loader_path")
