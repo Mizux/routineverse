@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-// Items
+#pragma region Items
 enum class ItemId : uint16_t {
   None,
   // Scrap & Tech Nodes
@@ -268,8 +268,9 @@ struct ItemInfo {
 
 const ItemInfo& get_item_info(ItemId id);
 std::string item_equip_summary(ItemId id);
+#pragma endregion
 
-// Monsters
+#pragma region Monsters
 struct MonsterDrop {
   ItemId item_id = ItemId::None;
   int chance_pct = 0;  // 1..100
@@ -295,8 +296,9 @@ struct MonsterInfo {
 };
 inline constexpr int MONSTER_COUNT = 12;
 extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
+#pragma endregion
 
-// Gears & Tools
+#pragma region Gears_and_Tools
 enum class EquipSlot : int8_t {
   None = -1,
   Weapon,
@@ -359,6 +361,7 @@ inline constexpr EquipSlot equip_slot(ItemCategory cat) {
       return EquipSlot::None;
   }
 }
+#pragma endregion
 
 // Skills
 inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
