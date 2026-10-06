@@ -26,6 +26,10 @@ elseif(UNIX AND NOT APPLE)
 endif()
 add_library(${PROJECT_NAMESPACE}::libroutineverse ALIAS libroutineverse)
 
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
+
 # Install
 install(TARGETS libroutineverse
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/routineverse
