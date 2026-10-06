@@ -11,6 +11,7 @@
 // Skills
 inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 
+// todo use XMacro
 enum class SkillType : uint8_t {
   // Logistic Skill
   Salvaging,
@@ -31,7 +32,7 @@ enum class SkillType : uint8_t {
 std::string skill_name(SkillType skill);
 std::string skill_short_name(SkillType skill);
 
-inline constexpr std::array all_skills = {
+inline constexpr std::array all_skills{
     SkillType::Salvaging, SkillType::Fishing,  SkillType::Farming,
     SkillType::Recycling, SkillType::SynthCook, SkillType::DeepMining,
     SkillType::Smithing,  SkillType::CyberFab,  SkillType::Attack,

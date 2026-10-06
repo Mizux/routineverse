@@ -11,16 +11,21 @@
 // Gears & Tools
 enum class EquipSlot : int8_t {
   None = -1,
+  // Combat Gear
   Weapon,
   Head,
   Armor,
   Shield,
+  // Logistic Tools
   Cutter,
   Harvester,
   Drill,
   Reactor,
   AutoStim,
 };
+
+std::string equip_slot_name(EquipSlot slot);
+
 inline constexpr size_t EQUIP_SLOT_COUNT = 9;
 inline constexpr std::array<EquipSlot, EQUIP_SLOT_COUNT> all_equip_slots = {
     EquipSlot::Weapon,    EquipSlot::Head,  EquipSlot::Armor,
@@ -46,7 +51,6 @@ inline constexpr int equip_slot_to_int(EquipSlot slot) noexcept {
   return static_cast<int>(slot);
 }
 
-std::string equip_slot_name(EquipSlot slot);
 inline constexpr EquipSlot equip_slot(ItemCategory cat) {
   switch (cat) {
     case ItemCategory::Weapon:

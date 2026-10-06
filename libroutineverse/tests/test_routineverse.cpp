@@ -44,7 +44,7 @@ void test_enum_safety() {
   TEST_CHECK(equip_slot_or_none(99) == EquipSlot::None);
 
   // CombatStyle helpers
-  TEST_CHECK(all_combat_styles.size() == COMBAT_STYLE_COUNT);
+  TEST_CHECK(!all_combat_styles.empty());
   TEST_CHECK(combat_style_or_default(0) == CombatStyle::Accurate);
   TEST_CHECK(combat_style_or_default(1) == CombatStyle::Aggressive);
   TEST_CHECK(combat_style_or_default(2) == CombatStyle::Defensive);
@@ -55,7 +55,7 @@ void test_enum_safety() {
   TEST_CHECK(next_combat_style(CombatStyle::Defensive) == CombatStyle::Accurate);
 
   // ActivityType helpers
-  TEST_CHECK(all_activity_types.size() == ACTIVITY_TYPE_COUNT);
+  TEST_CHECK(!all_activity_types.empty());
   TEST_CHECK(activity_type_or_none(0) == ActiveActivityType::None);
   TEST_CHECK(activity_type_or_none(1) == ActiveActivityType::Skill);
   TEST_CHECK(activity_type_or_none(2) == ActiveActivityType::Combat);

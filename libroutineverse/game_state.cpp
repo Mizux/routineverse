@@ -8,6 +8,8 @@
 #include <fstream>
 #include <string_view>
 
+#include "utils.hpp"
+
 void GameState::Skills::reset() {
   xp.clear();
   for (SkillType sk : all_skills) xp[sk] = 0;

@@ -6,18 +6,19 @@
 #include <optional>
 #include <string>
 
-// Combat
 enum class CombatStyle : uint8_t {
   Accurate,    // Trains Precision (+accuracy)
   Aggressive,  // Trains Strength (+max hit)
   Defensive,   // Trains Defence (+evasion)
 };
-inline constexpr size_t COMBAT_STYLE_COUNT = 3;
-inline constexpr std::array<CombatStyle, COMBAT_STYLE_COUNT> all_combat_styles = {
+
+std::string combat_style_name(CombatStyle style);
+
+inline constexpr std::array all_combat_styles{std::to_array<CombatStyle>({
     CombatStyle::Accurate,
     CombatStyle::Aggressive,
     CombatStyle::Defensive,
-};
+})};
 
 inline constexpr std::optional<CombatStyle> combat_style_from_int(int val) noexcept {
   if (val >= 0 && static_cast<size_t>(val) < all_combat_styles.size()) {
@@ -49,19 +50,13 @@ inline constexpr CombatStyle next_combat_style(CombatStyle style) noexcept {
   return CombatStyle::Accurate;
 }
 
-std::string combat_style_name(CombatStyle style);
-
-enum class ActiveActivityType : uint8_t {
-  None,
+enum class ActiveActivityType : int8_t {
+  None = -1,
   Skill,
   Combat,
 };
-inline constexpr size_t ACTIVITY_TYPE_COUNT = 3;
-inline constexpr std::array<ActiveActivityType, ACTIVITY_TYPE_COUNT> all_activity_types = {
-    ActiveActivityType::None,
-    ActiveActivityType::Skill,
-    ActiveActivityType::Combat,
-};
+inline constexpr std::array all_activity_types{std::to_array<ActiveActivityType>(
+    {ActiveActivityType::None, ActiveActivityType::Skill, ActiveActivityType::Combat})};
 
 inline constexpr std::optional<ActiveActivityType> activity_type_from_int(int val) noexcept {
   if (val >= 0 && static_cast<size_t>(val) < all_activity_types.size()) {

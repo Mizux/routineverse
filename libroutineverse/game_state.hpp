@@ -14,7 +14,6 @@
 #include "items.hpp"
 #include "monsters.hpp"
 #include "skills.hpp"
-#include "utils.hpp"
 
 class GameState {
  public:
