@@ -29,6 +29,12 @@ void test_enum_safety() {
   // Safe fallback in get_item_info
   const auto& invalid_info = get_item_info(static_cast<ItemId>(999));
   TEST_CHECK(invalid_info.id == ItemId::None);
+  for (ItemId id : all_item_ids()) {
+    TEST_CHECK(get_item_info(id).id == id);
+  }
+  for (MonsterId id : all_monster_ids()) {
+    TEST_CHECK(get_monster_info(id).id == id);
+  }
 
   // EquipSlot & upgrade helpers
   TEST_CHECK(!all_equip_slots().empty());
