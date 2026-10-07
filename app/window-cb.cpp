@@ -12,9 +12,8 @@
 void window_main_button_start_clicked_cb(MainWindow& window) {
   auto& gs = window.gameState();
   if (window.modeTabs() && window.modeTabs()->currentIndex() == 1) {
-    int mon_id = window.selectedMonsterId();
-    if (mon_id >= 0) {
-      gs.start_combat(mon_id);
+    if (auto mon_id = window.selectedMonsterId()) {
+      gs.start_combat(*mon_id);
       window.updateAllUi();
     }
   } else {
@@ -215,6 +214,8 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
   const auto& gs = window.gameState();
   long long minutes = gs.total_ticks_ms / 60000;
   long long seconds = (gs.total_ticks_ms / 1000) % 60;
+  auto boss_it = gs.stats.monster_kills.find(MonsterId::Nexus9RogueOvermind);
+  uint16_t boss_kills = (boss_it != gs.stats.monster_kills.end()) ? boss_it->second : 0;
   std::string text = std::format(
       "Operative Summary & Milestones:\n\n"
       "Combat Level: {}   |   Total Skill Level: {} / {}\n"
@@ -232,7 +233,7 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
       gs.used_bank_slots(), gs.bank.capacity, number_string(gs.bounty_tokens),
       gs.combat.bounties_completed, number_string(gs.stats.total_items_gathered),
       number_string(gs.stats.total_monsters_killed), gs.stats.player_deaths,
-      gs.stats.monster_kills[MONSTER_COUNT - 1], minutes, seconds);
+      boss_kills, minutes, seconds);
   QMessageBox::information(&window, "Telemetry & Milestones",
                            QString::fromStdString(text));
 }

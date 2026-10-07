@@ -1,80 +1,32 @@
 #pragma once
 
-#include <array>
-#include <cstddef>
 #include <cstdint>
-#include <optional>
+#include <span>
 #include <string>
 
 #include "items.hpp"
 
 // Gears & Tools
+#define RV_EQUIP_SLOT_LIST(X, Y) \
+  Y(None, -1, "None") \
+  X(Weapon, 0, "Weapon") \
+  X(Head, 1, "Head") \
+  X(Armor, 2, "Armor") \
+  X(Shield, 3, "Shield") \
+  X(Cutter, 4, "Cutter") \
+  X(Harvester, 5, "Harvester") \
+  X(Drill, 6, "Drill") \
+  X(Reactor, 7, "Reactor") \
+  X(AutoStim, 8, "Auto-Stim")
+
 enum class EquipSlot : int8_t {
-  None = -1,
-  // Combat Gear
-  Weapon,
-  Head,
-  Armor,
-  Shield,
-  // Logistic Tools
-  Cutter,
-  Harvester,
-  Drill,
-  Reactor,
-  AutoStim,
+#define X(id, val, name) id = val,
+  RV_EQUIP_SLOT_LIST(X, X)
+#undef X
 };
-
 std::string equip_slot_name(EquipSlot slot);
-
-inline constexpr size_t EQUIP_SLOT_COUNT = 9;
-inline constexpr std::array<EquipSlot, EQUIP_SLOT_COUNT> all_equip_slots = {
-    EquipSlot::Weapon,    EquipSlot::Head,  EquipSlot::Armor,
-    EquipSlot::Shield,    EquipSlot::Cutter, EquipSlot::Harvester,
-    EquipSlot::Drill,     EquipSlot::Reactor, EquipSlot::AutoStim,
-};
-
-inline constexpr std::optional<EquipSlot> equip_slot_from_int(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_equip_slots.size()) {
-    return all_equip_slots[val];
-  }
-  return std::nullopt;
-}
-
-inline constexpr EquipSlot equip_slot_or_none(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_equip_slots.size()) {
-    return all_equip_slots[val];
-  }
-  return EquipSlot::None;
-}
-
-inline constexpr int equip_slot_to_int(EquipSlot slot) noexcept {
-  return static_cast<int>(slot);
-}
-
-inline constexpr EquipSlot equip_slot(ItemCategory cat) {
-  switch (cat) {
-    case ItemCategory::Weapon:
-      return EquipSlot::Weapon;
-    case ItemCategory::Head:
-      return EquipSlot::Head;
-    case ItemCategory::Armor:
-      return EquipSlot::Armor;
-    case ItemCategory::Shield:
-      return EquipSlot::Shield;
-    case ItemCategory::Cutter:
-      return EquipSlot::Cutter;
-    case ItemCategory::Harvester:
-      return EquipSlot::Harvester;
-    case ItemCategory::Drill:
-      return EquipSlot::Drill;
-    case ItemCategory::Reactor:
-      return EquipSlot::Reactor;
-    case ItemCategory::AutoStim:
-      return EquipSlot::AutoStim;
-    default:
-      return EquipSlot::None;
-  }
-}
+std::span<const EquipSlot> all_equip_slots() noexcept;
+EquipSlot equip_slot(ItemCategory cat);
 
 // Shop
 struct ShopUpgradeInfo {
@@ -86,20 +38,12 @@ struct ShopUpgradeInfo {
   uint8_t speed_bonus_pct;
   ItemId item_id = ItemId::None;
 };
-inline constexpr int TOOL_TIER_COUNT = 7;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> cutter_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> harvester_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> drill_upgrades;
-extern const std::array<ShopUpgradeInfo, TOOL_TIER_COUNT> reactor_upgrades;
-inline constexpr int AUTO_STIM_TIER_COUNT = 4;
-extern const std::array<ShopUpgradeInfo, AUTO_STIM_TIER_COUNT> auto_stim_upgrades;
 
-template <size_t N>
-int find_upgrade_tier(const std::array<ShopUpgradeInfo, N>& upgrades, ItemId id) {
-  if (!is_valid_item(id)) return 0;
-  for (size_t i = 0; i < N; ++i) {
-    if (upgrades[i].item_id == id) return static_cast<int>(upgrades[i].tier);
-  }
-  return 0;
-}
+std::span<const ShopUpgradeInfo> cutter_upgrades() noexcept;
+std::span<const ShopUpgradeInfo> harvester_upgrades() noexcept;
+std::span<const ShopUpgradeInfo> drill_upgrades() noexcept;
+std::span<const ShopUpgradeInfo> reactor_upgrades() noexcept;
+std::span<const ShopUpgradeInfo> auto_stim_upgrades() noexcept;
+
+int find_upgrade_tier(std::span<const ShopUpgradeInfo> upgrades, ItemId id);
 

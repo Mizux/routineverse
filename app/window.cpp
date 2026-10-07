@@ -139,8 +139,9 @@ QString HistoryChartView::itemName(int item_idx) {
       return "Player Hitpoints";
     default: {
       int s_idx = item_idx - ITEM_FIRST_SKILL;
-      if (s_idx >= 0 && s_idx < static_cast<int>(all_skills.size())) {
-        return QString::fromStdString(skill_name(all_skills[s_idx]) + " XP");
+      const auto skills = all_skills();
+      if (s_idx >= 0 && s_idx < static_cast<int>(skills.size())) {
+        return QString::fromStdString(skill_name(skills[s_idx]) + " XP");
       }
       return "Credits (Cr)";
     }
@@ -148,7 +149,7 @@ QString HistoryChartView::itemName(int item_idx) {
 }
 
 void HistoryChartView::setItemIndex(int idx) {
-  int clamped = std::clamp(idx, 0, TOTAL_ITEMS - 1);
+  int clamped = std::clamp(idx, 0, totalItems() - 1);
   if (_item_idx != clamped) {
     _item_idx = clamped;
     emit itemChanged(_item_idx);
@@ -178,9 +179,10 @@ void HistoryChartView::updateChart(const GameState& gameState) {
     for (int v : gameState.history.hp) values.push_back(v);
     values.push_back(gameState.combat.player_hp);
   } else {
+    const auto skills = all_skills();
     int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0,
-                           static_cast<int>(all_skills.size()) - 1);
-    SkillType sk = all_skills[s_idx];
+                           static_cast<int>(skills.size()) - 1);
+    SkillType sk = skills[s_idx];
     auto it = gameState.history.skill_xp.find(sk);
     if (it != gameState.history.skill_xp.end()) {
       for (long long v : it->second) values.push_back(v);
@@ -209,7 +211,7 @@ void HistoryChartView::updateChart(const GameState& gameState) {
 
 void HistoryChartView::mousePressEvent(QMouseEvent* event) {
   if (_compact && event->button() == Qt::LeftButton) {
-    setItemIndex((_item_idx + 1) % TOTAL_ITEMS);
+    setItemIndex((_item_idx + 1) % totalItems());
     event->accept();
     return;
   }
@@ -223,7 +225,8 @@ void HistoryChartView::contextMenuEvent(QContextMenuEvent* event) {
           [this]() { emit zoomRequested(_item_idx); });
   menu.addSeparator();
 
-  for (int i = 0; i < TOTAL_ITEMS; ++i) {
+  int total = totalItems();
+  for (int i = 0; i < total; ++i) {
     if (i == ITEM_FIRST_SKILL) menu.addSeparator();
     QAction* act = menu.addAction(itemName(i));
     act->setCheckable(true);
@@ -474,12 +477,6 @@ void MainWindow::_setupWidget() {
   box_game->setContentsMargins(5, 5, 5, 5);
   box_game->setSpacing(3);
 
-  _checkbutton_sound = new QCheckBox("Sou&nd", frame_game);
-  _checkbutton_sound->setChecked(_gameState.sound_enabled);
-  connect(_checkbutton_sound, &QCheckBox::toggled, this,
-          [this](bool checked) { _gameState.sound_enabled = checked; });
-  box_game->addWidget(_checkbutton_sound);
-
   _button_about = new QPushButton("&About", frame_game);
   connect(_button_about, &QPushButton::clicked, this, &MainWindow::slotAbout);
   box_game->addWidget(_button_about);
@@ -595,36 +592,36 @@ int MainWindow::selectedActionId() const {
   return item->data(0, Qt::UserRole).toInt();
 }
 
-int MainWindow::selectedMonsterId() const {
-  if (!_treeview_monsters) return -1;
+std::optional<MonsterId> MainWindow::selectedMonsterId() const {
+  if (!_treeview_monsters) return std::nullopt;
   auto* item = _treeview_monsters->currentItem();
-  if (!item) return -1;
-  return item->data(0, Qt::UserRole).toInt();
+  if (!item) return std::nullopt;
+  return item->data(0, Qt::UserRole).value<MonsterId>();
 }
 
 ItemId MainWindow::selectedBankItemId() const {
   if (!_treeview_bank) return ItemId::None;
   auto* item = _treeview_bank->currentItem();
   if (!item) return ItemId::None;
-  return item_id_or_none(item->data(0, Qt::UserRole).toInt());
+  return item->data(0, Qt::UserRole).value<ItemId>();
 }
 
 void MainWindow::updateLiveProgressOnly() {
   if (_label_active_banner) {
-    _label_active_banner->setText(QString::fromStdString(_gameState.status_banner));
+    _label_active_banner->setText(QString::fromStdString(_gameState.info.status_banner));
   }
   if (_progressbar_action) {
-    if (_gameState.active_type == ActiveActivityType::Skill) {
+    if (_gameState.info.active_type == ActiveActivityType::Skill) {
       int pct =
-          (_gameState.active_target_ms > 0)
-              ? (_gameState.active_progress_ms * 100) / _gameState.active_target_ms
+          (_gameState.info.active_target_ms > 0)
+              ? (_gameState.info.active_progress_ms * 100) / _gameState.info.active_target_ms
               : 0;
       _progressbar_action->setValue(std::clamp(pct, 0, 100));
       _progressbar_action->setFormat(
           QString("%1% (%2s)")
               .arg(pct)
-              .arg(_gameState.active_target_ms / 1000.0, 0, 'f', 1));
-    } else if (_gameState.active_type == ActiveActivityType::Combat) {
+              .arg(_gameState.info.active_target_ms / 1000.0, 0, 'f', 1));
+    } else if (_gameState.info.active_type == ActiveActivityType::Combat) {
       int plr_int = _gameState.player_attack_interval_ms();
       int pct =
           (plr_int > 0) ? (_gameState.combat.player_attack_timer_ms * 100) / plr_int : 0;
@@ -645,18 +642,16 @@ void MainWindow::updateLiveProgressOnly() {
   }
 
   if (_progressbar_monster_hp) {
-    int mon_id = _gameState.combat.active_monster_id;
-    int mhp =
-        (mon_id >= 0 && mon_id < MONSTER_COUNT) ? monster_info[mon_id].max_hp : 100;
-    int chp = (_gameState.active_type == ActiveActivityType::Combat)
+    MonsterId mon_id = _gameState.combat.active_monster_id;
+    int mhp = get_monster_info(mon_id).max_hp;
+    int chp = (_gameState.info.active_type == ActiveActivityType::Combat)
                   ? _gameState.combat.monster_hp
                   : mhp;
     _progressbar_monster_hp->setRange(0, mhp);
     _progressbar_monster_hp->setValue(std::clamp(chp, 0, mhp));
     _progressbar_monster_hp->setFormat(
         QString("%1: %2 / %3 HP")
-            .arg(QString::fromStdString(
-                monster_name(monster_info[std::clamp(mon_id, 0, MONSTER_COUNT - 1)].id)))
+            .arg(QString::fromStdString(monster_name(mon_id)))
             .arg(chp)
             .arg(mhp));
   }
@@ -713,7 +708,7 @@ void MainWindow::updateAllUi() {
     }
   }
   if (_label_bounty_task) {
-    const auto& mon = monster_info[_gameState.combat.bounty_target_id];
+    const auto& mon = get_monster_info(_gameState.combat.bounty_target_id);
     _label_bounty_task->setText(
         QString("Bounty: %1x %2").arg(_gameState.combat.bounty_remaining).arg(monster_name(mon.id).c_str()));
   }
@@ -753,19 +748,19 @@ void MainWindow::_fillTreeviewSkills() {
   _treeview_skills->blockSignals(true);
   _treeview_skills->clear();
 
-  for (size_t i = 0; i < all_skills.size(); ++i) {
-    SkillType sk = all_skills[i];
+  const auto actions = all_actions();
+  for (SkillType sk : all_skills()) {
     int lvl = _gameState.skill_level(sk);
     long long s_xp = _gameState.skill_xp(sk);
     double prog = level_progress_ratio(s_xp) * 100.0;
 
     auto* item = new QTreeWidgetItem(_treeview_skills);
     QString name_str = QString::fromStdString(skill_name(sk));
-    if (_gameState.active_type == ActiveActivityType::Skill &&
-        _gameState.active_action_id >= 0 &&
-        skill_actions[_gameState.active_action_id].skill == sk) {
+    if (_gameState.info.active_type == ActiveActivityType::Skill &&
+        _gameState.info.active_action_id >= 0 &&
+        actions[_gameState.info.active_action_id].skill == sk) {
       name_str = "▶ " + name_str;
-    } else if (_gameState.active_type == ActiveActivityType::Combat &&
+    } else if (_gameState.info.active_type == ActiveActivityType::Combat &&
                is_combat_skill(sk)) {
       name_str = "⚔ " + name_str;
     }
@@ -773,7 +768,7 @@ void MainWindow::_fillTreeviewSkills() {
     item->setText(1, QString("%1 / 99").arg(lvl));
     item->setText(2, QString::fromStdString(number_string(s_xp)));
     item->setText(3, QString("%1%").arg(prog, 0, 'f', 0));
-    item->setData(0, Qt::UserRole, static_cast<int>(i));
+    item->setData(0, Qt::UserRole, QVariant::fromValue(sk));
     item->setTextAlignment(1, Qt::AlignRight | Qt::AlignVCenter);
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
     item->setTextAlignment(3, Qt::AlignRight | Qt::AlignVCenter);
@@ -796,17 +791,18 @@ void MainWindow::_fillTreeviewActions() {
   }
 
   auto act_ids = actions_for_skill(sk);
+  const auto actions = all_actions();
   QTreeWidgetItem* to_select = nullptr;
 
   for (int id : act_ids) {
-    const auto& act = skill_actions[id];
+    const auto& act = actions[id];
     auto* item = new QTreeWidgetItem(_treeview_actions);
     int eff_ms = _gameState.action_effective_interval_ms(id);
     int m_lvl = _gameState.mastery_level(id);
 
     QString act_name = QString::fromUtf8(act.name);
-    if (_gameState.active_type == ActiveActivityType::Skill &&
-        _gameState.active_action_id == id) {
+    if (_gameState.info.active_type == ActiveActivityType::Skill &&
+        _gameState.info.active_action_id == id) {
       act_name = "▶ " + act_name;
     }
 
@@ -824,7 +820,7 @@ void MainWindow::_fillTreeviewActions() {
       }
     }
 
-    if (id == prev_act_id || (!to_select && id == _gameState.active_action_id)) {
+    if (id == prev_act_id || (!to_select && id == _gameState.info.active_action_id)) {
       to_select = item;
     }
   }
@@ -839,32 +835,36 @@ void MainWindow::_fillTreeviewActions() {
 
 void MainWindow::_fillTreeviewMonsters() {
   if (!_treeview_monsters) return;
-  int prev_mon_id = selectedMonsterId();
+  auto prev_mon_id = selectedMonsterId();
   _treeview_monsters->clear();
 
   QTreeWidgetItem* to_select = nullptr;
-  for (int i = 0; i < MONSTER_COUNT; ++i) {
-    const auto& mon = monster_info[i];
+  for (MonsterId mon_id : all_monster_ids()) {
+    const auto& mon = get_monster_info(mon_id);
     auto* item = new QTreeWidgetItem(_treeview_monsters);
 
     QString m_name = QString::fromStdString(monster_name(mon.id));
-    if (_gameState.active_type == ActiveActivityType::Combat &&
-        _gameState.combat.active_monster_id == i) {
+    if (_gameState.info.active_type == ActiveActivityType::Combat &&
+        _gameState.combat.active_monster_id == mon_id) {
       m_name = "⚔ " + m_name;
-    } else if (_gameState.combat.bounty_target_id == i) {
+    } else if (_gameState.combat.bounty_target_id == mon_id) {
       m_name = "★ " + m_name;
     }
 
+    auto kills_it = _gameState.stats.monster_kills.find(mon_id);
+    uint16_t kills = (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
+
     item->setText(0, QString::number(mon.combat_level));
     item->setText(1, m_name);
-    item->setText(2, QString::fromUtf8(mon.zone_name));
+    item->setText(2, QString::fromStdString(zone_name(mon.zone)));
     item->setText(3, QString::number(mon.max_hp));
     item->setText(4, QString::number(mon.max_hit));
     item->setText(5, QString("Lv %1").arg(mon.bounty_req));
-    item->setText(6, QString::number(_gameState.stats.monster_kills[i]));
-    item->setData(0, Qt::UserRole, i);
+    item->setText(6, QString::number(kills));
+    item->setData(0, Qt::UserRole, QVariant::fromValue(mon_id));
 
-    if (i == prev_mon_id || (!to_select && i == _gameState.combat.active_monster_id)) {
+    if ((prev_mon_id && mon_id == *prev_mon_id) ||
+        (!to_select && mon_id == _gameState.combat.active_monster_id)) {
       to_select = item;
     }
   }
@@ -903,7 +903,7 @@ void MainWindow::_fillTreeviewBank() {
     item->setText(1, QString::fromStdString(item_category_name(info.category)));
     item->setText(2, QString::number(slot.qty));
     item->setText(3, extra);
-    item->setData(0, Qt::UserRole, item_id_to_int(slot.item_id));
+    item->setData(0, Qt::UserRole, QVariant::fromValue(slot.item_id));
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
 
     if (slot.item_id == prev_item_id) {
@@ -938,9 +938,7 @@ void MainWindow::onSkillSelectionChanged() {
   if (!_treeview_skills) return;
   auto* item = _treeview_skills->currentItem();
   if (!item) return;
-  int sk_idx = std::clamp(item->data(0, Qt::UserRole).toInt(), 0,
-                          static_cast<int>(all_skills.size()) - 1);
-  setSelectedSkill(all_skills[sk_idx]);
+  setSelectedSkill(item->data(0, Qt::UserRole).value<SkillType>());
 }
 
 void MainWindow::onActionDoubleClicked() {
@@ -952,9 +950,8 @@ void MainWindow::onActionDoubleClicked() {
 }
 
 void MainWindow::onMonsterDoubleClicked() {
-  int mon_id = selectedMonsterId();
-  if (mon_id >= 0) {
-    _gameState.start_combat(mon_id);
+  if (auto mon_id = selectedMonsterId()) {
+    _gameState.start_combat(*mon_id);
     updateAllUi();
   }
 }
@@ -962,7 +959,10 @@ void MainWindow::onMonsterDoubleClicked() {
 void MainWindow::onBankDoubleClicked() { window_main_button_equip_clicked_cb(*this); }
 
 void MainWindow::onAttackStyleChanged(int idx) {
-  _gameState.combat.style = combat_style_or_default(idx);
+  const auto styles = all_combat_styles();
+  if (idx >= 0 && idx < static_cast<int>(styles.size())) {
+    _gameState.combat.style = styles[idx];
+  }
   updateAllUi();
 }
 
@@ -1074,7 +1074,7 @@ void WindowShop::updateShopUi() {
       QString("Available Credits: %1")
           .arg(QString::fromStdString(money_string(_gameState.credits))));
 
-  auto format_tool = [](const auto& arr, int tier) {
+  auto format_tool = [](std::span<const ShopUpgradeInfo> arr, int tier) {
     const auto& cur = arr[tier];
     if (tier + 1 >= static_cast<int>(arr.size())) {
       return QString("%1 (MAX TIER)").arg(cur.name);
@@ -1087,22 +1087,27 @@ void WindowShop::updateShopUi() {
         .arg(nxt.cost_credits);
   };
 
-  _label_cutter->setText(format_tool(cutter_upgrades, _gameState.cutter_tier()));
-  _btn_cutter->setEnabled(_gameState.cutter_tier() + 1 < TOOL_TIER_COUNT);
+  _label_cutter->setText(format_tool(cutter_upgrades(), _gameState.cutter_tier()));
+  _btn_cutter->setEnabled(_gameState.cutter_tier() + 1 <
+                          static_cast<int>(cutter_upgrades().size()));
 
   _label_harvester->setText(
-      format_tool(harvester_upgrades, _gameState.harvester_tier()));
-  _btn_harvester->setEnabled(_gameState.harvester_tier() + 1 < TOOL_TIER_COUNT);
+      format_tool(harvester_upgrades(), _gameState.harvester_tier()));
+  _btn_harvester->setEnabled(_gameState.harvester_tier() + 1 <
+                             static_cast<int>(harvester_upgrades().size()));
 
-  _label_drill->setText(format_tool(drill_upgrades, _gameState.drill_tier()));
-  _btn_drill->setEnabled(_gameState.drill_tier() + 1 < TOOL_TIER_COUNT);
+  _label_drill->setText(format_tool(drill_upgrades(), _gameState.drill_tier()));
+  _btn_drill->setEnabled(_gameState.drill_tier() + 1 <
+                         static_cast<int>(drill_upgrades().size()));
 
-  _label_reactor->setText(format_tool(reactor_upgrades, _gameState.reactor_tier()));
-  _btn_reactor->setEnabled(_gameState.reactor_tier() + 1 < TOOL_TIER_COUNT);
+  _label_reactor->setText(format_tool(reactor_upgrades(), _gameState.reactor_tier()));
+  _btn_reactor->setEnabled(_gameState.reactor_tier() + 1 <
+                           static_cast<int>(reactor_upgrades().size()));
 
   _label_autostim->setText(
-      format_tool(auto_stim_upgrades, _gameState.auto_stim_tier()));
-  _btn_autostim->setEnabled(_gameState.auto_stim_tier() + 1 < AUTO_STIM_TIER_COUNT);
+      format_tool(auto_stim_upgrades(), _gameState.auto_stim_tier()));
+  _btn_autostim->setEnabled(_gameState.auto_stim_tier() + 1 <
+                            static_cast<int>(auto_stim_upgrades().size()));
 
   _label_bank->setText(
       QString("%1 Slots -> +4 Slots for %2")
@@ -1164,8 +1169,12 @@ void WindowEquipment::_setupWidget() {
   QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
-  for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
-    EquipSlot slot = all_equip_slots[idx];
+  const auto slots_span = all_equip_slots();
+  _slot_labels.resize(slots_span.size(), nullptr);
+  _slot_buttons.resize(slots_span.size(), nullptr);
+
+  for (size_t idx = 0; idx < slots_span.size(); ++idx) {
+    EquipSlot slot = slots_span[idx];
     grid->addWidget(
         new QLabel(
             QString("<b>%1:</b>").arg(QString::fromStdString(equip_slot_name(slot))),
@@ -1175,7 +1184,7 @@ void WindowEquipment::_setupWidget() {
     grid->addWidget(_slot_labels[idx], idx, 1);
     _slot_buttons[idx] = new QPushButton("Unequip", grp_gear);
     connect(_slot_buttons[idx], &QPushButton::clicked, this,
-            [this, idx]() { onUnequipSlot(static_cast<int>(idx)); });
+            [this, slot]() { onUnequipSlot(slot); });
     grid->addWidget(_slot_buttons[idx], idx, 2);
   }
 
@@ -1197,8 +1206,9 @@ void WindowEquipment::_setupWidget() {
 }
 
 void WindowEquipment::updateEquipmentUi() {
-  for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
-    ItemId id = _gameState.equipment.at(all_equip_slots[idx]);
+  const auto slots_span = all_equip_slots();
+  for (size_t idx = 0; idx < slots_span.size(); ++idx) {
+    ItemId id = _gameState.equipment.at(slots_span[idx]);
     if (is_valid_item(id)) {
       _slot_labels[idx]->setText(QString::fromStdString(item_equip_summary(id)));
       _slot_buttons[idx]->setEnabled(true);
@@ -1209,7 +1219,7 @@ void WindowEquipment::updateEquipmentUi() {
   }
 
   if (is_valid_item(_gameState.equipment.food_item) &&
-      _gameState.equipment.food_qty > 0) {
+       _gameState.equipment.food_qty > 0) {
     const auto& fi = get_item_info(_gameState.equipment.food_item);
     _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
                              .arg(_gameState.equipment.food_qty)
@@ -1237,8 +1247,8 @@ void WindowEquipment::updateEquipmentUi() {
   _label_stats->setText(QString::fromStdString(st));
 }
 
-void WindowEquipment::onUnequipSlot(int slot_idx) {
-  _gameState.unequip_slot(equip_slot_or_none(slot_idx));
+void WindowEquipment::onUnequipSlot(EquipSlot slot) {
+  _gameState.unequip_slot(slot);
   updateEquipmentUi();
   emit stateChanged();
 }
@@ -1270,8 +1280,8 @@ void WindowBestiary::_setupWidget() {
   tree->setColumnWidth(4, 90);
   tree->setColumnWidth(5, 55);
 
-  for (int i = 0; i < MONSTER_COUNT; ++i) {
-    const auto& mon = monster_info[i];
+  for (MonsterId mon_id : all_monster_ids()) {
+    const auto& mon = get_monster_info(mon_id);
     auto* item = new QTreeWidgetItem(tree);
 
     QString drops_str = QString("%1-%2 Cr").arg(mon.credits_min).arg(mon.credits_max);
@@ -1282,14 +1292,17 @@ void WindowBestiary::_setupWidget() {
       }
     }
 
+    auto kills_it = _gameState.stats.monster_kills.find(mon_id);
+    uint16_t kills = (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
+
     item->setText(0, QString::number(mon.combat_level));
     item->setText(1, QString::fromStdString(monster_name(mon.id)));
-    item->setText(2, QString::fromUtf8(mon.zone_name));
+    item->setText(2, QString::fromStdString(zone_name(mon.zone)));
     item->setText(3, QString("%1 HP / %2").arg(mon.max_hp).arg(mon.max_hit));
     item->setText(4, QString("You %1% / Foe %2%")
-                         .arg(_gameState.player_hit_chance_pct(i))
-                         .arg(_gameState.monster_hit_chance_pct(i)));
-    item->setText(5, QString::number(_gameState.stats.monster_kills[i]));
+                         .arg(_gameState.player_hit_chance_pct(mon_id))
+                         .arg(_gameState.monster_hit_chance_pct(mon_id)));
+    item->setText(5, QString::number(kills));
     item->setText(6, drops_str);
   }
 
@@ -1319,11 +1332,12 @@ void WindowHistory::_setupWidget(int initial_item) {
   hbox_top->addWidget(new QLabel("Metric:", this));
 
   _combo_item = new QComboBox(this);
-  for (int i = 0; i < HistoryChartView::TOTAL_ITEMS; ++i) {
+  int total = HistoryChartView::totalItems();
+  for (int i = 0; i < total; ++i) {
     _combo_item->addItem(HistoryChartView::itemName(i));
   }
   _combo_item->setCurrentIndex(
-      std::clamp(initial_item, 0, HistoryChartView::TOTAL_ITEMS - 1));
+      std::clamp(initial_item, 0, total - 1));
   connect(_combo_item, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           &WindowHistory::onItemChanged);
   hbox_top->addWidget(_combo_item, 1);

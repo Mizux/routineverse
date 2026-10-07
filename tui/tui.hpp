@@ -12,7 +12,9 @@ class TuiApp {
   static constexpr int ITEM_TOTAL_XP = 3;
   static constexpr int ITEM_HP = 4;
   static constexpr int ITEM_FIRST_SKILL = 5;
-  static constexpr int TOTAL_ITEMS = 5 + static_cast<int>(all_skills.size());
+  static int totalItems() {
+    return ITEM_FIRST_SKILL + static_cast<int>(all_skills().size());
+  }
 
   TuiApp();
   ~TuiApp();

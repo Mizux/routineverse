@@ -208,8 +208,9 @@ std::string TuiApp::itemName(int item_idx) {
       return "Player Hitpoints";
     default: {
       int s_idx = item_idx - ITEM_FIRST_SKILL;
-      if (s_idx >= 0 && s_idx < static_cast<int>(all_skills.size())) {
-        return skill_name(all_skills[s_idx]) + " XP";
+      const auto skills = all_skills();
+      if (s_idx >= 0 && s_idx < static_cast<int>(skills.size())) {
+        return skill_name(skills[s_idx]) + " XP";
       }
       return "Credits (Cr)";
     }
@@ -218,22 +219,25 @@ std::string TuiApp::itemName(int item_idx) {
 
 bool TuiApp::isCombatView() const {
   if (_forceCombatView) return true;
-  int idx = std::clamp(_skillCursor, 0, static_cast<int>(all_skills.size()) - 1);
-  return is_combat_skill(all_skills[idx]);
+  const auto skills = all_skills();
+  int idx = std::clamp(_skillCursor, 0, static_cast<int>(skills.size()) - 1);
+  return is_combat_skill(skills[idx]);
 }
 
 void TuiApp::clampCursors() {
+  const auto skills = all_skills();
   _skillCursor =
-      std::clamp(_skillCursor, 0, static_cast<int>(all_skills.size()) - 1);
+      std::clamp(_skillCursor, 0, static_cast<int>(skills.size()) - 1);
   if (!isCombatView()) {
-    auto acts = actions_for_skill(all_skills[_skillCursor]);
+    auto acts = actions_for_skill(skills[_skillCursor]);
     if (acts.empty()) {
       _actionCursor = 0;
     } else {
       _actionCursor = std::clamp(_actionCursor, 0, static_cast<int>(acts.size()) - 1);
     }
   }
-  _monsterCursor = std::clamp(_monsterCursor, 0, MONSTER_COUNT - 1);
+  _monsterCursor =
+      std::clamp(_monsterCursor, 0, static_cast<int>(all_monster_ids().size()) - 1);
   int b_sz = static_cast<int>(_gameState.bank.size());
   if (b_sz <= 0) {
     _bankCursor = 0;
@@ -372,10 +376,10 @@ int TuiApp::run() {
       case 'c':
       case 'C':
         _forceCombatView = !isCombatView();
-        if (_forceCombatView && !is_combat_skill(all_skills[_skillCursor])) {
+        if (_forceCombatView && !is_combat_skill(all_skills()[_skillCursor])) {
           _skillCursor = 8;
         } else if (!_forceCombatView &&
-                   is_combat_skill(all_skills[_skillCursor])) {
+                   is_combat_skill(all_skills()[_skillCursor])) {
           _skillCursor = 0;
         }
         _focus = FocusPane::Actions;
@@ -437,7 +441,7 @@ int TuiApp::run() {
         break;
 
       case 'g':
-        _chartItemIdx = (_chartItemIdx + 1) % TOTAL_ITEMS;
+        _chartItemIdx = (_chartItemIdx + 1) % totalItems();
         break;
 
       case 'G':
@@ -515,7 +519,7 @@ int TuiApp::run() {
             if (ev.x < left_w) {
               _focus = FocusPane::Skills;
               int idx = ev.y - 3;
-              if (idx >= 0 && idx < static_cast<int>(all_skills.size())) {
+              if (idx >= 0 && idx < static_cast<int>(all_skills().size())) {
                 _skillCursor = idx;
                 _forceCombatView = false;
                 _actionCursor = 0;
@@ -524,14 +528,14 @@ int TuiApp::run() {
               _focus = FocusPane::Actions;
               if (isCombatView()) {
                 int idx = ev.y - 8;
-                if (idx >= 0 && idx < MONSTER_COUNT) {
+                if (idx >= 0 && idx < static_cast<int>(all_monster_ids().size())) {
                   _monsterCursor = idx;
                   if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
                     actionStartSelected();
                   }
                 }
               } else {
-                auto acts = actions_for_skill(all_skills[_skillCursor]);
+                auto acts = actions_for_skill(all_skills()[_skillCursor]);
                 int idx = ev.y - 5;
                 if (idx >= 0 && idx < static_cast<int>(acts.size())) {
                   _actionCursor = idx;
@@ -639,9 +643,11 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   mvprintw(row++, x + 2, "%-12s %5s %5s", "Skill", "Level", "Prog");
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
-  int skill_count = static_cast<int>(all_skills.size());
+  const auto skills = all_skills();
+  const auto actions = all_actions();
+  int skill_count = static_cast<int>(skills.size());
   for (int i = 0; i < skill_count && row < y + h - 1; ++i) {
-    SkillType sk = all_skills[i];
+    SkillType sk = skills[i];
     if (sk == SkillType::Attack && h >= skill_count + 4 && row < y + h - 2) {
       attron(COLOR_PAIR(CP_DIM));
       mvaddstr(row++, x + 2, "── Combat & Bounty ─");
@@ -654,10 +660,11 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
     int pct = static_cast<int>(std::round(level_progress_ratio(s_xp) * 100.0));
 
     bool is_sel = (i == _skillCursor);
-    bool is_training = (_gameState.active_type == ActiveActivityType::Skill &&
-                        _gameState.active_action_id >= 0 &&
-                        skill_actions[_gameState.active_action_id].skill == sk) ||
-                       (_gameState.active_type == ActiveActivityType::Combat &&
+    bool is_training = (_gameState.info.active_type == ActiveActivityType::Skill &&
+                        _gameState.info.active_action_id >= 0 &&
+                        _gameState.info.active_action_id < static_cast<int>(actions.size()) &&
+                        actions[_gameState.info.active_action_id].skill == sk) ||
+                       (_gameState.info.active_type == ActiveActivityType::Combat &&
                         is_combat_skill(sk));
 
     short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
@@ -679,7 +686,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
 
   if (!isCombatView()) {
-    SkillType sk = all_skills[_skillCursor];
+    const auto skills = all_skills();
+    const auto actions = all_actions();
+    SkillType sk = skills[_skillCursor];
     if (is_combat_skill(sk)) sk = SkillType::Salvaging;
     std::string title = skill_name(sk) + " Protocols";
     draw_btop_box(y, x, h, w, title, "[Enter]Execute [x]Stop", active);
@@ -687,20 +696,24 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     int row = y + 1;
     // Active task banner + progress bar
     double ratio = 0.0;
-    if (_gameState.active_type == ActiveActivityType::Skill &&
-        _gameState.active_target_ms > 0) {
-      ratio = static_cast<double>(_gameState.active_progress_ms) /
-              static_cast<double>(_gameState.active_target_ms);
+    if (_gameState.info.active_type == ActiveActivityType::Skill &&
+        _gameState.info.active_target_ms > 0) {
+      ratio = static_cast<double>(_gameState.info.active_progress_ms) /
+              static_cast<double>(_gameState.info.active_target_ms);
     }
     attron(COLOR_PAIR(CP_YELLOW) | A_BOLD);
-    std::string banner = _gameState.status_banner;
+    std::string banner = _gameState.info.status_banner;
     if (static_cast<int>(banner.size()) > inner_w) {
       banner = banner.substr(0, inner_w);
     }
     mvprintw(row++, x + 2, "%s", banner.c_str());
     attroff(COLOR_PAIR(CP_YELLOW) | A_BOLD);
 
-    const SkillType active_skill = skill_actions[_gameState.active_action_id].skill;
+    const SkillType active_skill =
+        (_gameState.info.active_action_id >= 0 &&
+         _gameState.info.active_action_id < static_cast<int>(actions.size()))
+            ? actions[_gameState.info.active_action_id].skill
+            : sk;
     ColorPair active_cp = CP_GREEN;
     switch(active_skill) {
       case SkillType::Salvaging:
@@ -745,10 +758,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     for (int i = start_idx; i < static_cast<int>(act_ids.size()) && row < y + h - 1;
          ++i) {
       int id = act_ids[i];
-      const auto& act = skill_actions[id];
+      const auto& act = actions[id];
       bool is_sel = (i == _actionCursor);
-      bool is_running = (_gameState.active_type == ActiveActivityType::Skill &&
-                         _gameState.active_action_id == id);
+      bool is_running = (_gameState.info.active_type == ActiveActivityType::Skill &&
+                         _gameState.info.active_action_id == id);
       bool unlocked = (_gameState.skill_level(sk) >= act.req_level);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
@@ -786,12 +799,12 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_hp_r,
                       plr_hp_r > 0.35 ? CP_GREEN : CP_RED);
 
-    int mon_id = (_gameState.active_type == ActiveActivityType::Combat)
-                     ? _gameState.combat.active_monster_id
-                     : _monsterCursor;
-    mon_id = std::clamp(mon_id, 0, MONSTER_COUNT - 1);
-    const auto& cur_mon = monster_info[mon_id];
-    int cur_mhp = (_gameState.active_type == ActiveActivityType::Combat)
+    const auto monsters = all_monster_ids();
+    MonsterId mon_id = (_gameState.info.active_type == ActiveActivityType::Combat)
+                           ? _gameState.combat.active_monster_id
+                           : monsters[_monsterCursor];
+    const auto& cur_mon = get_monster_info(mon_id);
+    int cur_mhp = (_gameState.info.active_type == ActiveActivityType::Combat)
                       ? _gameState.combat.monster_hp
                       : cur_mon.max_hp;
     double mon_hp_r = static_cast<double>(cur_mhp) / std::max(1, cur_mon.max_hp);
@@ -805,7 +818,7 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     std::string style_task = std::format(
         "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat.style),
         _gameState.combat.bounty_remaining,
-        monster_name(monster_info[_gameState.combat.bounty_target_id].id));
+        monster_name(_gameState.combat.bounty_target_id));
     if (static_cast<int>(style_task.size()) > inner_w) {
       style_task = style_task.substr(0, inner_w);
     }
@@ -817,12 +830,13 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
              "Sector", "HP", "Max", "Bnt", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
-    for (int i = 0; i < MONSTER_COUNT && row < y + h - 1; ++i) {
-      const auto& mon = monster_info[i];
+    for (int i = 0; i < static_cast<int>(monsters.size()) && row < y + h - 1; ++i) {
+      MonsterId m_id = monsters[i];
+      const auto& mon = get_monster_info(m_id);
       bool is_sel = (i == _monsterCursor);
-      bool is_fighting = (_gameState.active_type == ActiveActivityType::Combat &&
-                          _gameState.combat.active_monster_id == i);
-      bool is_task = (i == _gameState.combat.bounty_target_id);
+      bool is_fighting = (_gameState.info.active_type == ActiveActivityType::Combat &&
+                          _gameState.combat.active_monster_id == m_id);
+      bool is_task = (m_id == _gameState.combat.bounty_target_id);
 
       short cp = is_sel ? (active ? CP_SELECTED : CP_CYAN)
                         : (is_fighting ? CP_RED : (is_task ? CP_YELLOW : CP_DEFAULT));
@@ -832,13 +846,19 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       std::string mname =
           (is_fighting ? "* " : (is_task ? "! " : "")) + monster_name(mon.id);
       if (static_cast<int>(mname.size()) > 18) mname = mname.substr(0, 18);
-      std::string zname = mon.zone_name;
+      std::string zname = zone_name(mon.zone);
       if (static_cast<int>(zname.size()) > 13) zname = zname.substr(0, 13);
+
+      uint16_t kills = 0;
+      if (auto it = _gameState.stats.monster_kills.find(m_id);
+          it != _gameState.stats.monster_kills.end()) {
+        kills = it->second;
+      }
 
       std::string line =
           std::format("{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level,
                       mname, zname, mon.max_hp, mon.max_hit, mon.bounty_req,
-                      _gameState.stats.monster_kills[i]);
+                      kills);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -988,9 +1008,10 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
     for (int v : _gameState.history.hp) values.push_back(v);
     values.push_back(_gameState.combat.player_hp);
   } else {
+    const auto skills = all_skills();
     int s_idx = std::clamp(item_idx - ITEM_FIRST_SKILL, 0,
-                           static_cast<int>(all_skills.size()) - 1);
-    SkillType sk = all_skills[s_idx];
+                           static_cast<int>(skills.size()) - 1);
+    SkillType sk = skills[s_idx];
     auto it = _gameState.history.skill_xp.find(sk);
     if (it != _gameState.history.skill_xp.end()) {
       for (long long v : it->second) values.push_back(v);
@@ -1096,9 +1117,9 @@ void TuiApp::drawBottomKeyBar(int y, int cols) {
 
 void TuiApp::actionStartSelected() {
   if (isCombatView()) {
-    _gameState.start_combat(_monsterCursor);
+    _gameState.start_combat(all_monster_ids()[_monsterCursor]);
   } else {
-    auto acts = actions_for_skill(all_skills[_skillCursor]);
+    auto acts = actions_for_skill(all_skills()[_skillCursor]);
     if (_actionCursor >= 0 && _actionCursor < static_cast<int>(acts.size())) {
       _gameState.start_skill_action(acts[_actionCursor]);
     }
@@ -1219,11 +1240,11 @@ void TuiApp::showShopDialog() {
     };
 
     std::array<std::string, 6> items = {
-        fmt_upg("Salvage Cutter", cutter_upgrades, _gameState.cutter_tier()),
-        fmt_upg("Bio-Harvester", harvester_upgrades, _gameState.harvester_tier()),
-        fmt_upg("Mining Drill", drill_upgrades, _gameState.drill_tier()),
-        fmt_upg("Synth-Reactor", reactor_upgrades, _gameState.reactor_tier()),
-        fmt_upg("Auto-Stim", auto_stim_upgrades, _gameState.auto_stim_tier()),
+        fmt_upg("Salvage Cutter", cutter_upgrades(), _gameState.cutter_tier()),
+        fmt_upg("Bio-Harvester", harvester_upgrades(), _gameState.harvester_tier()),
+        fmt_upg("Mining Drill", drill_upgrades(), _gameState.drill_tier()),
+        fmt_upg("Synth-Reactor", reactor_upgrades(), _gameState.reactor_tier()),
+        fmt_upg("Auto-Stim", auto_stim_upgrades(), _gameState.auto_stim_tier()),
         std::format("{:<14}: {} Slots -> +4 Slots ({})", "Vault Space",
                     _gameState.bank.capacity,
                     money_string(_gameState.next_bank_slot_cost())),
@@ -1270,8 +1291,9 @@ void TuiApp::showEquipmentDialog() {
     draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
-    for (size_t idx = 0; idx < all_equip_slots.size(); ++idx) {
-      EquipSlot slot = all_equip_slots[idx];
+    const auto slots_span = all_equip_slots();
+    for (size_t idx = 0; idx < slots_span.size(); ++idx) {
+      EquipSlot slot = slots_span[idx];
       ItemId id = _gameState.equipment.at(slot);
       std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
       bool sel = (static_cast<int>(idx) == cursor);
@@ -1282,7 +1304,7 @@ void TuiApp::showEquipmentDialog() {
       attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
     }
 
-    int stats_y = y + 3 + static_cast<int>(EQUIP_SLOT_COUNT);
+    int stats_y = y + 3 + static_cast<int>(slots_span.size());
     attron(COLOR_PAIR(CP_YELLOW));
     mvprintw(stats_y, x + 3, "Combat Level: %d   │   HP: %d / %d",
              _gameState.combat_level(), _gameState.combat.player_hp,
@@ -1300,11 +1322,11 @@ void TuiApp::showEquipmentDialog() {
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
-    int slot_count = static_cast<int>(all_equip_slots.size());
+    int slot_count = static_cast<int>(slots_span.size());
     if (ch == KEY_UP || ch == 'k') cursor = (cursor + slot_count - 1) % slot_count;
     if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
-      _gameState.unequip_slot(equip_slot_or_none(cursor));
+      _gameState.unequip_slot(slots_span[cursor]);
     }
   }
   timeout(100);
@@ -1312,11 +1334,16 @@ void TuiApp::showEquipmentDialog() {
 
 void TuiApp::showBestiaryDialog() {
   std::ostringstream oss;
-  for (int i = 0; i < MONSTER_COUNT; ++i) {
-    const auto& mon = monster_info[i];
+  for (MonsterId mon_id : all_monster_ids()) {
+    const auto& mon = get_monster_info(mon_id);
+    uint16_t kills = 0;
+    if (auto it = _gameState.stats.monster_kills.find(mon_id);
+        it != _gameState.stats.monster_kills.end()) {
+      kills = it->second;
+    }
     oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
-                       mon.combat_level, monster_name(mon.id), mon.zone_name, mon.max_hp,
-                       mon.max_hit, _gameState.stats.monster_kills[i]);
+                       mon.combat_level, monster_name(mon.id), zone_name(mon.zone),
+                       mon.max_hp, mon.max_hit, kills);
     oss << std::format("   Salvage: {}-{} Cr", mon.credits_min, mon.credits_max);
     for (const auto& d : mon.drops) {
       if (is_valid_item(d.item_id)) {
@@ -1329,14 +1356,15 @@ void TuiApp::showBestiaryDialog() {
 }
 
 void TuiApp::showHistoryDialog(int initial_item) {
-  int item_idx = std::clamp(initial_item, 0, TOTAL_ITEMS - 1);
+  const int total_items = totalItems();
+  int item_idx = std::clamp(initial_item, 0, total_items - 1);
   timeout(-1);
   while (true) {
     erase();
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
     std::string title = std::format("Telemetry History — {} ({}/{})",
-                                    itemName(item_idx), item_idx + 1, TOTAL_ITEMS);
+                                    itemName(item_idx), item_idx + 1, total_items);
     draw_btop_box(0, 0, rows, cols, title, "[Left/Right]Metric [Esc]Close", true,
                   CP_CYAN);
     renderBrailleChart(2, 2, rows - 4, cols - 4, item_idx, true);
@@ -1345,9 +1373,9 @@ void TuiApp::showHistoryDialog(int initial_item) {
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'G' || ch == '\n') break;
     if (ch == KEY_LEFT || ch == 'h') {
-      item_idx = (item_idx + TOTAL_ITEMS - 1) % TOTAL_ITEMS;
+      item_idx = (item_idx + total_items - 1) % total_items;
     } else if (ch == KEY_RIGHT || ch == 'l' || ch == 'g') {
-      item_idx = (item_idx + 1) % TOTAL_ITEMS;
+      item_idx = (item_idx + 1) % total_items;
     }
   }
   _chartItemIdx = item_idx;
@@ -1383,6 +1411,11 @@ void TuiApp::showDocsDialog() {
 void TuiApp::showMilestonesDialog() {
   long long minutes = _gameState.total_ticks_ms / 60000;
   long long seconds = (_gameState.total_ticks_ms / 1000) % 60;
+  uint16_t boss_kills = 0;
+  if (auto it = _gameState.stats.monster_kills.find(MonsterId::Nexus9RogueOvermind);
+      it != _gameState.stats.monster_kills.end()) {
+    boss_kills = it->second;
+  }
   std::string text = std::format(
       "Combat Level: {}   |   Total Skill Level: {} / {}\n"
       "Total Skill XP: {}\n"
@@ -1402,7 +1435,8 @@ void TuiApp::showMilestonesDialog() {
       _gameState.combat.bounties_completed,
       number_string(_gameState.stats.total_items_gathered),
       number_string(_gameState.stats.total_monsters_killed),
-      _gameState.stats.player_deaths, _gameState.stats.monster_kills[MONSTER_COUNT - 1],
+      _gameState.stats.player_deaths,
+      boss_kills,
       minutes, seconds);
   showMessageModal("Operative Telemetry & Milestones", text, CP_YELLOW);
 }

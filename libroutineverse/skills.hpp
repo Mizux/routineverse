@@ -1,15 +1,13 @@
 #pragma once
 
-#include <array>
-#include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <vector>
 
 #include "items.hpp"
 
 // Skills
-inline constexpr uint8_t MAX_SKILL_LEVEL = 99;
 
 #define RV_SKILL_TYPE_LIST(X) \
   X(Salvaging, "Salvaging", "SLV", false) \
@@ -31,30 +29,14 @@ enum class SkillType : uint8_t {
   RV_SKILL_TYPE_LIST(X)
 #undef X
 };
-
 std::string skill_name(SkillType skill);
 std::string skill_short_name(SkillType skill);
 
-inline constexpr std::array all_skills{std::to_array<SkillType>({
-#define X(id, name, short_name, is_combat) SkillType::id,
-    RV_SKILL_TYPE_LIST(X)
-#undef X
-})};
+std::span<const SkillType> all_skills() noexcept;
 
-inline constexpr bool is_combat_skill(SkillType skill) {
-  switch (skill) {
-#define X(id, name, short_name, is_combat) \
-    case SkillType::id: \
-      return is_combat;
-    RV_SKILL_TYPE_LIST(X)
-#undef X
-  }
-  return false;
-}
+bool is_combat_skill(SkillType skill) noexcept;
 
-inline constexpr int max_total_skill_level() {
-  return static_cast<int>(all_skills.size()) * MAX_SKILL_LEVEL;
-}
+int max_total_skill_level() noexcept;
 
 struct SkillAction {
   SkillType skill;
@@ -69,7 +51,8 @@ struct SkillAction {
   ItemId input_item_2;
   int input_qty_2;
 };
-extern const std::vector<SkillAction> skill_actions;
+
+std::span<const SkillAction> all_actions() noexcept;
 std::string action_recipe(const SkillAction& act);
 std::vector<int> actions_for_skill(SkillType skill);
 
@@ -77,4 +60,5 @@ std::vector<int> actions_for_skill(SkillType skill);
 uint64_t xp_for_level(int level);
 int level_for_xp(uint64_t xp);
 double level_progress_ratio(uint64_t xp);
-const std::array<uint64_t, MAX_SKILL_LEVEL + 1>& xp_table();
+
+std::span<const uint64_t> xp_table() noexcept;

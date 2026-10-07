@@ -1,9 +1,8 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
-#include <optional>
+#include <span>
 #include <string>
 
 #define RV_ITEM_ID_LIST(X) \
@@ -184,37 +183,9 @@ enum class ItemId : uint16_t {
 #undef X
 };
 
-inline constexpr std::array all_item_ids{std::to_array<ItemId>({
-#define X(id) ItemId::id,
-    RV_ITEM_ID_LIST(X)
-#undef X
-})};
-
-inline constexpr size_t ITEM_COUNT = all_item_ids.size();
-
 std::string item_name(ItemId id);
-
-inline constexpr bool is_valid_item(ItemId id) noexcept {
-  return id != ItemId::None && static_cast<size_t>(id) < ITEM_COUNT;
-}
-
-inline constexpr std::optional<ItemId> item_id_from_int(int val) noexcept {
-  if (val > 0 && static_cast<size_t>(val) < ITEM_COUNT) {
-    return static_cast<ItemId>(val);
-  }
-  return std::nullopt;
-}
-
-inline constexpr ItemId item_id_or_none(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < ITEM_COUNT) {
-    return static_cast<ItemId>(val);
-  }
-  return ItemId::None;
-}
-
-inline constexpr int item_id_to_int(ItemId id) noexcept {
-  return static_cast<int>(id);
-}
+std::span<const ItemId> all_item_ids() noexcept;
+bool is_valid_item(ItemId id) noexcept;
 
 inline constexpr std::array<ItemId, 5> data_crystal_ids = {
     ItemId::AmberDatachip,

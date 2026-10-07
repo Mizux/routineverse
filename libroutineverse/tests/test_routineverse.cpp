@@ -18,6 +18,7 @@ void test_enum_safety() {
   std::cout << "[RUNNING] test_enum_safety..." << std::endl;
 
   // Item bounds and validity
+  TEST_CHECK(!all_item_ids().empty());
   TEST_CHECK(!is_valid_item(ItemId::None));
   TEST_CHECK(is_valid_item(ItemId::CopperWireScrap));
   TEST_CHECK(is_valid_item(ItemId::SynthWeaveHide));
@@ -25,53 +26,42 @@ void test_enum_safety() {
   TEST_CHECK(!is_valid_item(static_cast<ItemId>(152)));
   TEST_CHECK(!is_valid_item(static_cast<ItemId>(65535)));
 
-  // Safe item conversion helpers
-  TEST_CHECK(item_id_or_none(0) == ItemId::None);
-  TEST_CHECK(item_id_or_none(-1) == ItemId::None);
-  TEST_CHECK(item_id_or_none(999) == ItemId::None);
-  TEST_CHECK(item_id_or_none(1) == ItemId::CopperWireScrap);
-  TEST_CHECK(item_id_to_int(ItemId::CopperWireScrap) == 1);
-
   // Safe fallback in get_item_info
   const auto& invalid_info = get_item_info(static_cast<ItemId>(999));
   TEST_CHECK(invalid_info.id == ItemId::None);
 
-  // EquipSlot helpers
-  TEST_CHECK(all_equip_slots.size() == EQUIP_SLOT_COUNT);
-  TEST_CHECK(equip_slot_or_none(0) == EquipSlot::Weapon);
-  TEST_CHECK(equip_slot_or_none(8) == EquipSlot::AutoStim);
-  TEST_CHECK(equip_slot_or_none(-1) == EquipSlot::None);
-  TEST_CHECK(equip_slot_or_none(99) == EquipSlot::None);
+  // EquipSlot & upgrade helpers
+  TEST_CHECK(!all_equip_slots().empty());
+  TEST_CHECK(!cutter_upgrades().empty());
+  TEST_CHECK(!harvester_upgrades().empty());
+  TEST_CHECK(!drill_upgrades().empty());
+  TEST_CHECK(!reactor_upgrades().empty());
+  TEST_CHECK(!auto_stim_upgrades().empty());
 
   // CombatStyle helpers
   TEST_CHECK(!all_combat_styles().empty());
-  TEST_CHECK(combat_style_or_default(0) == CombatStyle::Accurate);
-  TEST_CHECK(combat_style_or_default(1) == CombatStyle::Aggressive);
-  TEST_CHECK(combat_style_or_default(2) == CombatStyle::Defensive);
-  TEST_CHECK(combat_style_or_default(99) == CombatStyle::Accurate);
-
   TEST_CHECK(next_combat_style(CombatStyle::Accurate) == CombatStyle::Aggressive);
   TEST_CHECK(next_combat_style(CombatStyle::Aggressive) == CombatStyle::Defensive);
   TEST_CHECK(next_combat_style(CombatStyle::Defensive) == CombatStyle::Accurate);
 
   // ActivityType helpers
-  TEST_CHECK(!all_activity_types.empty());
-  TEST_CHECK(activity_type_or_none(0) == ActiveActivityType::None);
-  TEST_CHECK(activity_type_or_none(1) == ActiveActivityType::Skill);
-  TEST_CHECK(activity_type_or_none(2) == ActiveActivityType::Combat);
-  TEST_CHECK(activity_type_or_none(99) == ActiveActivityType::None);
+  TEST_CHECK(!all_activity_types().empty());
 
   // Item name helper
   TEST_CHECK(item_name(ItemId::CopperWireScrap) == "Copper Wire Scrap");
 
-  // MonsterId helpers
-  TEST_CHECK(all_monster_ids.size() == MONSTER_COUNT);
-  TEST_CHECK(monster_id_or_default(0) == MonsterId::StrayServoDrone);
+  // MonsterId & ZoneId helpers
+  TEST_CHECK(!all_monster_ids().empty());
+  TEST_CHECK(!all_zone_ids().empty());
   TEST_CHECK(monster_name(MonsterId::StrayServoDrone) == "Stray Servo-Drone");
   TEST_CHECK(!monster_summary(MonsterId::StrayServoDrone).empty());
   TEST_CHECK(get_monster_info(MonsterId::StrayServoDrone).combat_level == 1);
+  TEST_CHECK(zone_name(get_monster_info(MonsterId::StrayServoDrone).zone) ==
+             "Neon Slums");
 
-  // Skill name helpers
+  // Skill helpers
+  TEST_CHECK(!all_skills().empty());
+  TEST_CHECK(!all_actions().empty());
   TEST_CHECK(skill_name(SkillType::Salvaging) == "Salvaging");
   TEST_CHECK(skill_short_name(SkillType::Salvaging) == "SLV");
 
@@ -88,8 +78,9 @@ void test_equip_rollback_on_full_vault() {
   gs.bank.capacity = 24;
 
   // Fill 23 slots with distinct items
+  const auto items = all_item_ids();
   for (int i = 1; i <= 23; ++i) {
-    auto id = item_id_or_none(i);
+    auto id = items[i];
     TEST_CHECK(is_valid_item(id));
     gs.bank.add_item(id, 10);
   }
@@ -140,8 +131,8 @@ void test_save_load_roundtrip_v3() {
   gs1.credits = 123456;
   gs1.bounty_tokens = 789;
   gs1.combat.player_hp = 45;
-  gs1.stats.monster_kills[0] = 111;
-  gs1.stats.monster_kills[11] = 42; // Nexus-9 boss kills
+  gs1.stats.monster_kills[MonsterId::StrayServoDrone] = 111;
+  gs1.stats.monster_kills[MonsterId::Nexus9RogueOvermind] = 42; // Nexus-9 boss kills
   gs1.stats.total_monsters_killed = 153;
   gs1.equipment[EquipSlot::Weapon] = ItemId::NeutroniumBlade;
 
@@ -158,8 +149,8 @@ void test_save_load_roundtrip_v3() {
   TEST_CHECK(gs2.credits == 123456);
   TEST_CHECK(gs2.bounty_tokens == 789);
   TEST_CHECK(gs2.combat.player_hp == 45);
-  TEST_CHECK(gs2.stats.monster_kills[0] == 111);
-  TEST_CHECK(gs2.stats.monster_kills[11] == 42);
+  TEST_CHECK(gs2.stats.monster_kills[MonsterId::StrayServoDrone] == 111);
+  TEST_CHECK(gs2.stats.monster_kills[MonsterId::Nexus9RogueOvermind] == 42);
   TEST_CHECK(gs2.stats.total_monsters_killed == 153);
   TEST_CHECK(gs2.equipment.at(EquipSlot::Weapon) == ItemId::NeutroniumBlade);
 
@@ -196,24 +187,17 @@ void test_reactor_upgrade_and_xp() {
   gs.start_skill_action(0); // stop whatever was running
   gs.stop_activity();
 
-  // Test gain_xp directly
-  // 100 base XP should give 100 + 5 = 105 XP
-  uint64_t atk_before = gs.skill_xp(SkillType::Attack);
-  // Use a hack: start skill action or gain_xp
-  // gain_xp is private on GameState, but we can verify via complete_skill_action or tick!
-  // Alternatively, complete_skill_action on a SynthCook action:
-  // Let's find a SynthCook action
   auto syn_actions = actions_for_skill(SkillType::SynthCook);
   TEST_CHECK(!syn_actions.empty());
   int act_id = syn_actions[0];
-  const auto& act = skill_actions[act_id];
+  const auto& act = all_actions()[act_id];
   // Add input ingredients if any
   if (is_valid_item(act.input_item_1)) gs.bank.add_item(act.input_item_1, 10);
   if (is_valid_item(act.input_item_2)) gs.bank.add_item(act.input_item_2, 10);
 
   sc_before = gs.skill_xp(SkillType::SynthCook);
   gs.start_skill_action(act_id);
-  gs.tick(gs.active_target_ms + 100);
+  gs.tick(gs.info.active_target_ms + 100);
 
   uint64_t sc_gained = gs.skill_xp(SkillType::SynthCook) - sc_before;
   uint64_t expected_bonus = (act.xp * 5) / 100;
@@ -248,7 +232,7 @@ void test_auto_eat_behavior() {
 
   // Test that starting combat when below threshold auto-eats immediately
   gs.combat.player_hp = threshold - 5;
-  gs.start_combat(0);
+  gs.start_combat(MonsterId::StrayServoDrone);
   TEST_CHECK(gs.combat.player_hp > threshold);
   TEST_CHECK(gs.equipment.food_qty == 3);
 

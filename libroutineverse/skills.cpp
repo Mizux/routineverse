@@ -1,10 +1,16 @@
 #include "skills.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
 #include <format>
 
-const std::array<uint64_t, MAX_SKILL_LEVEL + 1>& xp_table() {
+namespace {
+constexpr uint8_t MAX_SKILL_LEVEL = 99;
+}  // namespace
+
+std::span<const uint64_t> xp_table() noexcept {
   static const auto table = []() {
     std::array<uint64_t, MAX_SKILL_LEVEL + 1> t{};
     t[0] = 0;
@@ -19,10 +25,11 @@ const std::array<uint64_t, MAX_SKILL_LEVEL + 1>& xp_table() {
   return table;
 }
 
-const std::vector<SkillAction> skill_actions = {
-    // Salvaging
-    {SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15, ItemId::CopperWireScrap,
-     1, ItemId::None, 0, ItemId::None, 0},
+std::span<const SkillAction> all_actions() noexcept {
+  static constexpr std::array actions{std::to_array<SkillAction>({
+      // Salvaging
+      {SkillType::Salvaging, "Strip Copper Wiring", 1, 3000, 15, ItemId::CopperWireScrap,
+       1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Salvage Plasteel Hull", 10, 3500, 30,
      ItemId::PlasteelShards, 1, ItemId::None, 0, ItemId::None, 0},
     {SkillType::Salvaging, "Extract Nanotubes", 25, 4000, 55, ItemId::CarbonNanotubes,
@@ -282,8 +289,33 @@ const std::vector<SkillAction> skill_actions = {
      ItemId::QuantumVisor, 1, ItemId::QuantumAlloy, 1, ItemId::NeuralMatrix, 1},
     {SkillType::CyberFab, "Fab Quantum Shield", 98, 4100, 1750, ItemId::QuantumShield,
      1, ItemId::QuantumAlloy, 2, ItemId::NeuralMatrix, 1},
-};
+  })};
+  return actions;
+}
 
+std::span<const SkillType> all_skills() noexcept {
+  static constexpr std::array skills{std::to_array<SkillType>({
+#define X(id, name, short_name, is_combat) SkillType::id,
+      RV_SKILL_TYPE_LIST(X)
+#undef X
+  })};
+  return skills;
+}
+
+bool is_combat_skill(SkillType skill) noexcept {
+  switch (skill) {
+#define X(id, name, short_name, is_combat) \
+    case SkillType::id: \
+      return is_combat;
+    RV_SKILL_TYPE_LIST(X)
+#undef X
+  }
+  return false;
+}
+
+int max_total_skill_level() noexcept {
+  return static_cast<int>(all_skills().size()) * MAX_SKILL_LEVEL;
+}
 
 std::string skill_name(SkillType skill) {
   switch (skill) {
@@ -307,15 +339,14 @@ std::string skill_short_name(SkillType skill) {
   return "???";
 }
 
-
 uint64_t xp_for_level(int level) {
-  const auto& tbl = xp_table();
-  int clamped = std::clamp(level, 1, (int)MAX_SKILL_LEVEL);
+  const auto tbl = xp_table();
+  int clamped = std::clamp(level, 1, static_cast<int>(MAX_SKILL_LEVEL));
   return tbl[clamped];
 }
 
 int level_for_xp(uint64_t xp) {
-  const auto& tbl = xp_table();
+  const auto tbl = xp_table();
   for (int lvl = MAX_SKILL_LEVEL; lvl >= 1; --lvl) {
     if (xp >= tbl[lvl]) return lvl;
   }
@@ -335,8 +366,9 @@ double level_progress_ratio(uint64_t xp) {
 
 std::vector<int> actions_for_skill(SkillType skill) {
   std::vector<int> res;
-  for (int i = 0; i < static_cast<int>(skill_actions.size()); ++i) {
-    if (skill_actions[i].skill == skill) res.push_back(i);
+  const auto actions = all_actions();
+  for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
+    if (actions[i].skill == skill) res.push_back(i);
   }
   return res;
 }

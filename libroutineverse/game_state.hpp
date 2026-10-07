@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <list>
@@ -27,7 +26,7 @@ class GameState {
 
   // Skill & Combat control
   bool start_skill_action(int global_action_id);
-  bool start_combat(int monster_id);
+  bool start_combat(MonsterId monster_id);
   void stop_activity();
 
   // Inventory / Bank management
@@ -82,8 +81,8 @@ class GameState {
   int player_accuracy() const;
   int player_evasion() const;
   int player_damage_reduction() const;
-  int player_hit_chance_pct(int monster_id) const;
-  int monster_hit_chance_pct(int monster_id) const;
+  int player_hit_chance_pct(MonsterId monster_id) const;
+  int monster_hit_chance_pct(MonsterId monster_id) const;
   int auto_eat_threshold_hp() const;
 
   // History & Logging
@@ -178,23 +177,29 @@ class GameState {
   };
   Equipment equipment;
 
-  // Active activity state
-  ActiveActivityType active_type = ActiveActivityType::None;
-  int active_action_id = -1;
-  int active_progress_ms = 0;
-  int active_target_ms = 2000;
+  // Active activity & status state
+  struct GameInfo {
+    ActiveActivityType active_type = ActiveActivityType::None;
+    int active_action_id = -1;
+    int active_progress_ms = 0;
+    int active_target_ms = 2000;
+    std::string status_banner;
+
+    void reset(int initial_target_ms);
+  };
+  GameInfo info;
 
   // Combat & Bounty state
   struct CombatState {
     CombatStyle style = CombatStyle::Accurate;
     int player_hp = 100;
-    int active_monster_id = 0;
+    MonsterId active_monster_id = MonsterId::StrayServoDrone;
     int monster_hp = 30;
     int player_attack_timer_ms = 0;
     int monster_attack_timer_ms = 0;
     int hp_regen_timer_ms = 0;
 
-    uint8_t bounty_target_id = 0;
+    MonsterId bounty_target_id = MonsterId::StrayServoDrone;
     uint8_t bounty_remaining = 10;
     uint16_t bounties_completed = 0;
 
@@ -204,7 +209,7 @@ class GameState {
 
   // Statistics
   struct Stats {
-    std::array<uint16_t, MONSTER_COUNT> monster_kills{};
+    std::unordered_map<MonsterId, uint16_t> monster_kills{};
     uint64_t total_items_gathered = 0;
     uint64_t total_monsters_killed = 0;
     uint64_t total_credits_earned = 250;
@@ -214,9 +219,26 @@ class GameState {
   };
   Stats stats;
 
-  bool sound_enabled = false;
-  std::string status_banner;
-  std::vector<std::string> game_log;
+  // Log Buffer
+  struct LogBuffer {
+    explicit LogBuffer(size_t max_entries = 120) : max_entries(max_entries) {}
+
+    size_t max_entries = 120;
+    std::vector<std::string> entries;
+
+    void clear();
+    void add(const std::string& entry);
+    bool empty() const { return entries.empty(); }
+    size_t size() const { return entries.size(); }
+
+    const std::string& operator[](size_t idx) const { return entries[idx]; }
+    std::string& operator[](size_t idx) { return entries[idx]; }
+    auto begin() { return entries.begin(); }
+    auto end() { return entries.end(); }
+    auto begin() const { return entries.begin(); }
+    auto end() const { return entries.end(); }
+  };
+  LogBuffer game_log;
 
   // History for Charts
   struct History {
@@ -238,7 +260,7 @@ class GameState {
  private:
   void complete_skill_action(int global_action_id);
   void step_combat_tick(int elapsed_ms);
-  void on_monster_defeated(int monster_id);
+  void on_monster_defeated(MonsterId monster_id);
   void on_player_defeated();
   void gain_xp(SkillType skill, uint64_t amount);
 

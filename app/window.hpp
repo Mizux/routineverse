@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QCheckBox>
 #include <QComboBox>
 #include <QContextMenuEvent>
 #include <QDialog>
@@ -24,6 +23,8 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
+#include <optional>
+#include <vector>
 
 #include "routineverse.hpp"
 
@@ -37,7 +38,9 @@ class HistoryChartView : public QChartView {
   static constexpr int ITEM_TOTAL_XP = 3;
   static constexpr int ITEM_HP = 4;
   static constexpr int ITEM_FIRST_SKILL = 5;
-  static constexpr int TOTAL_ITEMS = 5 + static_cast<int>(all_skills.size());
+  static int totalItems() {
+    return ITEM_FIRST_SKILL + static_cast<int>(all_skills().size());
+  }
 
   explicit HistoryChartView(bool compact = true, QWidget* parent = nullptr);
   virtual ~HistoryChartView() = default;
@@ -93,7 +96,7 @@ class MainWindow : public QWidget {
   void setSelectedSkill(SkillType skill);
 
   int selectedActionId() const;
-  int selectedMonsterId() const;
+  std::optional<MonsterId> selectedMonsterId() const;
   ItemId selectedBankItemId() const;
 
   QTabWidget* modeTabs() const { return _tabs_mode; }
@@ -168,7 +171,6 @@ class MainWindow : public QWidget {
   QPushButton* _button_ff10m = nullptr;
   QPushButton* _button_save = nullptr;
   QPushButton* _button_load = nullptr;
-  QCheckBox* _checkbutton_sound = nullptr;
   QPushButton* _button_about = nullptr;
   QPushButton* _button_docs = nullptr;
   QPushButton* _button_highscores = nullptr;
@@ -247,14 +249,14 @@ class WindowEquipment : public QDialog {
   void stateChanged();
 
  private slots:
-  void onUnequipSlot(int slot_idx);
+  void onUnequipSlot(EquipSlot slot);
 
  private:
   void _setupWidget();
 
   GameState& _gameState;
-  std::array<QLabel*, EQUIP_SLOT_COUNT> _slot_labels{};
-  std::array<QPushButton*, EQUIP_SLOT_COUNT> _slot_buttons{};
+  std::vector<QLabel*> _slot_labels;
+  std::vector<QPushButton*> _slot_buttons;
   QLabel* _label_food = nullptr;
   QLabel* _label_stats = nullptr;
 };

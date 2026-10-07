@@ -1,12 +1,27 @@
 #pragma once
 
 #include <array>
-#include <cstddef>
 #include <cstdint>
-#include <optional>
+#include <span>
 #include <string>
 
 #include "items.hpp"
+
+#define RV_ZONE_ID_LIST(X) \
+  X(NeonSlums, "Neon Slums") \
+  X(BackAlleySector, "Back-Alley Sector") \
+  X(IndustrialSector, "Industrial Sector") \
+  X(MegacorpPlaza, "Megacorp Plaza") \
+  X(OrbitalSpire, "Orbital Spire") \
+  X(MainframeCore, "Mainframe Core [BOSS]")
+
+enum class ZoneId : uint8_t {
+#define X(id, name) id,
+  RV_ZONE_ID_LIST(X)
+#undef X
+};
+std::string zone_name(ZoneId zone);
+std::span<const ZoneId> all_zone_ids() noexcept;
 
 #define RV_MONSTER_ID_LIST(X) \
   X(StrayServoDrone, "Stray Servo-Drone") \
@@ -27,34 +42,8 @@ enum class MonsterId : uint8_t {
   RV_MONSTER_ID_LIST(X)
 #undef X
 };
-
 std::string monster_name(MonsterId monster);
-
-inline constexpr std::array all_monster_ids{std::to_array<MonsterId>({
-#define X(id, name) MonsterId::id,
-    RV_MONSTER_ID_LIST(X)
-#undef X
-})};
-
-inline constexpr int MONSTER_COUNT = static_cast<int>(all_monster_ids.size());
-
-inline constexpr std::optional<MonsterId> monster_id_from_int(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_monster_ids.size()) {
-    return all_monster_ids[val];
-  }
-  return std::nullopt;
-}
-
-inline constexpr MonsterId monster_id_or_default(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_monster_ids.size()) {
-    return all_monster_ids[val];
-  }
-  return MonsterId::StrayServoDrone;
-}
-
-inline constexpr int monster_id_to_int(MonsterId id) noexcept {
-  return static_cast<int>(id);
-}
+std::span<const MonsterId> all_monster_ids() noexcept;
 
 struct MonsterDrop {
   ItemId item_id = ItemId::None;
@@ -65,7 +54,7 @@ struct MonsterDrop {
 
 struct MonsterInfo {
   MonsterId id;
-  const char* zone_name;
+  ZoneId zone;
   int combat_level;
   int max_hp;
   int attack_interval_ms;
@@ -79,8 +68,5 @@ struct MonsterInfo {
   bool is_boss;
   std::array<MonsterDrop, 4> drops;
 };
-
-extern const std::array<MonsterInfo, MONSTER_COUNT> monster_info;
-
 const MonsterInfo& get_monster_info(MonsterId id);
 std::string monster_summary(MonsterId id);

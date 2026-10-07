@@ -1124,3 +1124,16 @@ std::string item_name(ItemId id) {
   return get_item_info(id).name;
 }
 
+std::span<const ItemId> all_item_ids() noexcept {
+  static constexpr std::array ids{std::to_array<ItemId>({
+#define X(id) ItemId::id,
+      RV_ITEM_ID_LIST(X)
+#undef X
+  })};
+  return ids;
+}
+
+bool is_valid_item(ItemId id) noexcept {
+  return id != ItemId::None && static_cast<size_t>(id) < all_item_ids().size();
+}
+
