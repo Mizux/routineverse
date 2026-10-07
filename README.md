@@ -25,7 +25,7 @@ It is featuring both a **Qt6 GUI** and a **btop-inspired ncurses TUI**.
 - `libroutineverse/`: Shared C++20 Idle simulation engine (`GameState`), cyberpunk skills & protocols, schematics, cyberware & items, combat & Bounty engine, Cyber-Shop tool upgrades, save/load, and telemetry progression history.
 - `app/`: Qt6 Widgets + QtCharts graphical application with interactive protocol/combat views, progress bars, cyberware & Cyber-Vault manager, Cyber-Shop dialog, hostile database, and telemetry history charts.
 - `tui/`: Terminal User Interface built with wide-character `ncursesw`, featuring btop-style boxes, live protocol progress bars, Braille telemetry charts, and full keyboard/mouse navigation.
-- [`docs/`](./docs/README.md): Game design documentation, Mermaid logistics & production chain graphs ([`logistics.md`](./docs/logistics.md)), and combat/gear progression tables ([`combat.md`](./docs/combat.md)).
+- [`docs/`](./docs/README.md): Game design documentation, Mermaid logistics & production chain graphs ([`logistics.md`](./docs/logistics.md)), Hacking, ICE pools & Firewalls guide ([`hacking.md`](./docs/hacking.md)), and dual HP/Integrity combat & gear progression tables ([`combat.md`](./docs/combat.md)).
 
 ## Prerequisites
 

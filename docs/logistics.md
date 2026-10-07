@@ -6,22 +6,26 @@ This document details all resource extraction, refinement, fabrication, and culi
 
 ## 1. End-to-End Logistics Overview
 
-The non-combat economy is divided into two major industrial branches:
+The non-combat economy is divided into three interconnected industrial branches:
 1. **Metallurgy & Cyberware Branch**: `Salvaging` + `Deep-Mining` $\rightarrow$ `Recycling` + `Smithing` $\rightarrow$ `Cyber-Fab` (Weapons, Armor, and Data Crystals).
-2. **Bio-Agri & Culinary Branch**: `Fishing` + `Farming` $\rightarrow$ `Synth-Noodles` $\rightarrow$ `Synth-Cook` (Biota Stims and Cyber-Ramen).
+2. **Hardware & Hacking Branch**: `Salvaging` + `Deep-Mining` + `Recycling` + `Smithing` $\rightarrow$ `Cyber-Fab` (CPUs & RAM) $\rightarrow$ `Hacking` (Attack ICE, Defense/Repair ICE, Firewalls, and Integrity Patches — see [`hacking.md`](./hacking.md)).
+3. **Bio-Agri & Culinary Branch**: `Fishing` + `Farming` $\rightarrow$ `Synth-Noodles` $\rightarrow$ `Synth-Cook` (Biota Stims and Cyber-Ramen).
 
 ```mermaid
 flowchart TD
-  subgraph Metallurgy["Metallurgy & Cyberware Branch"]
-    S["Salvaging<br/>(9 Scrap Tiers)"]
+  subgraph Metallurgy["Metallurgy, Hardware & Hacking Branch"]
+    S["Salvaging<br/>(9 Scrap Tiers + Scrap CPU/RAM)"]
     R["Recycling<br/>(9 Raw Materials)"]
     M["Deep-Mining<br/>(10 Ores + Carbon Cell)"]
     SM_ING["Smithing: Smelting<br/>(8 Combat Alloys + 2 Conductors)"]
     SM_EQ["Smithing: Forging<br/>(8 Mono-Blades + 8 Exo-Suits)"]
     CF_EQ["Cyber-Fab: Gear<br/>(8 Visors + 8 Holo-Shields)"]
     CF_CR["Cyber-Fab: Tech Cores<br/>(5 Data Crystals)"]
+    CF_HW["Cyber-Fab: Hardware<br/>(4 CPU Tiers + 4 RAM Tiers)"]
+    HCK["Hacking<br/>(Attack/Defense ICE, Firewalls & Patches)"]
 
     S -->|"1x Scrap"| R
+    S -->|"Scrap CPU / RAM"| HCK
     R -.->|"25% Bonus Proc:<br/>1x Carbon Cell"| SM_ING
     M -->|"Ores + Carbon Cells"| SM_ING
     M -.->|"8% Bonus Proc"| CF_CR
@@ -30,6 +34,8 @@ flowchart TD
     R -->|"1x Raw Material"| CF_EQ
     SM_ING -->|"1x Conductor / Alloy"| CF_CR
     R -->|"1x Raw Material"| CF_CR
+    M & R & SM_ING & CF_CR -->|"Silicon / Conductors / Wafers / Lattice"| CF_HW
+    CF_HW -->|"CPUs + RAM"| HCK
   end
 
   subgraph Culinary["Bio-Agri & Culinary Branch"]
@@ -53,12 +59,14 @@ flowchart TD
 
 ## 2. Salvaging & Recycling Chain
 
-**Salvaging** extracts raw tech scrap (`ItemCategory::Scrap`), which **Recycling** refines into `ItemCategory::RawMaterial` components used in **Cyber-Fab**. Every recycling cycle also grants minor Credits and a **25% chance to recover `1x Carbon Cell`**, which feeds directly into **Smithing**.
+**Salvaging** extracts raw tech scrap (`ItemCategory::Scrap`) as well as low-tier **CPU/RAM hardware** (`Scrap Logic CPU` at Lv 3 and `Scrap DRAM Stick` at Lv 6 for **Hacking**). **Recycling** refines scrap into `ItemCategory::RawMaterial` components used in **Cyber-Fab** and **Hacking**. Every recycling cycle also grants minor Credits and a **25% chance to recover `1x Carbon Cell`**, which feeds directly into **Smithing**.
 
 ```mermaid
 flowchart LR
-  subgraph Salvaging["Salvaging (Scrap)"]
+  subgraph Salvaging["Salvaging (Scrap & Hardware)"]
     S0["Lv 1: Copper Wire Scrap"]
+    S_CPU["Lv 3: Scrap Logic CPU"]
+    S_RAM["Lv 6: Scrap DRAM Stick"]
     S1["Lv 10: Plasteel Shards"]
     S2["Lv 25: Carbon Nanotubes"]
     S3["Lv 35: Optic Fiber Bundle"]
@@ -91,24 +99,28 @@ flowchart LR
   S7 --> R7
   S8 --> R8
 
-  R0 -->|"Cyber-Fab"| CF0["Scrap Visor & Shield"]
-  R1 -->|"Cyber-Fab"| CF1["Titanium Visor & Shield"]
-  R2 -->|"Cyber-Fab"| CF2["Durasteel Visor & Shield"]
-  R3 -->|"Cyber-Fab"| CF3["Amber Datachip"]
-  R4 -->|"Cyber-Fab"| CF4["Sapphire Cortex & Cobalt Visor"]
-  R5 -->|"Cyber-Fab"| CF5["Cobalt Holo-Aegis"]
-  R6 -->|"Cyber-Fab"| CF6["Ruby Core & Tungsten Visor/Shield"]
-  R7 -->|"Cyber-Fab"| CF7["Emerald Key & Neutronium/Chrono Gear"]
-  R8 -->|"Cyber-Fab"| CF8["Quantum Diamond & Quantum Visor/Shield"]
+  S_CPU & S_RAM -->|"Hacking"| HCK1["Spike-ICE v1.0 / Watchdog-ICE v1.0<br/>Packet Filter Firewall / Parity Patch"]
+  R0 -->|"Cyber-Fab"| CF0["Scrap Visor, Shield & Scrap CPU"]
+  R1 -->|"Cyber-Fab / Hacking"| CF1["Titanium Visor/Shield & Firmware Matrix"]
+  R2 -->|"Cyber-Fab"| CF2["Durasteel Visor/Shield & Optic-NAND RAM"]
+  R3 -->|"Cyber-Fab"| CF3["Amber Datachip & Optic-NAND RAM"]
+  R4 -->|"Cyber-Fab"| CF4["Positronic CPU, Sapphire Cortex, Cobalt Visor & Cryo RAM"]
+  R5 -->|"Cyber-Fab"| CF5["Cobalt Holo-Aegis & Cryo-Holographic RAM"]
+  R6 -->|"Cyber-Fab / Hacking"| CF6["Ruby Core, Tungsten Gear & Neural Restore"]
+  R7 -->|"Cyber-Fab"| CF7["Quantum CPU, Quantum RAM, Emerald Key & Neutronium/Chrono Gear"]
+  R8 -->|"Cyber-Fab / Hacking"| CF8["Neural CPU, Quantum Diamond, Quantum Gear & Quantum Rollback"]
 ```
 
 ---
 
-## 3. Deep-Mining, Smithing & Cyber-Fab Gear Chain (8 Tiers)
+## 3. Deep-Mining, Smithing & Cyber-Fab Gear & Hardware Chain (8 Tiers)
 
 **Deep-Mining** extracts ores (`ItemCategory::RawOre`), which **Smithing** smelts into `ItemCategory::Alloy` ingots.
 - **Smithing** forges offensive **Mono-Blades** (`2x Ingot`) and heavy **Exo-Suits** (`5x Ingot`).
-- **Cyber-Fab** combines **Alloy Ingots** with **Recycled Raw Materials** to fabricate **Visors** (`1x Ingot + 1x Raw Material`), **Holo-Shields** (`2x Ingot + 1x Raw Material`), and **Data Crystals** (`1x Conductor/Ingot + 1x Raw Material`).
+- **Cyber-Fab** combines **Alloy Ingots** and **Ores** with **Recycled Raw Materials** to fabricate:
+  - **Visors** (`1x Ingot + 1x Raw Material`) and **Holo-Shields** (`2x Ingot + 1x Raw Material`)
+  - **Data Crystals** (`1x Conductor/Ingot + 1x Raw Material`)
+  - **CPUs & RAM Hardware** (`Scrap Logic CPU`, `Scrap DRAM Stick`, `Positronic Multi-Core CPU`, `Optic-NAND Storage Bank`, `Quantum Co-Processor`, `Cryo-Holographic RAM`, `Neural Overmind CPU`, `Quantum Qubit Vault`) for **Hacking** (see [`hacking.md`](./hacking.md#2-hardware-components-itemcategoryhardware)).
 
 ### Tier 1–4 Metallurgy & Cyber-Fab Graph
 
@@ -134,6 +146,7 @@ flowchart LR
   end
 
   O_CU & O_SI --> A_SC
+  O_SI -->|"Cyber-Fab + Copper"| HW_T1["Scrap Logic CPU (Lv 8)<br/>Scrap DRAM Stick (Lv 10)"]
   O_TI --> A_TI
   O_TI -->|"1x"| A_DU
   O_CC -->|"2x"| A_DU
@@ -152,7 +165,9 @@ flowchart LR
   A_DU -->|"Cyber-Fab + Carbon Fiber Weave"| F_DU["Durasteel Tac-Helm<br/>Durasteel Barrier"]
 
   A_AG -->|"Cyber-Fab + Optic Silica Glass"| C_AMB["Amber Datachip"]
+  A_AG -->|"Cyber-Fab + Positronic Wafer"| HW_CPU2["Positronic Multi-Core CPU (Lv 32)"]
   A_AU -->|"Cyber-Fab + Positronic Wafer"| C_SAP["Sapphire Cortex"]
+  A_AU -->|"Cyber-Fab + Quantum Lattice"| HW_CPU3["Quantum Co-Processor (Lv 58)"]
   A_AU -->|"Cyber-Fab + Plasma Coil"| C_RUB["Ruby Laser Core"]
 
   A_CO -->|"Smithing"| G_CO["Cobalt Laser-Edge (2x)<br/>Cobalt Subdermal Rig (5x)"]
@@ -197,7 +212,7 @@ flowchart LR
   A_NE -->|"Cyber-Fab + Quantum Lattice"| F_NE["Emerald Cryptokey<br/>Neutronium Crown & Forcefield"]
 
   A_CH -->|"Smithing"| G_CH["Chrono-Edge Katana (2x)<br/>Chrono-Weave Exo-Suit (5x)"]
-  A_CH -->|"Cyber-Fab + Lattice / Matrix"| F_CH["Quantum Diamond<br/>Chrono Visor & Barrier"]
+  A_CH -->|"Cyber-Fab + Lattice / Matrix"| F_CH["Neural Overmind CPU (Lv 85)<br/>Quantum Diamond, Chrono Visor & Barrier"]
 
   A_QU -->|"Smithing"| G_QU["Quantum Singularity Blade (2x)<br/>Quantum Phase Exo-Suit (5x)"]
   A_QU -->|"Cyber-Fab + Neural Matrix"| F_QU["Quantum Tachyon Visor<br/>Quantum Event-Horizon Shield"]
