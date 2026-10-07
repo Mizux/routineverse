@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -188,10 +187,7 @@ std::string item_name(ItemId id);
 std::span<const ItemId> all_item_ids() noexcept;
 bool is_valid_item(ItemId id) noexcept;
 
-inline constexpr std::array<ItemId, 5> data_crystal_ids = {
-    ItemId::AmberDatachip,    ItemId::SapphireCortex, ItemId::RubyLaserCore,
-    ItemId::EmeraldCryptokey, ItemId::QuantumDiamond,
-};
+std::span<const ItemId> data_crystal_ids() noexcept;
 
 enum class ItemCategory : uint8_t {
   Scrap,

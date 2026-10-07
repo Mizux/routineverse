@@ -44,5 +44,6 @@ std::span<const ShopUpgradeInfo> harvester_upgrades() noexcept;
 std::span<const ShopUpgradeInfo> drill_upgrades() noexcept;
 std::span<const ShopUpgradeInfo> reactor_upgrades() noexcept;
 std::span<const ShopUpgradeInfo> auto_stim_upgrades() noexcept;
+std::span<const ShopUpgradeInfo> shop_upgrades(EquipSlot slot) noexcept;
 
 int find_upgrade_tier(std::span<const ShopUpgradeInfo> upgrades, ItemId id);

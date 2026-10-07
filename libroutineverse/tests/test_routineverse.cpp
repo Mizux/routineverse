@@ -43,6 +43,12 @@ void test_enum_safety() {
   TEST_CHECK(!drill_upgrades().empty());
   TEST_CHECK(!reactor_upgrades().empty());
   TEST_CHECK(!auto_stim_upgrades().empty());
+  TEST_CHECK(shop_upgrades(EquipSlot::Cutter).size() == cutter_upgrades().size());
+  TEST_CHECK(shop_upgrades(EquipSlot::Weapon).empty());
+  TEST_CHECK(data_crystal_ids().size() == 5);
+  for (ItemId cid : data_crystal_ids()) {
+    TEST_CHECK(is_valid_item(cid));
+  }
 
   // CombatStyle helpers
   TEST_CHECK(!all_combat_styles().empty());
@@ -136,6 +142,7 @@ void test_save_load_roundtrip_v3() {
   GameState gs1;
   gs1.credits = 123456;
   gs1.bounty_tokens = 789;
+  gs1.start_combat(MonsterId::StrayServoDrone);
   gs1.combat.player_hp = 45;
   gs1.stats.monster_kills[MonsterId::StrayServoDrone] = 111;
   gs1.stats.monster_kills[MonsterId::Nexus9] = 42;  // Nexus-9 boss kills
@@ -155,6 +162,8 @@ void test_save_load_roundtrip_v3() {
   TEST_CHECK(gs2.credits == 123456);
   TEST_CHECK(gs2.bounty_tokens == 789);
   TEST_CHECK(gs2.combat.player_hp == 45);
+  TEST_CHECK(gs2.info.active_type == ActiveActivityType::Combat);
+  TEST_CHECK(gs2.combat.active_monster_id == MonsterId::StrayServoDrone);
   TEST_CHECK(gs2.stats.monster_kills[MonsterId::StrayServoDrone] == 111);
   TEST_CHECK(gs2.stats.monster_kills[MonsterId::Nexus9] == 42);
   TEST_CHECK(gs2.stats.total_monsters_killed == 153);
@@ -182,6 +191,18 @@ void test_reactor_upgrade_and_xp() {
   bool bought = gs.buy_reactor_upgrade();
   TEST_CHECK(bought);
   TEST_CHECK(gs.reactor_tier() == 1);
+  TEST_CHECK(gs.equipment.at(EquipSlot::Reactor) == ItemId::PlasteelReactor);
+
+  // Unequipping PlasteelReactor into the bank should preserve shop reactor_tier() == 1
+  bool unequipped = gs.unequip_slot(EquipSlot::Reactor);
+  TEST_CHECK(unequipped);
+  TEST_CHECK(gs.equipment.at(EquipSlot::Reactor) == ItemId::None);
+  TEST_CHECK(gs.bank.item_qty(ItemId::PlasteelReactor) == 1);
+  TEST_CHECK(gs.reactor_tier() == 1);
+
+  // Re-equip PlasteelReactor
+  bool reequipped = gs.equip_item(ItemId::PlasteelReactor);
+  TEST_CHECK(reequipped);
   TEST_CHECK(gs.equipment.at(EquipSlot::Reactor) == ItemId::PlasteelReactor);
 
   // Tier 1 PlasteelReactor speed_bonus_pct is 5%

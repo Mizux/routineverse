@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <span>
 #include <string>
-#include <vector>
 
 #include "items.hpp"
 
@@ -55,7 +54,7 @@ struct SkillAction {
 
 std::span<const SkillAction> all_actions() noexcept;
 std::string action_recipe(const SkillAction& act);
-std::vector<int> actions_for_skill(SkillType skill);
+std::span<const int> actions_for_skill(SkillType skill) noexcept;
 
 // XP & Level utility
 uint64_t xp_for_level(int level);

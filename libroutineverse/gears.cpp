@@ -50,7 +50,7 @@ EquipSlot equip_slot(ItemCategory cat) {
 }
 
 std::span<const ShopUpgradeInfo> cutter_upgrades() noexcept {
-  static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
+  static constexpr std::array upgrades{std::to_array<ShopUpgradeInfo>({
       {0, "Scrap Cutter", "Starter Salvaging Cutter", 1, 0, 0, ItemId::ScrapCutter},
       {1, "Titanium Cutter", "-6% Salvaging Interval", 10, 200, 6,
        ItemId::TitaniumCutter},
@@ -69,7 +69,7 @@ std::span<const ShopUpgradeInfo> cutter_upgrades() noexcept {
 }
 
 std::span<const ShopUpgradeInfo> harvester_upgrades() noexcept {
-  static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
+  static constexpr std::array upgrades{std::to_array<ShopUpgradeInfo>({
       {0, "Scrap Bio-Net", "Starter Bio-Harvester", 1, 0, 0, ItemId::ScrapHarvester},
       {1, "Titanium Bio-Rig", "-6% Fishing/Farming Interval", 10, 200, 6,
        ItemId::TitaniumHarvester},
@@ -88,7 +88,7 @@ std::span<const ShopUpgradeInfo> harvester_upgrades() noexcept {
 }
 
 std::span<const ShopUpgradeInfo> drill_upgrades() noexcept {
-  static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
+  static constexpr std::array upgrades{std::to_array<ShopUpgradeInfo>({
       {0, "Scrap Rotary Drill", "Starter Mining Drill", 1, 0, 0, ItemId::ScrapDrill},
       {1, "Titanium Impact Drill", "-6% Deep-Mining Interval", 10, 200, 6,
        ItemId::TitaniumDrill},
@@ -107,7 +107,7 @@ std::span<const ShopUpgradeInfo> drill_upgrades() noexcept {
 }
 
 std::span<const ShopUpgradeInfo> reactor_upgrades() noexcept {
-  static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
+  static constexpr std::array upgrades{std::to_array<ShopUpgradeInfo>({
       {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0,
        ItemId::BasicReactor},
       {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP", 10,
@@ -127,7 +127,7 @@ std::span<const ShopUpgradeInfo> reactor_upgrades() noexcept {
 }
 
 std::span<const ShopUpgradeInfo> auto_stim_upgrades() noexcept {
-  static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
+  static constexpr std::array upgrades{std::to_array<ShopUpgradeInfo>({
       {0, "No Auto-Stim", "Manual stim-pack injection only", 1, 0, 0, ItemId::None},
       {1, "Auto-Stim — Mk I", "Auto-injects equipped stim below 25% HP", 1, 1500, 25,
        ItemId::AutoStimMk1},
@@ -137,6 +137,23 @@ std::span<const ShopUpgradeInfo> auto_stim_upgrades() noexcept {
        ItemId::AutoStimMk3},
   })};
   return upgrades;
+}
+
+std::span<const ShopUpgradeInfo> shop_upgrades(EquipSlot slot) noexcept {
+  switch (slot) {
+    case EquipSlot::Cutter:
+      return cutter_upgrades();
+    case EquipSlot::Harvester:
+      return harvester_upgrades();
+    case EquipSlot::Drill:
+      return drill_upgrades();
+    case EquipSlot::Reactor:
+      return reactor_upgrades();
+    case EquipSlot::AutoStim:
+      return auto_stim_upgrades();
+    default:
+      return {};
+  }
 }
 
 int find_upgrade_tier(std::span<const ShopUpgradeInfo> upgrades, ItemId id) {

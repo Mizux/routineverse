@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <format>
+#include <vector>
 
 namespace {
 constexpr uint8_t MAX_SKILL_LEVEL = 99;
@@ -368,13 +369,23 @@ double level_progress_ratio(uint64_t xp) {
       0.0, 1.0);
 }
 
-std::vector<int> actions_for_skill(SkillType skill) {
-  std::vector<int> res;
-  const auto actions = all_actions();
-  for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
-    if (actions[i].skill == skill) res.push_back(i);
+std::span<const int> actions_for_skill(SkillType skill) noexcept {
+  static const auto table = []() {
+    std::vector<std::vector<int>> map(all_skills().size());
+    const auto actions = all_actions();
+    for (int i = 0; i < static_cast<int>(actions.size()); ++i) {
+      size_t idx = static_cast<size_t>(actions[i].skill);
+      if (idx < map.size()) {
+        map[idx].push_back(i);
+      }
+    }
+    return map;
+  }();
+  size_t idx = static_cast<size_t>(skill);
+  if (idx >= table.size()) {
+    return {};
   }
-  return res;
+  return table[idx];
 }
 
 std::string action_recipe(const SkillAction& act) {

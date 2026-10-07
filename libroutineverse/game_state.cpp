@@ -65,24 +65,26 @@ void GameState::Equipment::reset() {
   food_qty = 0;
 }
 
+int GameState::Equipment::upgrade_tier(EquipSlot slot) const {
+  return find_upgrade_tier(shop_upgrades(slot), at(slot));
+}
+
 int GameState::Equipment::cutter_tier() const {
-  return find_upgrade_tier(cutter_upgrades(), items.at(EquipSlot::Cutter));
+  return upgrade_tier(EquipSlot::Cutter);
 }
 
 int GameState::Equipment::harvester_tier() const {
-  return find_upgrade_tier(harvester_upgrades(), items.at(EquipSlot::Harvester));
+  return upgrade_tier(EquipSlot::Harvester);
 }
 
-int GameState::Equipment::drill_tier() const {
-  return find_upgrade_tier(drill_upgrades(), items.at(EquipSlot::Drill));
-}
+int GameState::Equipment::drill_tier() const { return upgrade_tier(EquipSlot::Drill); }
 
 int GameState::Equipment::reactor_tier() const {
-  return find_upgrade_tier(reactor_upgrades(), items.at(EquipSlot::Reactor));
+  return upgrade_tier(EquipSlot::Reactor);
 }
 
 int GameState::Equipment::auto_stim_tier() const {
-  return find_upgrade_tier(auto_stim_upgrades(), items.at(EquipSlot::AutoStim));
+  return upgrade_tier(EquipSlot::AutoStim);
 }
 
 int GameState::Equipment::attack_bonus() const {
@@ -157,8 +159,8 @@ void GameState::LogBuffer::clear() { entries.clear(); }
 
 void GameState::LogBuffer::add(const std::string& entry) {
   entries.push_back(entry);
-  if (entries.size() > max_entries) {
-    entries.erase(entries.begin(), entries.begin() + (entries.size() - max_entries));
+  while (entries.size() > max_entries) {
+    entries.pop_front();
   }
 }
 
@@ -200,6 +202,33 @@ void GameState::new_game() {
 
 void GameState::add_log(const std::string& entry) { game_log.add(entry); }
 
+int GameState::History::total_items() noexcept {
+  return ITEM_FIRST_SKILL + static_cast<int>(all_skills().size());
+}
+
+std::string GameState::History::item_name(int item_idx) {
+  switch (item_idx) {
+    case ITEM_CREDITS:
+      return "Credits (Cr)";
+    case ITEM_BANK_VALUE:
+      return "Vault Value (Cr)";
+    case ITEM_TOTAL_LEVEL:
+      return "Total Skill Level";
+    case ITEM_TOTAL_XP:
+      return "Total Skill XP";
+    case ITEM_HP:
+      return "Player Hitpoints";
+    default: {
+      int s_idx = item_idx - ITEM_FIRST_SKILL;
+      const auto skills = all_skills();
+      if (s_idx >= 0 && s_idx < static_cast<int>(skills.size())) {
+        return skill_name(skills[s_idx]) + " XP";
+      }
+      return "Credits (Cr)";
+    }
+  }
+}
+
 void GameState::History::clear() {
   credits.clear();
   bank_value.clear();
@@ -228,6 +257,38 @@ void GameState::History::add_record(const GameState& state) {
   }
 }
 
+std::vector<double> GameState::History::series_values(const GameState& state,
+                                                      int item_idx) const {
+  std::vector<double> values;
+  if (item_idx == ITEM_CREDITS) {
+    for (uint64_t v : credits) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.credits));
+  } else if (item_idx == ITEM_BANK_VALUE) {
+    for (uint64_t v : bank_value) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.total_bank_value()));
+  } else if (item_idx == ITEM_TOTAL_LEVEL) {
+    for (int v : total_level) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.total_skill_level()));
+  } else if (item_idx == ITEM_TOTAL_XP) {
+    for (uint64_t v : total_xp) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.total_skill_xp()));
+  } else if (item_idx == ITEM_HP) {
+    for (int v : hp) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.combat.player_hp));
+  } else {
+    const auto skills = all_skills();
+    int s_idx =
+        std::clamp(item_idx - ITEM_FIRST_SKILL, 0, static_cast<int>(skills.size()) - 1);
+    SkillType sk = skills[s_idx];
+    auto it = skill_xp.find(sk);
+    if (it != skill_xp.end()) {
+      for (uint64_t v : it->second) values.push_back(static_cast<double>(v));
+    }
+    values.push_back(static_cast<double>(state.skill_xp(sk)));
+  }
+  return values;
+}
+
 void GameState::record_history_snapshot() { history.add_record(*this); }
 
 int GameState::skill_level(SkillType skill) const { return skills.level(skill); }
@@ -242,15 +303,25 @@ int GameState::mastery_level(int global_action_id) const {
   return skills.mastery_level(global_action_id);
 }
 
-int GameState::cutter_tier() const { return equipment.cutter_tier(); }
+int GameState::upgrade_tier(EquipSlot slot) const {
+  const auto upgrades = shop_upgrades(slot);
+  if (upgrades.empty()) return 0;
+  int max_t = find_upgrade_tier(upgrades, equipment.at(slot));
+  for (const auto& s : bank) {
+    max_t = std::max(max_t, find_upgrade_tier(upgrades, s.item_id));
+  }
+  return max_t;
+}
 
-int GameState::harvester_tier() const { return equipment.harvester_tier(); }
+int GameState::cutter_tier() const { return upgrade_tier(EquipSlot::Cutter); }
 
-int GameState::drill_tier() const { return equipment.drill_tier(); }
+int GameState::harvester_tier() const { return upgrade_tier(EquipSlot::Harvester); }
 
-int GameState::reactor_tier() const { return equipment.reactor_tier(); }
+int GameState::drill_tier() const { return upgrade_tier(EquipSlot::Drill); }
 
-int GameState::auto_stim_tier() const { return equipment.auto_stim_tier(); }
+int GameState::reactor_tier() const { return upgrade_tier(EquipSlot::Reactor); }
+
+int GameState::auto_stim_tier() const { return upgrade_tier(EquipSlot::AutoStim); }
 
 int GameState::action_effective_interval_ms(int global_action_id) const {
   const auto actions = all_actions();
@@ -459,8 +530,8 @@ void GameState::complete_skill_action(int global_action_id) {
   } else if (act.skill == SkillType::DeepMining) {
     // 8% chance to unearth a rare Data Crystal while deep-mining!
     if (rand_int(1, 100) <= 8) {
-      auto gem_id =
-          data_crystal_ids[rand_int(0, static_cast<int>(data_crystal_ids.size()) - 1)];
+      const auto crystals = data_crystal_ids();
+      auto gem_id = crystals[rand_int(0, static_cast<int>(crystals.size()) - 1)];
       if (add_item(gem_id, 1, false)) {
         add_log(std::format("While deep-mining, you extracted a rare {}!",
                             get_item_info(gem_id).name));
@@ -959,7 +1030,7 @@ bool GameState::eat_food() {
 }
 
 void GameState::check_auto_eat() {
-  if (auto_stim_tier() <= 0) return;
+  if (equipment.auto_stim_tier() <= 0) return;
   int threshold = auto_eat_threshold_hp();
   while (combat.player_hp <= threshold && is_valid_item(equipment.food_item) &&
          equipment.food_qty > 0) {
@@ -975,107 +1046,75 @@ void GameState::check_auto_eat() {
 
 uint64_t GameState::next_bank_slot_cost() const { return bank.next_slot_cost(); }
 
-bool GameState::buy_cutter_upgrade() {
-  int cur_t = cutter_tier();
-  const auto upgrades = cutter_upgrades();
+bool GameState::buy_upgrade(EquipSlot slot) {
+  const auto upgrades = shop_upgrades(slot);
+  if (upgrades.empty()) return false;
+  int cur_t = upgrade_tier(slot);
   if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
   const auto& upg = upgrades[cur_t + 1];
-  if (skill_level(SkillType::Salvaging) < upg.req_skill_level) {
-    add_log(std::format("Requires Salvaging Level {} to buy {}.", upg.req_skill_level,
-                        upg.name));
-    return false;
+
+  switch (slot) {
+    case EquipSlot::Cutter:
+      if (skill_level(SkillType::Salvaging) < upg.req_skill_level) {
+        add_log(std::format("Requires Salvaging Level {} to buy {}.",
+                            upg.req_skill_level, upg.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Harvester:
+      if (std::max(skill_level(SkillType::Fishing), skill_level(SkillType::Farming)) <
+          upg.req_skill_level) {
+        add_log(std::format("Requires Fishing or Farming Level {} to buy {}.",
+                            upg.req_skill_level, upg.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Drill:
+      if (skill_level(SkillType::DeepMining) < upg.req_skill_level) {
+        add_log(std::format("Requires Deep-Mining Level {} to buy {}.",
+                            upg.req_skill_level, upg.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Reactor:
+      if (std::max(skill_level(SkillType::Recycling),
+                   skill_level(SkillType::SynthCook)) < upg.req_skill_level) {
+        add_log(std::format("Requires Recycling or Synth-Cook Level {} to buy {}.",
+                            upg.req_skill_level, upg.name));
+        return false;
+      }
+      break;
+    case EquipSlot::AutoStim:
+      break;
+    default:
+      return false;
   }
+
   if (credits < upg.cost_credits) {
     add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
                         money_string(upg.cost_credits)));
     return false;
   }
+
   credits -= upg.cost_credits;
-  equipment[EquipSlot::Cutter] = upg.item_id;
+  if (find_upgrade_tier(upgrades, equipment.at(slot)) < cur_t &&
+      is_valid_item(upgrades[cur_t].item_id)) {
+    bank.remove_item(upgrades[cur_t].item_id, 1);
+  }
+  equipment[slot] = upg.item_id;
   add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
   return true;
 }
 
-bool GameState::buy_harvester_upgrade() {
-  int cur_t = harvester_tier();
-  const auto upgrades = harvester_upgrades();
-  if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
-  const auto& upg = upgrades[cur_t + 1];
-  if (std::max(skill_level(SkillType::Fishing), skill_level(SkillType::Farming)) <
-      upg.req_skill_level) {
-    add_log(std::format("Requires Fishing or Farming Level {} to buy {}.",
-                        upg.req_skill_level, upg.name));
-    return false;
-  }
-  if (credits < upg.cost_credits) {
-    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
-                        money_string(upg.cost_credits)));
-    return false;
-  }
-  credits -= upg.cost_credits;
-  equipment[EquipSlot::Harvester] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
-  return true;
-}
+bool GameState::buy_cutter_upgrade() { return buy_upgrade(EquipSlot::Cutter); }
 
-bool GameState::buy_drill_upgrade() {
-  int cur_t = drill_tier();
-  const auto upgrades = drill_upgrades();
-  if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
-  const auto& upg = upgrades[cur_t + 1];
-  if (skill_level(SkillType::DeepMining) < upg.req_skill_level) {
-    add_log(std::format("Requires Deep-Mining Level {} to buy {}.", upg.req_skill_level,
-                        upg.name));
-    return false;
-  }
-  if (credits < upg.cost_credits) {
-    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
-                        money_string(upg.cost_credits)));
-    return false;
-  }
-  credits -= upg.cost_credits;
-  equipment[EquipSlot::Drill] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
-  return true;
-}
+bool GameState::buy_harvester_upgrade() { return buy_upgrade(EquipSlot::Harvester); }
 
-bool GameState::buy_reactor_upgrade() {
-  int cur_t = reactor_tier();
-  const auto upgrades = reactor_upgrades();
-  if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
-  const auto& upg = upgrades[cur_t + 1];
-  if (std::max(skill_level(SkillType::Recycling), skill_level(SkillType::SynthCook)) <
-      upg.req_skill_level) {
-    add_log(std::format("Requires Recycling or Synth-Cook Level {} to buy {}.",
-                        upg.req_skill_level, upg.name));
-    return false;
-  }
-  if (credits < upg.cost_credits) {
-    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
-                        money_string(upg.cost_credits)));
-    return false;
-  }
-  credits -= upg.cost_credits;
-  equipment[EquipSlot::Reactor] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
-  return true;
-}
+bool GameState::buy_drill_upgrade() { return buy_upgrade(EquipSlot::Drill); }
 
-bool GameState::buy_auto_stim_upgrade() {
-  int cur_t = auto_stim_tier();
-  const auto upgrades = auto_stim_upgrades();
-  if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
-  const auto& upg = upgrades[cur_t + 1];
-  if (credits < upg.cost_credits) {
-    add_log(std::format("Not enough Credits for {} (need {}).", upg.name,
-                        money_string(upg.cost_credits)));
-    return false;
-  }
-  credits -= upg.cost_credits;
-  equipment[EquipSlot::AutoStim] = upg.item_id;
-  add_log(std::format("Purchased & installed {} ({})!", upg.name, upg.description));
-  return true;
-}
+bool GameState::buy_reactor_upgrade() { return buy_upgrade(EquipSlot::Reactor); }
+
+bool GameState::buy_auto_stim_upgrade() { return buy_upgrade(EquipSlot::AutoStim); }
 
 bool GameState::buy_bank_slot() {
   uint64_t cost = next_bank_slot_cost();
@@ -1334,10 +1373,13 @@ bool GameState::load_from_file(const std::string& path) {
         combat.monster_hp >> style_t)) {
     return false;
   }
-  const auto act_types = all_activity_types();
-  info.active_type = (act_t >= 0 && act_t < static_cast<int>(act_types.size()))
-                         ? act_types[act_t]
-                         : ActiveActivityType::None;
+  info.active_type = ActiveActivityType::None;
+  for (ActiveActivityType t : all_activity_types()) {
+    if (static_cast<int>(t) == act_t) {
+      info.active_type = t;
+      break;
+    }
+  }
   combat.active_monster_id = parse_monster_id(raw_mon_id);
   const auto styles = all_combat_styles();
   combat.style = (style_t >= 0 && style_t < static_cast<int>(styles.size()))

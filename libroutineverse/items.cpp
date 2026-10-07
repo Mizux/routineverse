@@ -96,3 +96,14 @@ std::span<const ItemId> all_item_ids() noexcept {
 bool is_valid_item(ItemId id) noexcept {
   return id != ItemId::None && static_cast<size_t>(id) < all_item_ids().size();
 }
+
+std::span<const ItemId> data_crystal_ids() noexcept {
+  static constexpr std::array ids{std::to_array<ItemId>({
+      ItemId::AmberDatachip,
+      ItemId::RubyLaserCore,
+      ItemId::EmeraldCryptokey,
+      ItemId::SapphireCortex,
+      ItemId::QuantumDiamond,
+  })};
+  return ids;
+}

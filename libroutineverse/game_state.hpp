@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <list>
 #include <map>
 #include <string>
@@ -51,6 +52,7 @@ class GameState {
 
   // Black Market / Cyber-Shop upgrades
   uint64_t next_bank_slot_cost() const;
+  bool buy_upgrade(EquipSlot slot);
   bool buy_cutter_upgrade();
   bool buy_harvester_upgrade();
   bool buy_drill_upgrade();
@@ -65,6 +67,7 @@ class GameState {
   uint64_t total_skill_xp() const;
   int mastery_level(int global_action_id) const;
 
+  int upgrade_tier(EquipSlot slot) const;
   int cutter_tier() const;
   int harvester_tier() const;
   int drill_tier() const;
@@ -163,6 +166,7 @@ class GameState {
     auto begin() const { return items.begin(); }
     auto end() const { return items.end(); }
 
+    int upgrade_tier(EquipSlot slot) const;
     int cutter_tier() const;
     int harvester_tier() const;
     int drill_tier() const;
@@ -224,7 +228,7 @@ class GameState {
     explicit LogBuffer(size_t max_entries = 120) : max_entries(max_entries) {}
 
     size_t max_entries = 120;
-    std::vector<std::string> entries;
+    std::deque<std::string> entries;
 
     void clear();
     void add(const std::string& entry);
@@ -242,6 +246,16 @@ class GameState {
 
   // History for Charts
   struct History {
+    static constexpr int ITEM_CREDITS = 0;
+    static constexpr int ITEM_BANK_VALUE = 1;
+    static constexpr int ITEM_TOTAL_LEVEL = 2;
+    static constexpr int ITEM_TOTAL_XP = 3;
+    static constexpr int ITEM_HP = 4;
+    static constexpr int ITEM_FIRST_SKILL = 5;
+
+    static int total_items() noexcept;
+    static std::string item_name(int item_idx);
+
     explicit History(size_t max_entries = 60) : max_entries(max_entries) {}
 
     size_t max_entries = 60;
@@ -254,6 +268,7 @@ class GameState {
 
     void clear();
     void add_record(const GameState& state);
+    std::vector<double> series_values(const GameState& state, int item_idx) const;
   };
   History history;
 
