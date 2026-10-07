@@ -44,7 +44,7 @@ void test_enum_safety() {
   TEST_CHECK(equip_slot_or_none(99) == EquipSlot::None);
 
   // CombatStyle helpers
-  TEST_CHECK(!all_combat_styles.empty());
+  TEST_CHECK(!all_combat_styles().empty());
   TEST_CHECK(combat_style_or_default(0) == CombatStyle::Accurate);
   TEST_CHECK(combat_style_or_default(1) == CombatStyle::Aggressive);
   TEST_CHECK(combat_style_or_default(2) == CombatStyle::Defensive);

@@ -19,22 +19,25 @@ enum class CombatStyle : uint8_t {
 
 std::string combat_style_name(CombatStyle style);
 
-inline constexpr std::array all_combat_styles{std::to_array<CombatStyle>({
+inline const auto& all_combat_styles() noexcept {
+  static constexpr std::array styles{std::to_array<CombatStyle>({
 #define X(name, str) CombatStyle::name,
-    RV_COMBAT_STYLE_LIST(X)
+      RV_COMBAT_STYLE_LIST(X)
 #undef X
-})};
+  })};
+  return styles;
+}
 
-inline constexpr std::optional<CombatStyle> combat_style_from_int(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_combat_styles.size()) {
-    return all_combat_styles[val];
+inline std::optional<CombatStyle> combat_style_from_int(int val) noexcept {
+  if (val >= 0 && static_cast<size_t>(val) < all_combat_styles().size()) {
+    return all_combat_styles()[val];
   }
   return std::nullopt;
 }
 
-inline constexpr CombatStyle combat_style_or_default(int val) noexcept {
-  if (val >= 0 && static_cast<size_t>(val) < all_combat_styles.size()) {
-    return all_combat_styles[val];
+inline CombatStyle combat_style_or_default(int val) noexcept {
+  if (val >= 0 && static_cast<size_t>(val) < all_combat_styles().size()) {
+    return all_combat_styles()[val];
   }
   return CombatStyle::Accurate;
 }
