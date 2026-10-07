@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QScrollBar>
 #include <QShortcut>
+#include <QSignalBlocker>
 #include <QSpinBox>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -33,7 +34,6 @@
 
 #include "config.hpp"
 #include "routineverse.hpp"
-#include "window-cb.hpp"
 
 // ============================================================================
 // HistoryChartView Implementation
@@ -126,26 +126,7 @@ void HistoryChartView::_setupChart() {
 }
 
 QString HistoryChartView::itemName(int item_idx) {
-  switch (item_idx) {
-    case ITEM_CREDITS:
-      return "Credits (Cr)";
-    case ITEM_BANK_VALUE:
-      return "Vault Value (Cr)";
-    case ITEM_TOTAL_LEVEL:
-      return "Total Skill Level";
-    case ITEM_TOTAL_XP:
-      return "Total Skill XP";
-    case ITEM_HP:
-      return "Player Hitpoints";
-    default: {
-      int s_idx = item_idx - ITEM_FIRST_SKILL;
-      const auto skills = all_skills();
-      if (s_idx >= 0 && s_idx < static_cast<int>(skills.size())) {
-        return QString::fromStdString(skill_name(skills[s_idx]) + " XP");
-      }
-      return "Credits (Cr)";
-    }
-  }
+  return QString::fromStdString(GameState::History::item_name(item_idx));
 }
 
 void HistoryChartView::setItemIndex(int idx) {
@@ -162,33 +143,7 @@ void HistoryChartView::updateChart(const GameState& gameState) {
 
   _chart->setTitle(itemName(_item_idx));
 
-  std::vector<double> values;
-  if (_item_idx == ITEM_CREDITS) {
-    for (long long v : gameState.history.credits) values.push_back(v);
-    values.push_back(gameState.credits);
-  } else if (_item_idx == ITEM_BANK_VALUE) {
-    for (long long v : gameState.history.bank_value) values.push_back(v);
-    values.push_back(gameState.total_bank_value());
-  } else if (_item_idx == ITEM_TOTAL_LEVEL) {
-    for (int v : gameState.history.total_level) values.push_back(v);
-    values.push_back(gameState.total_skill_level());
-  } else if (_item_idx == ITEM_TOTAL_XP) {
-    for (long long v : gameState.history.total_xp) values.push_back(v);
-    values.push_back(gameState.total_skill_xp());
-  } else if (_item_idx == ITEM_HP) {
-    for (int v : gameState.history.hp) values.push_back(v);
-    values.push_back(gameState.combat.player_hp);
-  } else {
-    const auto skills = all_skills();
-    int s_idx = std::clamp(_item_idx - ITEM_FIRST_SKILL, 0,
-                           static_cast<int>(skills.size()) - 1);
-    SkillType sk = skills[s_idx];
-    auto it = gameState.history.skill_xp.find(sk);
-    if (it != gameState.history.skill_xp.end()) {
-      for (long long v : it->second) values.push_back(v);
-    }
-    values.push_back(gameState.skill_xp(sk));
-  }
+  std::vector<double> values = gameState.history.series_values(gameState, _item_idx);
 
   int count = static_cast<int>(values.size());
   int max_x = std::max(10, count);
@@ -227,7 +182,7 @@ void HistoryChartView::contextMenuEvent(QContextMenuEvent* event) {
 
   int total = totalItems();
   for (int i = 0; i < total; ++i) {
-    if (i == ITEM_FIRST_SKILL) menu.addSeparator();
+    if (i == GameState::History::ITEM_FIRST_SKILL) menu.addSeparator();
     QAction* act = menu.addAction(itemName(i));
     act->setCheckable(true);
     act->setChecked(i == _item_idx);
@@ -405,6 +360,8 @@ void MainWindow::_setupWidget() {
   _treeview_monsters->setColumnWidth(4, 60);
   _treeview_monsters->setColumnWidth(5, 55);
   _treeview_monsters->setColumnWidth(6, 55);
+  connect(_treeview_monsters, &QTreeWidget::itemSelectionChanged, this,
+          &MainWindow::updateLiveProgressOnly);
   connect(_treeview_monsters, &QTreeWidget::itemDoubleClicked, this,
           &MainWindow::onMonsterDoubleClicked);
   vbox_tab_combat->addWidget(_treeview_monsters);
@@ -760,6 +717,10 @@ void MainWindow::updateAllUi() {
       _label_equipped_food->setText("None");
     }
   }
+  if (_combo_attack_style) {
+    QSignalBlocker blocker(_combo_attack_style);
+    _combo_attack_style->setCurrentIndex(static_cast<int>(_gameState.combat.style));
+  }
   if (_label_bounty_task) {
     const auto& mon = get_monster_info(_gameState.combat.bounty_target_id);
     _label_bounty_task->setText(QString("Bounty: %1x %2")
@@ -799,16 +760,24 @@ void MainWindow::updateAllUi() {
 
 void MainWindow::_fillTreeviewSkills() {
   if (!_treeview_skills) return;
-  _treeview_skills->blockSignals(true);
-  _treeview_skills->clear();
+  QSignalBlocker blocker(_treeview_skills);
 
+  const auto skills = all_skills();
   const auto actions = all_actions();
-  for (SkillType sk : all_skills()) {
+  const bool reuse =
+      (_treeview_skills->topLevelItemCount() == static_cast<int>(skills.size()));
+  if (!reuse) {
+    _treeview_skills->clear();
+  }
+
+  for (size_t i = 0; i < skills.size(); ++i) {
+    SkillType sk = skills[i];
     int lvl = _gameState.skill_level(sk);
-    long long s_xp = _gameState.skill_xp(sk);
+    uint64_t s_xp = _gameState.skill_xp(sk);
     double prog = level_progress_ratio(s_xp) * 100.0;
 
-    auto* item = new QTreeWidgetItem(_treeview_skills);
+    auto* item = reuse ? _treeview_skills->topLevelItem(static_cast<int>(i))
+                       : new QTreeWidgetItem(_treeview_skills);
     QString name_str = QString::fromStdString(skill_name(sk));
     if (_gameState.info.active_type == ActiveActivityType::Skill &&
         _gameState.info.active_action_id >= 0 &&
@@ -827,17 +796,16 @@ void MainWindow::_fillTreeviewSkills() {
     item->setTextAlignment(2, Qt::AlignRight | Qt::AlignVCenter);
     item->setTextAlignment(3, Qt::AlignRight | Qt::AlignVCenter);
 
-    if (sk == _selected_skill) {
+    if (sk == _selected_skill && _treeview_skills->currentItem() != item) {
       _treeview_skills->setCurrentItem(item);
     }
   }
-  _treeview_skills->blockSignals(false);
 }
 
 void MainWindow::_fillTreeviewActions() {
   if (!_treeview_actions) return;
+  QSignalBlocker blocker(_treeview_actions);
   int prev_act_id = selectedActionId();
-  _treeview_actions->clear();
 
   SkillType sk = _selected_skill;
   if (is_combat_skill(sk)) {
@@ -846,11 +814,23 @@ void MainWindow::_fillTreeviewActions() {
 
   auto act_ids = actions_for_skill(sk);
   const auto actions = all_actions();
-  QTreeWidgetItem* to_select = nullptr;
+  const bool reuse =
+      (_treeview_actions->topLevelItemCount() == static_cast<int>(act_ids.size())) &&
+      (act_ids.empty() ||
+       _treeview_actions->topLevelItem(0)->data(0, Qt::UserRole).toInt() == act_ids[0]);
+  if (!reuse) {
+    _treeview_actions->clear();
+  }
 
-  for (int id : act_ids) {
+  QTreeWidgetItem* to_select = nullptr;
+  const QBrush normal_fg = _treeview_actions->palette().brush(QPalette::Text);
+  const QBrush locked_fg(QColor(140, 140, 140));
+
+  for (size_t i = 0; i < act_ids.size(); ++i) {
+    int id = act_ids[i];
     const auto& act = actions[id];
-    auto* item = new QTreeWidgetItem(_treeview_actions);
+    auto* item = reuse ? _treeview_actions->topLevelItem(static_cast<int>(i))
+                       : new QTreeWidgetItem(_treeview_actions);
     int eff_ms = _gameState.action_effective_interval_ms(id);
     int m_lvl = _gameState.mastery_level(id);
 
@@ -868,10 +848,10 @@ void MainWindow::_fillTreeviewActions() {
     item->setText(5, QString::fromStdString(action_recipe(act)));
     item->setData(0, Qt::UserRole, id);
 
-    if (_gameState.skill_level(sk) < act.req_level) {
-      for (int c = 0; c < 6; ++c) {
-        item->setForeground(c, QBrush(QColor(140, 140, 140)));
-      }
+    const QBrush& fg =
+        (_gameState.skill_level(sk) < act.req_level) ? locked_fg : normal_fg;
+    for (int c = 0; c < 6; ++c) {
+      item->setForeground(c, fg);
     }
 
     if (id == prev_act_id || (!to_select && id == _gameState.info.active_action_id)) {
@@ -879,23 +859,34 @@ void MainWindow::_fillTreeviewActions() {
     }
   }
 
-  if (!to_select && _treeview_actions->topLevelItemCount() > 0) {
-    to_select = _treeview_actions->topLevelItem(0);
-  }
-  if (to_select) {
-    _treeview_actions->setCurrentItem(to_select);
+  if (!reuse) {
+    if (!to_select && _treeview_actions->topLevelItemCount() > 0) {
+      to_select = _treeview_actions->topLevelItem(0);
+    }
+    if (to_select) {
+      _treeview_actions->setCurrentItem(to_select);
+    }
   }
 }
 
 void MainWindow::_fillTreeviewMonsters() {
   if (!_treeview_monsters) return;
+  QSignalBlocker blocker(_treeview_monsters);
   auto prev_mon_id = selectedMonsterId();
-  _treeview_monsters->clear();
+
+  const auto monsters = all_monster_ids();
+  const bool reuse =
+      (_treeview_monsters->topLevelItemCount() == static_cast<int>(monsters.size()));
+  if (!reuse) {
+    _treeview_monsters->clear();
+  }
 
   QTreeWidgetItem* to_select = nullptr;
-  for (MonsterId mon_id : all_monster_ids()) {
+  for (size_t i = 0; i < monsters.size(); ++i) {
+    MonsterId mon_id = monsters[i];
     const auto& mon = get_monster_info(mon_id);
-    auto* item = new QTreeWidgetItem(_treeview_monsters);
+    auto* item = reuse ? _treeview_monsters->topLevelItem(static_cast<int>(i))
+                       : new QTreeWidgetItem(_treeview_monsters);
 
     QString m_name = QString::fromStdString(monster_name(mon.id));
     if (_gameState.info.active_type == ActiveActivityType::Combat &&
@@ -923,27 +914,54 @@ void MainWindow::_fillTreeviewMonsters() {
       to_select = item;
     }
   }
-  if (!to_select && _treeview_monsters->topLevelItemCount() > 0) {
-    to_select = _treeview_monsters->topLevelItem(0);
-  }
-  if (to_select) {
-    _treeview_monsters->setCurrentItem(to_select);
+  if (!reuse) {
+    if (!to_select && _treeview_monsters->topLevelItemCount() > 0) {
+      to_select = _treeview_monsters->topLevelItem(0);
+    }
+    if (to_select) {
+      _treeview_monsters->setCurrentItem(to_select);
+    }
   }
 }
 
 void MainWindow::_fillTreeviewBank() {
   if (!_treeview_bank) return;
+  QSignalBlocker blocker(_treeview_bank);
   ItemId prev_item_id = selectedBankItemId();
-  _treeview_bank->clear();
+
+  std::vector<GameState::Bank::Slot> valid_slots;
+  valid_slots.reserve(_gameState.bank.size());
+  for (const auto& slot : _gameState.bank) {
+    if (is_valid_item(slot.item_id) && slot.qty > 0) {
+      valid_slots.push_back(slot);
+    }
+  }
+
+  bool reuse = (_treeview_bank->topLevelItemCount() ==
+                static_cast<int>(valid_slots.size()));
+  if (reuse) {
+    for (size_t i = 0; i < valid_slots.size(); ++i) {
+      auto* existing = _treeview_bank->topLevelItem(static_cast<int>(i));
+      if (!existing ||
+          existing->data(0, Qt::UserRole).value<ItemId>() != valid_slots[i].item_id) {
+        reuse = false;
+        break;
+      }
+    }
+  }
+  if (!reuse) {
+    _treeview_bank->clear();
+  }
 
   QTreeWidgetItem* to_select = nullptr;
-  for (const auto& slot : _gameState.bank) {
-    if (!is_valid_item(slot.item_id) || slot.qty <= 0) continue;
+  for (size_t i = 0; i < valid_slots.size(); ++i) {
+    const auto& slot = valid_slots[i];
     const auto& info = get_item_info(slot.item_id);
-    auto* item = new QTreeWidgetItem(_treeview_bank);
+    auto* item = reuse ? _treeview_bank->topLevelItem(static_cast<int>(i))
+                       : new QTreeWidgetItem(_treeview_bank);
 
     QString extra = QString::fromStdString(
-        money_string(static_cast<long long>(slot.qty) * info.price));
+        money_string(static_cast<uint64_t>(slot.qty) * info.price));
     if (info.heal_amount > 0) {
       extra += QString(" (+%1 HP)").arg(info.heal_amount);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
@@ -965,11 +983,13 @@ void MainWindow::_fillTreeviewBank() {
       to_select = item;
     }
   }
-  if (!to_select && _treeview_bank->topLevelItemCount() > 0) {
-    to_select = _treeview_bank->topLevelItem(0);
-  }
-  if (to_select) {
-    _treeview_bank->setCurrentItem(to_select);
+  if (!reuse) {
+    if (!to_select && _treeview_bank->topLevelItemCount() > 0) {
+      to_select = _treeview_bank->topLevelItem(0);
+    }
+    if (to_select) {
+      _treeview_bank->setCurrentItem(to_select);
+    }
   }
 }
 
@@ -1011,7 +1031,7 @@ void MainWindow::onMonsterDoubleClicked() {
   }
 }
 
-void MainWindow::onBankDoubleClicked() { window_main_button_equip_clicked_cb(*this); }
+void MainWindow::onBankDoubleClicked() { slotEquip(); }
 
 void MainWindow::onAttackStyleChanged(int idx) {
   const auto styles = all_combat_styles();
@@ -1031,24 +1051,245 @@ void MainWindow::slotNewBountyContract() {
   updateAllUi();
 }
 
-void MainWindow::slotStart() { window_main_button_start_clicked_cb(*this); }
-void MainWindow::slotStop() { window_main_button_stop_clicked_cb(*this); }
-void MainWindow::slotEat() { window_main_button_eat_clicked_cb(*this); }
-void MainWindow::slotEquip() { window_main_button_equip_clicked_cb(*this); }
-void MainWindow::slotSell() { window_main_button_sell_clicked_cb(*this); }
-void MainWindow::slotSellAll() { window_main_button_sell_all_clicked_cb(*this); }
-void MainWindow::slotShop() { window_main_button_shop_clicked_cb(*this); }
-void MainWindow::slotEquipment() { window_main_button_equipment_clicked_cb(*this); }
-void MainWindow::slotBestiary() { window_main_button_bestiary_clicked_cb(*this); }
-void MainWindow::slotHistory() { window_main_button_history_clicked_cb(*this); }
-void MainWindow::slotFastForward1m() { window_main_button_ff1m_clicked_cb(*this); }
-void MainWindow::slotFastForward10m() { window_main_button_ff10m_clicked_cb(*this); }
-void MainWindow::slotSave() { window_main_button_save_clicked_cb(*this); }
-void MainWindow::slotLoad() { window_main_button_load_clicked_cb(*this); }
-void MainWindow::slotAbout() { window_main_button_about_clicked_cb(*this); }
-void MainWindow::slotDocs() { window_main_button_docs_clicked_cb(*this); }
-void MainWindow::slotHighscores() { window_main_button_highscores_clicked_cb(*this); }
-void MainWindow::slotNewGame() { window_main_button_newgame_clicked_cb(*this); }
+void MainWindow::slotStart() {
+  if (_tabs_mode && _tabs_mode->currentIndex() == 1) {
+    if (auto mon_id = selectedMonsterId()) {
+      _gameState.start_combat(*mon_id);
+      updateAllUi();
+    }
+  } else {
+    int act_id = selectedActionId();
+    if (act_id >= 0) {
+      _gameState.start_skill_action(act_id);
+      updateAllUi();
+    }
+  }
+}
+
+void MainWindow::slotStop() {
+  _gameState.stop_activity();
+  updateAllUi();
+}
+
+void MainWindow::slotEat() {
+  _gameState.eat_food();
+  updateAllUi();
+}
+
+void MainWindow::slotEquip() {
+  ItemId item_id = selectedBankItemId();
+  if (!is_valid_item(item_id)) {
+    QMessageBox::information(
+        this, "Equip Item",
+        "Please select cyberware, a weapon, or a stim from the Cyber-Vault first.");
+  } else {
+    const auto& info = get_item_info(item_id);
+    if (equip_slot(info.category) == EquipSlot::None && info.heal_amount <= 0) {
+      QMessageBox::information(
+          this, "Equip Item",
+          QString("%1 cannot be equipped or loaded into the Stim-Injector.")
+              .arg(info.name));
+      return;
+    }
+    _gameState.equip_item(item_id);
+    updateAllUi();
+  }
+}
+
+void MainWindow::slotSell() {
+  ItemId item_id = selectedBankItemId();
+  if (!is_valid_item(item_id)) {
+    QMessageBox::information(this, "Liquidate Item",
+                             "Please select an item in the Cyber-Vault to sell.");
+    return;
+  }
+  int have = _gameState.item_qty(item_id);
+  if (have <= 0) return;
+
+  const auto& info = get_item_info(item_id);
+  if (have == 1) {
+    _gameState.sell_item(item_id, 1);
+    updateAllUi();
+    return;
+  }
+
+  QString msg = QString("Liquidating %1 (%2 Cr each)\nYou have %3 in your Cyber-Vault.")
+                    .arg(info.name)
+                    .arg(info.price)
+                    .arg(have);
+  WindowInput dlg("Liquidate Vault Item", msg, "Quantity to sell:", 1, have, have,
+                  this);
+  if (dlg.exec() == QDialog::Accepted) {
+    _gameState.sell_item(item_id, dlg.value());
+    updateAllUi();
+  }
+}
+
+void MainWindow::slotSellAll() {
+  if (_gameState.bank.empty()) return;
+  uint64_t total_val = _gameState.total_bank_value();
+  auto ans = QMessageBox::question(
+      this, "Liquidate All Vault Items",
+      QString("Liquidate all %1 item stacks in your Cyber-Vault for %2?")
+          .arg(_gameState.bank.size())
+          .arg(QString::fromStdString(money_string(total_val))),
+      QMessageBox::Yes | QMessageBox::No);
+  if (ans == QMessageBox::Yes) {
+    _gameState.sell_all_non_equipped();
+    updateAllUi();
+  }
+}
+
+void MainWindow::slotShop() {
+  WindowShop dlg(_gameState, this);
+  QObject::connect(&dlg, &WindowShop::stateChanged, this, &MainWindow::updateAllUi);
+  dlg.exec();
+  updateAllUi();
+}
+
+void MainWindow::slotEquipment() {
+  WindowEquipment dlg(_gameState, this);
+  QObject::connect(&dlg, &WindowEquipment::stateChanged, this,
+                   &MainWindow::updateAllUi);
+  dlg.exec();
+  updateAllUi();
+}
+
+void MainWindow::slotBestiary() {
+  WindowBestiary dlg(_gameState, this);
+  dlg.exec();
+}
+
+void MainWindow::slotHistory() {
+  int item_idx = _drawingarea_status ? _drawingarea_status->itemIndex()
+                                     : GameState::History::ITEM_CREDITS;
+  WindowHistory dlg(_gameState, item_idx, this);
+  dlg.exec();
+}
+
+void MainWindow::slotFastForward1m() {
+  _gameState.add_log("Fast-forwarding 1 minute of neural simulation...");
+  _gameState.fast_forward_seconds(60);
+  updateAllUi();
+}
+
+void MainWindow::slotFastForward10m() {
+  _gameState.add_log("Fast-forwarding 10 minutes of neural simulation...");
+  _gameState.fast_forward_seconds(600);
+  updateAllUi();
+}
+
+void MainWindow::slotSave() {
+  std::string path = GameState::default_save_path();
+  if (_gameState.save_to_file(path)) {
+    _gameState.add_log(std::format("Neural state saved to {}.", path));
+    updateAllUi();
+  } else {
+    QMessageBox::warning(
+        this, "Save Error",
+        QString("Failed to save game to %1").arg(QString::fromStdString(path)));
+  }
+}
+
+void MainWindow::slotLoad() {
+  std::string path = GameState::default_save_path();
+  if (_gameState.load_from_file(path)) {
+    updateAllUi();
+  } else {
+    QMessageBox::information(
+        this, "Load State",
+        QString("No save file found at %1").arg(QString::fromStdString(path)));
+  }
+}
+
+void MainWindow::slotAbout() {
+  std::string info = std::format(
+      "{}\n{}\n\nCyberpunk Idle RPG\nAuthor: "
+      "{}\nVersion: {}",
+      kProgramName, kProgramDescription, kProgramAuthorName, kProgramVersion);
+  QMessageBox::about(this, "About Routineverse", QString::fromStdString(info));
+}
+
+void MainWindow::slotDocs() {
+  QMessageBox::information(
+      this, "Routineverse Cyber-Guide & Documentation",
+      QString::fromUtf8(
+          "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
+          "• Extraction Protocols:\n"
+          "  - Salvaging: Strip wiring, plasteel, nanotubes, and AI mainframe cores.\n"
+          "  - Fishing: Culture synth-biota and recover submerged Corp "
+          "data-caches.\n"
+          "  - Farming: Cultivate hydroponic crops (Hydro-Wheat, Soy, Scallions, Nori, "
+          "Bamboo, Shiitake, Plasma Chili, Chrono-Lotus, Quantum Truffle) & mill "
+          "Synth-Noodles.\n"
+          "  - Deep-Mining: Extract industrial ores and rare Data Crystals.\n\n"
+          "• Processing, Smithing & Cyber-Fab:\n"
+          "  - Recycling: Process tech scrap into Raw Materials (with Carbon Cell "
+          "procs).\n"
+          "  - Synth-Cook: Prep Synth-Noodles, cook high-healing Cyber-Ramen bowls, "
+          "and "
+          "synthesize raw biota into combat stims.\n"
+          "  - Smithing: Smelt ores into Alloy Ingots and forge Mono-Blades & "
+          "Exo-Suits.\n"
+          "  - Cyber-Fab: Combine Alloy Ingots with Recycled Raw Materials to "
+          "fabricate "
+          "Visors, Holo-Shields, and high-tier Data Crystals.\n\n"
+          "• Combat & Bounty Hunting:\n"
+          "  - Equip fabricated weapons, cyber-armor, and stims from your "
+          "Cyber-Vault.\n"
+          "  - Choose your Combat Mode (Precision = Accuracy, Overdrive = "
+          "Strength, Evasive = Defence).\n"
+          "  - Neutralize Bounty Contract targets to earn Bounty XP and Bounty "
+          "Tokens.\n"
+          "  - Unlock the Auto-Stim Injector in the Cyber-Shop to automatically heal "
+          "during "
+          "combat!\n\n"
+          "• Time & Offline Simulation:\n"
+          "  - Use +1m / +10m Fast-Forward buttons to simulate idle bursts at "
+          "any time."));
+}
+
+void MainWindow::slotHighscores() {
+  uint64_t minutes = _gameState.total_ticks_ms / 60000;
+  uint64_t seconds = (_gameState.total_ticks_ms / 1000) % 60;
+  auto boss_it = _gameState.stats.monster_kills.find(MonsterId::Nexus9);
+  uint16_t boss_kills =
+      (boss_it != _gameState.stats.monster_kills.end()) ? boss_it->second : 0;
+  std::string text = std::format(
+      "Operative Summary & Milestones:\n\n"
+      "Combat Level: {}   |   Total Skill Level: {} / {}\n"
+      "Total Skill XP: {}\n"
+      "Current Credits: {}   |   Total Credits Earned: {}\n"
+      "Cyber-Vault Value: {} ({} / {} slots)\n"
+      "Bounty Tokens: {}   |   Bounty Contracts Completed: {}\n"
+      "Items Salvaged/Fabricated: {}\n"
+      "Hostiles Neutralized: {}   |   Flatlines: {}\n"
+      "NEXUS-9 (Mainframe Boss) Kills: {}\n"
+      "Simulated Uptime: {}m {}s",
+      _gameState.combat_level(), _gameState.total_skill_level(),
+      max_total_skill_level(), number_string(_gameState.total_skill_xp()),
+      money_string(_gameState.credits),
+      money_string(_gameState.stats.total_credits_earned),
+      money_string(_gameState.total_bank_value()), _gameState.used_bank_slots(),
+      _gameState.bank.capacity, number_string(_gameState.bounty_tokens),
+      _gameState.combat.bounties_completed,
+      number_string(_gameState.stats.total_items_gathered),
+      number_string(_gameState.stats.total_monsters_killed),
+      _gameState.stats.player_deaths, boss_kills, minutes, seconds);
+  QMessageBox::information(this, "Telemetry & Milestones",
+                           QString::fromStdString(text));
+}
+
+void MainWindow::slotNewGame() {
+  auto ans = QMessageBox::question(
+      this, "New Operative",
+      "Are you sure you want to wipe your neural profile and start a New Game?",
+      QMessageBox::Yes | QMessageBox::No);
+  if (ans == QMessageBox::Yes) {
+    _gameState.new_game();
+    updateAllUi();
+  }
+}
 
 // ============================================================================
 // WindowShop Implementation

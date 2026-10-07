@@ -6,16 +6,6 @@
 
 class TuiApp {
  public:
-  static constexpr int ITEM_CREDITS = 0;
-  static constexpr int ITEM_BANK_VALUE = 1;
-  static constexpr int ITEM_TOTAL_LEVEL = 2;
-  static constexpr int ITEM_TOTAL_XP = 3;
-  static constexpr int ITEM_HP = 4;
-  static constexpr int ITEM_FIRST_SKILL = 5;
-  static int totalItems() {
-    return ITEM_FIRST_SKILL + static_cast<int>(all_skills().size());
-  }
-
   TuiApp();
   ~TuiApp();
 
@@ -74,7 +64,6 @@ class TuiApp {
 
   void clampCursors();
   bool isCombatView() const;
-  static std::string itemName(int item_idx);
 
   GameState _gameState;
   FocusPane _focus = FocusPane::Skills;
@@ -82,7 +71,7 @@ class TuiApp {
   int _actionCursor = 0;
   int _monsterCursor = 0;
   int _bankCursor = 0;
-  int _chartItemIdx = ITEM_CREDITS;
+  int _chartItemIdx = GameState::History::ITEM_CREDITS;
   bool _forceCombatView = false;
   bool _running = true;
 };

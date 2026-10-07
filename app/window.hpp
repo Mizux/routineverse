@@ -32,15 +32,7 @@ class HistoryChartView : public QChartView {
   Q_OBJECT
 
  public:
-  static constexpr int ITEM_CREDITS = 0;
-  static constexpr int ITEM_BANK_VALUE = 1;
-  static constexpr int ITEM_TOTAL_LEVEL = 2;
-  static constexpr int ITEM_TOTAL_XP = 3;
-  static constexpr int ITEM_HP = 4;
-  static constexpr int ITEM_FIRST_SKILL = 5;
-  static int totalItems() {
-    return ITEM_FIRST_SKILL + static_cast<int>(all_skills().size());
-  }
+  static int totalItems() { return GameState::History::total_items(); }
 
   explicit HistoryChartView(bool compact = true, QWidget* parent = nullptr);
   virtual ~HistoryChartView() = default;
@@ -66,7 +58,7 @@ class HistoryChartView : public QChartView {
   void _setupChart();
 
   bool _compact = true;
-  int _item_idx = ITEM_CREDITS;
+  int _item_idx = GameState::History::ITEM_CREDITS;
 
   QChart* _chart = nullptr;
   QValueAxis* _axis_x = nullptr;
@@ -98,9 +90,6 @@ class MainWindow : public QWidget {
   int selectedActionId() const;
   std::optional<MonsterId> selectedMonsterId() const;
   ItemId selectedBankItemId() const;
-
-  QTabWidget* modeTabs() const { return _tabs_mode; }
-  HistoryChartView* statusChartView() const { return _drawingarea_status; }
 
  public slots:
   void slotStart();

@@ -11,8 +11,6 @@ set(QT_VERSION_MAJOR 6)
 add_executable(routineverse)
 target_sources(routineverse PRIVATE
   main.cpp
-  window-cb.cpp
-  window-cb.hpp
   window.cpp
   window.hpp
 )

@@ -194,29 +194,6 @@ TuiApp::TuiApp() : _gameState() { clampCursors(); }
 
 TuiApp::~TuiApp() = default;
 
-std::string TuiApp::itemName(int item_idx) {
-  switch (item_idx) {
-    case ITEM_CREDITS:
-      return "Credits (Cr)";
-    case ITEM_BANK_VALUE:
-      return "Vault Value (Cr)";
-    case ITEM_TOTAL_LEVEL:
-      return "Total Skill Level";
-    case ITEM_TOTAL_XP:
-      return "Total Skill XP";
-    case ITEM_HP:
-      return "Player Hitpoints";
-    default: {
-      int s_idx = item_idx - ITEM_FIRST_SKILL;
-      const auto skills = all_skills();
-      if (s_idx >= 0 && s_idx < static_cast<int>(skills.size())) {
-        return skill_name(skills[s_idx]) + " XP";
-      }
-      return "Credits (Cr)";
-    }
-  }
-}
-
 bool TuiApp::isCombatView() const {
   if (_forceCombatView) return true;
   const auto skills = all_skills();
@@ -439,7 +416,7 @@ int TuiApp::run() {
         break;
 
       case 'g':
-        _chartItemIdx = (_chartItemIdx + 1) % totalItems();
+        _chartItemIdx = (_chartItemIdx + 1) % GameState::History::total_items();
         break;
 
       case 'G':
@@ -511,13 +488,25 @@ int TuiApp::run() {
           getmaxyx(stdscr, rows, cols);
           int left_w = std::max(26, cols * 24 / 100);
           int center_w = std::max(38, cols * 44 / 100);
-          int top_h = std::max(14, rows - 8);
+          int main_h = rows - 8;
 
-          if (ev.y >= 1 && ev.y < 1 + top_h) {
+          if (ev.y >= 1 && ev.y < 1 + main_h) {
             if (ev.x < left_w) {
               _focus = FocusPane::Skills;
-              int idx = ev.y - 3;
-              if (idx >= 0 && idx < static_cast<int>(all_skills().size())) {
+              const auto skills = all_skills();
+              int skill_count = static_cast<int>(skills.size());
+              bool has_sep = (main_h >= skill_count + 4);
+              int idx = -1;
+              if (ev.y >= 3 && ev.y < main_h) {
+                if (has_sep && ev.y == 11) {
+                  idx = -1;
+                } else if (has_sep && ev.y > 11) {
+                  idx = ev.y - 4;
+                } else {
+                  idx = ev.y - 3;
+                }
+              }
+              if (idx >= 0 && idx < skill_count) {
                 _skillCursor = idx;
                 _forceCombatView = false;
                 _actionCursor = 0;
@@ -525,25 +514,52 @@ int TuiApp::run() {
             } else if (ev.x < left_w + center_w) {
               _focus = FocusPane::Actions;
               if (isCombatView()) {
-                int idx = ev.y - 8;
-                if (idx >= 0 && idx < static_cast<int>(all_monster_ids().size())) {
-                  _monsterCursor = idx;
-                  if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
-                    actionStartSelected();
+                int visible_rows = std::max(1, main_h - 8);
+                int start_idx = (_monsterCursor >= visible_rows)
+                                    ? (_monsterCursor - visible_rows + 1)
+                                    : 0;
+                if (ev.y >= 8 && ev.y < main_h) {
+                  int idx = start_idx + (ev.y - 8);
+                  if (idx >= 0 && idx < static_cast<int>(all_monster_ids().size())) {
+                    _monsterCursor = idx;
+                    if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
+                      actionStartSelected();
+                    }
                   }
                 }
               } else {
-                auto acts = actions_for_skill(all_skills()[_skillCursor]);
-                int idx = ev.y - 5;
-                if (idx >= 0 && idx < static_cast<int>(acts.size())) {
-                  _actionCursor = idx;
-                  if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
-                    actionStartSelected();
+                SkillType sk = all_skills()[_skillCursor];
+                if (is_combat_skill(sk)) sk = SkillType::Salvaging;
+                auto acts = actions_for_skill(sk);
+                int visible_rows = std::max(1, main_h - 5);
+                int start_idx = (_actionCursor >= visible_rows)
+                                    ? (_actionCursor - visible_rows + 1)
+                                    : 0;
+                if (ev.y >= 5 && ev.y < main_h) {
+                  int idx = start_idx + (ev.y - 5);
+                  if (idx >= 0 && idx < static_cast<int>(acts.size())) {
+                    _actionCursor = idx;
+                    if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
+                      actionStartSelected();
+                    }
                   }
                 }
               }
             } else {
-              _focus = FocusPane::Bank;
+              int bank_h = std::max(7, main_h * 42 / 100);
+              if (ev.y < 1 + bank_h) {
+                _focus = FocusPane::Bank;
+                int visible_rows = std::max(1, bank_h - 3);
+                int start_idx = (_bankCursor >= visible_rows)
+                                    ? (_bankCursor - visible_rows + 1)
+                                    : 0;
+                if (ev.y >= 3 && ev.y < bank_h) {
+                  int idx = start_idx + (ev.y - 3);
+                  if (idx >= 0 && idx < static_cast<int>(_gameState.bank.size())) {
+                    _bankCursor = idx;
+                  }
+                }
+              }
             }
           }
           clampCursors();
@@ -1008,7 +1024,7 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
 }
 
 void TuiApp::drawGraphPane(int y, int x, int h, int w) {
-  std::string title = "Chart: " + itemName(_chartItemIdx);
+  std::string title = "Chart: " + GameState::History::item_name(_chartItemIdx);
   draw_btop_box(y, x, h, w, title, "[g]Metric [G]Zoom");
   if (h >= 4 && w >= 10) {
     renderBrailleChart(y + 1, x + 2, h - 2, w - 4, _chartItemIdx, false);
@@ -1019,33 +1035,7 @@ void TuiApp::renderBrailleChart(int y, int x, int h, int w, int item_idx,
                                 bool show_axes) {
   if (h <= 0 || w <= 2) return;
 
-  std::vector<double> values;
-  if (item_idx == ITEM_CREDITS) {
-    for (long long v : _gameState.history.credits) values.push_back(v);
-    values.push_back(_gameState.credits);
-  } else if (item_idx == ITEM_BANK_VALUE) {
-    for (long long v : _gameState.history.bank_value) values.push_back(v);
-    values.push_back(_gameState.total_bank_value());
-  } else if (item_idx == ITEM_TOTAL_LEVEL) {
-    for (int v : _gameState.history.total_level) values.push_back(v);
-    values.push_back(_gameState.total_skill_level());
-  } else if (item_idx == ITEM_TOTAL_XP) {
-    for (long long v : _gameState.history.total_xp) values.push_back(v);
-    values.push_back(_gameState.total_skill_xp());
-  } else if (item_idx == ITEM_HP) {
-    for (int v : _gameState.history.hp) values.push_back(v);
-    values.push_back(_gameState.combat.player_hp);
-  } else {
-    const auto skills = all_skills();
-    int s_idx =
-        std::clamp(item_idx - ITEM_FIRST_SKILL, 0, static_cast<int>(skills.size()) - 1);
-    SkillType sk = skills[s_idx];
-    auto it = _gameState.history.skill_xp.find(sk);
-    if (it != _gameState.history.skill_xp.end()) {
-      for (long long v : it->second) values.push_back(v);
-    }
-    values.push_back(_gameState.skill_xp(sk));
-  }
+  std::vector<double> values = _gameState.history.series_values(_gameState, item_idx);
 
   if (values.empty()) values.push_back(0.0);
 
@@ -1385,15 +1375,16 @@ void TuiApp::showBestiaryDialog() {
 }
 
 void TuiApp::showHistoryDialog(int initial_item) {
-  const int total_items = totalItems();
+  const int total_items = GameState::History::total_items();
   int item_idx = std::clamp(initial_item, 0, total_items - 1);
   timeout(-1);
   while (true) {
     erase();
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    std::string title = std::format("Telemetry History — {} ({}/{})",
-                                    itemName(item_idx), item_idx + 1, total_items);
+    std::string title =
+        std::format("Telemetry History — {} ({}/{})",
+                    GameState::History::item_name(item_idx), item_idx + 1, total_items);
     draw_btop_box(0, 0, rows, cols, title, "[Left/Right]Metric [Esc]Close", true,
                   CP_CYAN);
     renderBrailleChart(2, 2, rows - 4, cols - 4, item_idx, true);
