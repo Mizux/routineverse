@@ -155,7 +155,9 @@ class MainWindow : public QWidget {
   QComboBox* _combo_attack_style = nullptr;
   QLabel* _label_bounty_task = nullptr;
   QPushButton* _button_bounty_task = nullptr;
+  QProgressBar* _progressbar_player_atk = nullptr;
   QProgressBar* _progressbar_monster_hp = nullptr;
+  QProgressBar* _progressbar_monster_atk = nullptr;
 
   QPushButton* _button_start = nullptr;
   QPushButton* _button_stop = nullptr;

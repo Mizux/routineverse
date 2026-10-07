@@ -367,13 +367,30 @@ void MainWindow::_setupWidget() {
   hbox_combat_top->addWidget(_button_bounty_task);
   vbox_tab_combat->addLayout(hbox_combat_top);
 
-  QHBoxLayout* hbox_mon_hp = new QHBoxLayout();
-  hbox_mon_hp->addWidget(new QLabel("Hostile Integrity:", tab_combat));
+  QGridLayout* grid_combat_bars = new QGridLayout();
+  grid_combat_bars->setHorizontalSpacing(8);
+  grid_combat_bars->setVerticalSpacing(3);
+
+  grid_combat_bars->addWidget(new QLabel("Operative Attack:", tab_combat), 0, 0);
+  _progressbar_player_atk = new QProgressBar(tab_combat);
+  _progressbar_player_atk->setRange(0, 100);
+  _progressbar_player_atk->setValue(0);
+  grid_combat_bars->addWidget(_progressbar_player_atk, 0, 1);
+
+  grid_combat_bars->addWidget(new QLabel("Hostile Integrity:", tab_combat), 1, 0);
   _progressbar_monster_hp = new QProgressBar(tab_combat);
   _progressbar_monster_hp->setRange(0, 100);
   _progressbar_monster_hp->setValue(100);
-  hbox_mon_hp->addWidget(_progressbar_monster_hp, 1);
-  vbox_tab_combat->addLayout(hbox_mon_hp);
+  grid_combat_bars->addWidget(_progressbar_monster_hp, 1, 1);
+
+  grid_combat_bars->addWidget(new QLabel("Hostile Attack:", tab_combat), 2, 0);
+  _progressbar_monster_atk = new QProgressBar(tab_combat);
+  _progressbar_monster_atk->setRange(0, 100);
+  _progressbar_monster_atk->setValue(0);
+  grid_combat_bars->addWidget(_progressbar_monster_atk, 2, 1);
+
+  grid_combat_bars->setColumnStretch(1, 1);
+  vbox_tab_combat->addLayout(grid_combat_bars);
 
   _treeview_monsters = new QTreeWidget(tab_combat);
   _treeview_monsters->setRootIsDecorated(false);
@@ -641,9 +658,29 @@ void MainWindow::updateLiveProgressOnly() {
         QString("%1 / %2 HP").arg(_gameState.combat.player_hp).arg(mhp));
   }
 
+  MonsterId mon_id =
+      (_gameState.info.active_type == ActiveActivityType::Combat)
+          ? _gameState.combat.active_monster_id
+          : selectedMonsterId().value_or(_gameState.combat.active_monster_id);
+  const auto& mon_info = get_monster_info(mon_id);
+
+  if (_progressbar_player_atk) {
+    int plr_int = std::max(1, _gameState.player_attack_interval_ms());
+    int plr_cur = (_gameState.info.active_type == ActiveActivityType::Combat)
+                      ? std::clamp(_gameState.combat.player_attack_timer_ms, 0, plr_int)
+                      : 0;
+    int pct = (plr_cur * 100) / plr_int;
+    _progressbar_player_atk->setRange(0, plr_int);
+    _progressbar_player_atk->setValue(plr_cur);
+    _progressbar_player_atk->setFormat(
+        QString("%1s / %2s (%3%)")
+            .arg(plr_cur / 1000.0, 0, 'f', 1)
+            .arg(plr_int / 1000.0, 0, 'f', 1)
+            .arg(pct));
+  }
+
   if (_progressbar_monster_hp) {
-    MonsterId mon_id = _gameState.combat.active_monster_id;
-    int mhp = get_monster_info(mon_id).max_hp;
+    int mhp = std::max(1, mon_info.max_hp);
     int chp = (_gameState.info.active_type == ActiveActivityType::Combat)
                   ? _gameState.combat.monster_hp
                   : mhp;
@@ -654,6 +691,21 @@ void MainWindow::updateLiveProgressOnly() {
             .arg(QString::fromStdString(monster_name(mon_id)))
             .arg(chp)
             .arg(mhp));
+  }
+
+  if (_progressbar_monster_atk) {
+    int mon_int = std::max(1, mon_info.attack_interval_ms);
+    int mon_cur = (_gameState.info.active_type == ActiveActivityType::Combat)
+                      ? std::clamp(_gameState.combat.monster_attack_timer_ms, 0, mon_int)
+                      : 0;
+    int pct = (mon_cur * 100) / mon_int;
+    _progressbar_monster_atk->setRange(0, mon_int);
+    _progressbar_monster_atk->setValue(mon_cur);
+    _progressbar_monster_atk->setFormat(
+        QString("%1s / %2s (%3%)")
+            .arg(mon_cur / 1000.0, 0, 'f', 1)
+            .arg(mon_int / 1000.0, 0, 'f', 1)
+            .arg(pct));
   }
 }
 

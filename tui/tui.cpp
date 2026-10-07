@@ -799,6 +799,17 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_hp_r,
                       plr_hp_r > 0.35 ? CP_GREEN : CP_RED);
 
+    int plr_int_ms = _gameState.player_attack_interval_ms();
+    int plr_atk_ms = (_gameState.info.active_type == ActiveActivityType::Combat)
+                         ? _gameState.combat.player_attack_timer_ms
+                         : 0;
+    double plr_atk_r = static_cast<double>(plr_atk_ms) / std::max(1, plr_int_ms);
+    attron(COLOR_PAIR(CP_CYAN) | A_BOLD);
+    mvprintw(row, x + 2, "You Atk %3.1f/%3.1fs ", plr_atk_ms / 1000.0,
+             plr_int_ms / 1000.0);
+    attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_atk_r, CP_CYAN);
+
     const auto monsters = all_monster_ids();
     MonsterId mon_id = (_gameState.info.active_type == ActiveActivityType::Combat)
                            ? _gameState.combat.active_monster_id
@@ -813,6 +824,18 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     mvprintw(row, x + 2, "Foe HP %4d/%-4d ", cur_mhp, cur_mon.max_hp);
     attroff(COLOR_PAIR(CP_RED) | A_BOLD);
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_hp_r, CP_RED);
+
+    int mon_int_ms = cur_mon.attack_interval_ms;
+    int mon_atk_ms = (_gameState.info.active_type == ActiveActivityType::Combat)
+                         ? _gameState.combat.monster_attack_timer_ms
+                         : 0;
+    double mon_atk_r = static_cast<double>(mon_atk_ms) / std::max(1, mon_int_ms);
+    attron(COLOR_PAIR(CP_MAGENTA) | A_BOLD);
+    mvprintw(row, x + 2, "Foe Atk %3.1f/%3.1fs ", mon_atk_ms / 1000.0,
+             mon_int_ms / 1000.0);
+    attroff(COLOR_PAIR(CP_MAGENTA) | A_BOLD);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_atk_r,
+                      CP_MAGENTA);
 
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
@@ -830,7 +853,14 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
              "Sector", "HP", "Max", "Bnt", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
-    for (int i = 0; i < static_cast<int>(monsters.size()) && row < y + h - 1; ++i) {
+    int visible_rows = std::max(1, (y + h - 1) - row);
+    int start_idx = 0;
+    if (_monsterCursor >= visible_rows) {
+      start_idx = _monsterCursor - visible_rows + 1;
+    }
+
+    for (int i = start_idx;
+         i < static_cast<int>(monsters.size()) && row < y + h - 1; ++i) {
       MonsterId m_id = monsters[i];
       const auto& mon = get_monster_info(m_id);
       bool is_sel = (i == _monsterCursor);
