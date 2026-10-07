@@ -353,7 +353,7 @@ int TuiApp::run() {
       case 'C':
         _forceCombatView = !isCombatView();
         if (_forceCombatView && !is_combat_skill(all_skills()[_skillCursor])) {
-          _skillCursor = 8;
+          _skillCursor = 9;
         } else if (!_forceCombatView && is_combat_skill(all_skills()[_skillCursor])) {
           _skillCursor = 0;
         }
@@ -498,9 +498,9 @@ int TuiApp::run() {
               bool has_sep = (main_h >= skill_count + 4);
               int idx = -1;
               if (ev.y >= 3 && ev.y < main_h) {
-                if (has_sep && ev.y == 11) {
+                if (has_sep && ev.y == 12) {
                   idx = -1;
-                } else if (has_sep && ev.y > 11) {
+                } else if (has_sep && ev.y > 12) {
                   idx = ev.y - 4;
                 } else {
                   idx = ev.y - 3;
@@ -514,12 +514,12 @@ int TuiApp::run() {
             } else if (ev.x < left_w + center_w) {
               _focus = FocusPane::Actions;
               if (isCombatView()) {
-                int visible_rows = std::max(1, main_h - 8);
+                int visible_rows = std::max(1, main_h - 10);
                 int start_idx = (_monsterCursor >= visible_rows)
                                     ? (_monsterCursor - visible_rows + 1)
                                     : 0;
-                if (ev.y >= 8 && ev.y < main_h) {
-                  int idx = start_idx + (ev.y - 8);
+                if (ev.y >= 10 && ev.y < main_h) {
+                  int idx = start_idx + (ev.y - 10);
                   if (idx >= 0 && idx < static_cast<int>(all_monster_ids().size())) {
                     _monsterCursor = idx;
                     if (ev.bstate & BUTTON1_DOUBLE_CLICKED) {
@@ -615,8 +615,8 @@ void TuiApp::drawDashboard() {
   drawSkillsPane(main_y, 0, main_h, left_w);
   drawActionsOrCombatPane(main_y, left_w, main_h, center_w);
 
-  int bank_h = std::max(7, main_h * 42 / 100);
-  int status_h = std::max(6, main_h * 30 / 100);
+  int bank_h = std::max(7, main_h * 40 / 100);
+  int status_h = std::max(8, main_h * 34 / 100);
   int graph_h = main_h - bank_h - status_h;
 
   drawBankPane(main_y, left_w + center_w, bank_h, right_w);
@@ -636,10 +636,11 @@ void TuiApp::drawTopBar(int cols) {
            std::string(kProgramVersion).c_str());
 
   std::string right_stats = std::format(
-      "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} ",
+      "Cr: {} │ BT: {} │ Combat Lv: {} │ Total Lv: {}/{} │ HP: {}/{} │ INT: {}/{} ",
       number_string(_gameState.credits), number_string(_gameState.bounty_tokens),
       _gameState.combat_level(), _gameState.total_skill_level(),
-      max_total_skill_level(), _gameState.combat.player_hp, _gameState.max_hp());
+      max_total_skill_level(), _gameState.combat.player_hp, _gameState.max_hp(),
+      _gameState.combat.player_integrity, _gameState.max_integrity());
 
   int rx = std::max(30, cols - static_cast<int>(right_stats.size()) - 1);
   mvaddstr(0, rx, right_stats.c_str());
@@ -749,6 +750,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       case SkillType::CyberFab:
         active_cp = CP_YELLOW;
         break;
+      case SkillType::Hacking:
+        active_cp = CP_CYAN;
+        break;
       default:
         break;
     }
@@ -814,16 +818,25 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_hp_r,
                       plr_hp_r > 0.35 ? CP_GREEN : CP_RED);
 
+    double plr_int_r = static_cast<double>(_gameState.combat.player_integrity) /
+                       std::max(1, _gameState.max_integrity());
+    attron(COLOR_PAIR(CP_CYAN) | A_BOLD);
+    mvprintw(row, x + 2, "You INT%4d/%-4d ", _gameState.combat.player_integrity,
+             _gameState.max_integrity());
+    attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_int_r,
+                      plr_int_r > 0.35 ? CP_CYAN : CP_RED);
+
     int plr_int_ms = _gameState.player_attack_interval_ms();
     int plr_atk_ms = (_gameState.info.active_type == ActiveActivityType::Combat)
                          ? _gameState.combat.player_attack_timer_ms
                          : 0;
     double plr_atk_r = static_cast<double>(plr_atk_ms) / std::max(1, plr_int_ms);
-    attron(COLOR_PAIR(CP_CYAN) | A_BOLD);
+    attron(COLOR_PAIR(CP_YELLOW) | A_BOLD);
     mvprintw(row, x + 2, "You Atk %3.1f/%3.1fs ", plr_atk_ms / 1000.0,
              plr_int_ms / 1000.0);
-    attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
-    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_atk_r, CP_CYAN);
+    attroff(COLOR_PAIR(CP_YELLOW) | A_BOLD);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), plr_atk_r, CP_YELLOW);
 
     const auto monsters = all_monster_ids();
     MonsterId mon_id = (_gameState.info.active_type == ActiveActivityType::Combat)
@@ -833,12 +846,25 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     int cur_mhp = (_gameState.info.active_type == ActiveActivityType::Combat)
                       ? _gameState.combat.monster_hp
                       : cur_mon.max_hp;
-    double mon_hp_r = static_cast<double>(cur_mhp) / std::max(1, cur_mon.max_hp);
+    double mon_hp_r = (cur_mon.max_hp > 0)
+                          ? (static_cast<double>(cur_mhp) / cur_mon.max_hp)
+                          : 0.0;
 
     attron(COLOR_PAIR(CP_RED) | A_BOLD);
     mvprintw(row, x + 2, "Foe HP %4d/%-4d ", cur_mhp, cur_mon.max_hp);
     attroff(COLOR_PAIR(CP_RED) | A_BOLD);
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_hp_r, CP_RED);
+
+    int cur_mint = (_gameState.info.active_type == ActiveActivityType::Combat)
+                       ? _gameState.combat.monster_integrity
+                       : cur_mon.max_integrity;
+    double mon_int_r = (cur_mon.max_integrity > 0)
+                           ? (static_cast<double>(cur_mint) / cur_mon.max_integrity)
+                           : 0.0;
+    attron(COLOR_PAIR(CP_BLUE) | A_BOLD);
+    mvprintw(row, x + 2, "Foe INT%4d/%-4d ", cur_mint, cur_mon.max_integrity);
+    attroff(COLOR_PAIR(CP_BLUE) | A_BOLD);
+    draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_int_r, CP_BLUE);
 
     int mon_int_ms = cur_mon.attack_interval_ms;
     int mon_atk_ms = (_gameState.info.active_type == ActiveActivityType::Combat)
@@ -851,9 +877,13 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_MAGENTA) | A_BOLD);
     draw_progress_bar(row++, x + 19, std::max(8, inner_w - 19), mon_atk_r, CP_MAGENTA);
 
+    int cur_mice = (_gameState.info.active_type == ActiveActivityType::Combat)
+                       ? _gameState.combat.monster_ice_qty
+                       : cur_mon.ice_pool;
     attron(COLOR_PAIR(CP_YELLOW));
     std::string style_task = std::format(
-        "Mode: {} │ Bounty: {}x {}", combat_style_name(_gameState.combat.style),
+        "Mode: {} │ Foe ICE: {}/{} │ Bounty: {}x {}",
+        combat_style_name(_gameState.combat.style), cur_mice, cur_mon.ice_pool,
         _gameState.combat.bounty_remaining,
         monster_name(_gameState.combat.bounty_target_id));
     if (static_cast<int>(style_task.size()) > inner_w) {
@@ -863,8 +893,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_YELLOW));
 
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-18s %-13s %-5s %-4s %-4s %-5s", "Lv", "Hostile",
-             "Sector", "HP", "Max", "Bnt", "Kills");
+    mvprintw(row++, x + 2, "%-3s %-17s %-12s %-4s %-4s %-3s %-3s %-5s", "Lv", "Hostile",
+             "Sector", "HP", "INT", "Max", "ICE", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     int visible_rows = std::max(1, (y + h - 1) - row);
@@ -889,9 +919,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
       std::string mname =
           (is_fighting ? "* " : (is_task ? "! " : "")) + monster_name(mon.id);
-      if (static_cast<int>(mname.size()) > 18) mname = mname.substr(0, 18);
+      if (static_cast<int>(mname.size()) > 17) mname = mname.substr(0, 17);
       std::string zname = zone_name(mon.zone);
-      if (static_cast<int>(zname.size()) > 13) zname = zname.substr(0, 13);
+      if (static_cast<int>(zname.size()) > 12) zname = zname.substr(0, 12);
 
       uint16_t kills = 0;
       if (auto it = _gameState.stats.monster_kills.find(m_id);
@@ -899,9 +929,10 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
         kills = it->second;
       }
 
-      std::string line =
-          std::format("{:>3} {:<18} {:<13} {:>5} {:>4} {:>4} {:>5}", mon.combat_level,
-                      mname, zname, mon.max_hp, mon.max_hit, mon.bounty_req, kills);
+      int disp_max = std::max(mon.max_hit, mon.ice_max_hit);
+      std::string line = std::format(
+          "{:>3} {:<17} {:<12} {:>4} {:>4} {:>3} {:>3} {:>5}", mon.combat_level,
+          mname, zname, mon.max_hp, mon.max_integrity, disp_max, mon.ice_pool, kills);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -952,8 +983,20 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
     if (static_cast<int>(iname.size()) > 16) iname = iname.substr(0, 16);
 
     std::string extra = money_string(static_cast<long long>(slot.qty) * info.price);
-    if (info.heal_amount > 0) {
+    if (info.category == ItemCategory::StimFood && info.heal_amount > 0) {
       extra += std::format(" (+{}HP)", info.heal_amount);
+    } else if (info.category == ItemCategory::IntegrityPatch) {
+      if (info.bonus.speed_bonus_pct > 0) {
+        extra += std::format(" (+{}INT/+{}XP)", info.heal_amount, info.bonus.speed_bonus_pct);
+      } else {
+        extra += std::format(" (+{}INT)", info.heal_amount);
+      }
+    } else if (info.category == ItemCategory::AttackIce) {
+      extra += std::format(" (+{}ICE)", info.bonus.strength);
+    } else if (info.category == ItemCategory::DefenseIce) {
+      extra += std::format(" (+{}INT)", info.heal_amount);
+    } else if (info.category == ItemCategory::Firewall) {
+      extra += std::format(" (+{}INT)", info.bonus.strength);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
       extra += std::format(" (+{}Str)", info.bonus.strength);
     } else if (info.bonus.speed_bonus_pct > 0) {
@@ -973,21 +1016,34 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
 }
 
 void TuiApp::drawStatusPane(int y, int x, int h, int w) {
-  draw_btop_box(y, x, h, w, "Cyberware & Tools", "[u]Shop [i]Gear");
+  draw_btop_box(y, x, h, w, "Cyberware & ICE Pools", "[u]Shop [i]Gear");
   int inner_w = w - 4;
   int row = y + 1;
 
   ItemId w_id = _gameState.equipment.at(EquipSlot::Weapon);
   std::string w_str = is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
 
-  w_id = _gameState.equipment.at(EquipSlot::Shield);
-  std::string w_shield = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
-
-  w_id = _gameState.equipment.at(EquipSlot::Head);
-  std::string w_visor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
-
   w_id = _gameState.equipment.at(EquipSlot::Armor);
-  std::string w_armor = is_valid_item(w_id) ? get_item_info(w_id).name : "Unequiped";
+  std::string w_armor = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
+
+  w_id = _gameState.equipment.at(EquipSlot::Firewall);
+  std::string w_fw = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
+
+  std::string atk_ice_str =
+      (is_valid_item(_gameState.equipment.attack_ice_item) &&
+       _gameState.equipment.attack_ice_qty > 0)
+          ? std::format("{}x {} (Hit {})", _gameState.equipment.attack_ice_qty,
+                        get_item_info(_gameState.equipment.attack_ice_item).name,
+                        _gameState.player_ice_max_hit())
+          : "None";
+
+  std::string def_ice_str =
+      (is_valid_item(_gameState.equipment.defense_ice_item) &&
+       _gameState.equipment.defense_ice_qty > 0)
+          ? std::format("{}x {} (+{}INT)", _gameState.equipment.defense_ice_qty,
+                        get_item_info(_gameState.equipment.defense_ice_item).name,
+                        get_item_info(_gameState.equipment.defense_ice_item).heal_amount)
+          : "None";
 
   std::string food_str =
       (is_valid_item(_gameState.equipment.food_item) &&
@@ -1008,15 +1064,17 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
 
   print_line(CP_RED,
              std::format("Weapon: {} (MaxHit {})", w_str, _gameState.player_max_hit()));
-  print_line(CP_MAGENTA, std::format("Shield: {}", w_shield));
-  print_line(CP_CYAN, std::format("Visor: {}", w_visor));
-  print_line(CP_BORDER, std::format("Armor: {}", w_armor));
+  print_line(CP_BORDER, std::format("Armor: {} │ Firewall: {}", w_armor, w_fw));
+  print_line(CP_CYAN, std::format("Atk ICE: {}", atk_ice_str));
+  print_line(CP_BLUE, std::format("Def ICE: {}", def_ice_str));
   print_line(CP_GREEN, std::format("Stim [f]: {}", food_str));
   print_line(
       CP_YELLOW,
-      std::format("Acc: {} │ Eva: {} │ DR: {}% │ AutoStim: Mk{}",
+      std::format("Acc:{} Eva:{} DR:{}% │ C-Acc:{} C-DR:{}%",
                   _gameState.player_accuracy(), _gameState.player_evasion(),
-                  _gameState.player_damage_reduction(), _gameState.auto_stim_tier()));
+                  _gameState.player_damage_reduction(),
+                  _gameState.player_ice_accuracy(),
+                  _gameState.player_ice_damage_reduction()));
   print_line(CP_DEFAULT,
              std::format("Tools: Cut T{} Bio T{} Drl T{} Core T{}",
                          _gameState.cutter_tier() + 1, _gameState.harvester_tier() + 1,
@@ -1301,51 +1359,86 @@ void TuiApp::showEquipmentDialog() {
   while (true) {
     int rows, cols;
     getmaxyx(stdscr, rows, cols);
-    int w = std::min(68, cols - 4);
-    int h = 21;
+    int w = std::min(72, cols - 4);
+    int h = std::min(rows - 2, 24);
     int y = (rows - h) / 2;
     int x = (cols - w) / 2;
 
-    draw_btop_box(y, x, h, w, "Cyberware Loadout & Combat Stats",
+    draw_btop_box(y, x, h, w, "Cyberware Loadout, ICE Pools & Combat Stats",
                   "[Enter]Unequip [Esc]Close", true, CP_CYAN);
 
     const auto slots_span = all_equip_slots();
-    for (size_t idx = 0; idx < slots_span.size(); ++idx) {
-      EquipSlot slot = slots_span[idx];
-      ItemId id = _gameState.equipment.at(slot);
-      std::string desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
-      bool sel = (static_cast<int>(idx) == cursor);
+    int equip_count = static_cast<int>(slots_span.size());
+    int total_rows = equip_count + 2;  // + Attack ICE + Defense ICE
+    for (int idx = 0; idx < total_rows; ++idx) {
+      std::string slot_label;
+      std::string desc;
+      if (idx < equip_count) {
+        EquipSlot slot = slots_span[idx];
+        ItemId id = _gameState.equipment.at(slot);
+        slot_label = equip_slot_name(slot);
+        desc = is_valid_item(id) ? item_equip_summary(id) : "Empty";
+      } else if (idx == equip_count) {
+        slot_label = "Attack ICE";
+        ItemId id = _gameState.equipment.attack_ice_item;
+        desc = (is_valid_item(id) && _gameState.equipment.attack_ice_qty > 0)
+                   ? std::format("{}x {}", _gameState.equipment.attack_ice_qty,
+                                 item_equip_summary(id))
+                   : "Empty";
+      } else {
+        slot_label = "Defense ICE";
+        ItemId id = _gameState.equipment.defense_ice_item;
+        desc = (is_valid_item(id) && _gameState.equipment.defense_ice_qty > 0)
+                   ? std::format("{}x {}", _gameState.equipment.defense_ice_qty,
+                                 item_equip_summary(id))
+                   : "Empty";
+      }
+
+      bool sel = (idx == cursor);
       attron(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
-      for (int c = 0; c < w - 6; ++c)
-        mvaddch(y + 2 + static_cast<int>(idx), x + 3 + c, ' ');
-      mvprintw(y + 2 + static_cast<int>(idx), x + 3, "%-11s: %s",
-               equip_slot_name(slot).c_str(), desc.c_str());
+      for (int c = 0; c < w - 6; ++c) mvaddch(y + 2 + idx, x + 3 + c, ' ');
+      mvprintw(y + 2 + idx, x + 3, "%-11s: %s", slot_label.c_str(), desc.c_str());
       attroff(COLOR_PAIR(sel ? CP_SELECTED : CP_DEFAULT) | (sel ? A_BOLD : A_NORMAL));
     }
 
-    int stats_y = y + 3 + static_cast<int>(slots_span.size());
+    int stats_y = y + 3 + total_rows;
     attron(COLOR_PAIR(CP_YELLOW));
-    mvprintw(stats_y, x + 3, "Combat Level: %d   │   HP: %d / %d",
-             _gameState.combat_level(), _gameState.combat.player_hp,
-             _gameState.max_hp());
-    mvprintw(stats_y + 1, x + 3, "Combat Mode: %s",
-             combat_style_name(_gameState.combat.style).c_str());
-    mvprintw(stats_y + 2, x + 3, "Max Hit: %d   │   Accuracy: %d   │   Evasion: %d",
-             _gameState.player_max_hit(), _gameState.player_accuracy(),
-             _gameState.player_evasion());
-    mvprintw(stats_y + 3, x + 3,
-             "Damage Reduction: %d%%   │   Auto-Stim Threshold: %d HP",
-             _gameState.player_damage_reduction(), _gameState.auto_eat_threshold_hp());
+    if (stats_y < y + h - 1) {
+      mvprintw(stats_y, x + 3,
+               "Combat Lv: %d │ HP: %d/%d │ INT: %d/%d │ Mode: %s",
+               _gameState.combat_level(), _gameState.combat.player_hp,
+               _gameState.max_hp(), _gameState.combat.player_integrity,
+               _gameState.max_integrity(),
+               combat_style_name(_gameState.combat.style).c_str());
+    }
+    if (stats_y + 1 < y + h - 1) {
+      mvprintw(stats_y + 1, x + 3,
+               "Phys MaxHit: %d │ Acc: %d │ Eva: %d │ DR: %d%%",
+               _gameState.player_max_hit(), _gameState.player_accuracy(),
+               _gameState.player_evasion(), _gameState.player_damage_reduction());
+    }
+    if (stats_y + 2 < y + h - 1) {
+      mvprintw(stats_y + 2, x + 3,
+               "ICE MaxHit: %d  │ Cyber Acc: %d │ Cyber Eva: %d │ Cyber DR: %d%%",
+               _gameState.player_ice_max_hit(), _gameState.player_ice_accuracy(),
+               _gameState.player_ice_evasion(),
+               _gameState.player_ice_damage_reduction());
+    }
     attroff(COLOR_PAIR(CP_YELLOW));
 
     refresh();
     int ch = getch();
     if (ch == 27 || ch == 'q' || ch == 'i') break;
-    int slot_count = static_cast<int>(slots_span.size());
-    if (ch == KEY_UP || ch == 'k') cursor = (cursor + slot_count - 1) % slot_count;
-    if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % slot_count;
+    if (ch == KEY_UP || ch == 'k') cursor = (cursor + total_rows - 1) % total_rows;
+    if (ch == KEY_DOWN || ch == 'j') cursor = (cursor + 1) % total_rows;
     if (ch == '\n' || ch == KEY_ENTER || ch == ' ') {
-      _gameState.unequip_slot(slots_span[cursor]);
+      if (cursor < equip_count) {
+        _gameState.unequip_slot(slots_span[cursor]);
+      } else if (cursor == equip_count) {
+        _gameState.unequip_attack_ice();
+      } else {
+        _gameState.unequip_defense_ice();
+      }
     }
   }
   timeout(100);
@@ -1360,9 +1453,10 @@ void TuiApp::showBestiaryDialog() {
         it != _gameState.stats.monster_kills.end()) {
       kills = it->second;
     }
-    oss << std::format("[Lv {:>3}] {} ({}) — {} HP, MaxHit {}, Kills: {}\n",
-                       mon.combat_level, monster_name(mon.id), zone_name(mon.zone),
-                       mon.max_hp, mon.max_hit, kills);
+    oss << std::format(
+        "[Lv {:>3}] {} ({}) — {} HP, {} INT, Hit {}/{} ICE (Pool {}), Kills: {}\n",
+        mon.combat_level, monster_name(mon.id), zone_name(mon.zone), mon.max_hp,
+        mon.max_integrity, mon.max_hit, mon.ice_max_hit, mon.ice_pool, kills);
     oss << std::format("   Salvage: {}-{} Cr", mon.credits_min, mon.credits_max);
     for (const auto& d : mon.drops) {
       if (is_valid_item(d.item_id)) {
@@ -1415,14 +1509,14 @@ void TuiApp::showDocsDialog() {
       "Routineverse Cyber-Guide",
       "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
       "• Extraction Protocols: Train Salvaging, Fishing, Farming, and "
-      "Deep-Mining to gather scrap, synth-biota, hydroponic crops, ores, and "
-      "rare Data Crystals.\n"
-      "• Processing & Fabrication: Train Recycling, Synth-Cook, Smithing, and "
-      "Cyber-Fab to recycle scrap into raw materials, mill Synth-Noodles & cook "
-      "Cyber-Ramen / healing stims, smelt alloy ingots & forge blades/exo-suits, "
-      "and fabricate visors, holo-shields & data crystals.\n"
-      "• Combat & Bounty: Equip weapons, cyber-armor, and stims from your Vault. "
-      "Neutralize hostiles and complete Bounty contracts for Bounty Tokens!\n"
+      "Deep-Mining to gather scrap, CPUs/RAM, synth-biota, hydroponic crops, ores, "
+      "and rare Data Crystals.\n"
+      "• Processing, Fabrication & Hacking: Train Recycling, Synth-Cook, Smithing, "
+      "Cyber-Fab, and Hacking to recycle scrap, cook stims, forge weapons/armor, "
+      "fabricate CPUs/RAM, and code ICE bots, Firewalls & Integrity Patches.\n"
+      "• Dual Combat (HP & Integrity): Equip weapons, armor, firewalls, Attack ICE, "
+      "and Defense/Repair ICE. Unconnected Slum hostiles only have HP, Metaverse "
+      "Terminals/AIs only have Integrity, and connected hybrids have both!\n"
       "• Cyber-Shop Upgrades: Press [u] to upgrade tools, unlock Auto-Stim, and "
       "expand Cyber-Vault capacity.",
       CP_GREEN);

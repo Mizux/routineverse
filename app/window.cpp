@@ -332,17 +332,23 @@ void MainWindow::_setupWidget() {
   _progressbar_player_atk->setValue(0);
   grid_combat_bars->addWidget(_progressbar_player_atk, 0, 1);
 
-  grid_combat_bars->addWidget(new QLabel("Hostile Integrity:", tab_combat), 1, 0);
+  grid_combat_bars->addWidget(new QLabel("Hostile HP:", tab_combat), 1, 0);
   _progressbar_monster_hp = new QProgressBar(tab_combat);
   _progressbar_monster_hp->setRange(0, 100);
   _progressbar_monster_hp->setValue(100);
   grid_combat_bars->addWidget(_progressbar_monster_hp, 1, 1);
 
-  grid_combat_bars->addWidget(new QLabel("Hostile Attack:", tab_combat), 2, 0);
+  grid_combat_bars->addWidget(new QLabel("Hostile Integrity:", tab_combat), 2, 0);
+  _progressbar_monster_integrity = new QProgressBar(tab_combat);
+  _progressbar_monster_integrity->setRange(0, 100);
+  _progressbar_monster_integrity->setValue(100);
+  grid_combat_bars->addWidget(_progressbar_monster_integrity, 2, 1);
+
+  grid_combat_bars->addWidget(new QLabel("Hostile Attack:", tab_combat), 3, 0);
   _progressbar_monster_atk = new QProgressBar(tab_combat);
   _progressbar_monster_atk->setRange(0, 100);
   _progressbar_monster_atk->setValue(0);
-  grid_combat_bars->addWidget(_progressbar_monster_atk, 2, 1);
+  grid_combat_bars->addWidget(_progressbar_monster_atk, 3, 1);
 
   grid_combat_bars->setColumnStretch(1, 1);
   vbox_tab_combat->addLayout(grid_combat_bars);
@@ -350,16 +356,17 @@ void MainWindow::_setupWidget() {
   _treeview_monsters = new QTreeWidget(tab_combat);
   _treeview_monsters->setRootIsDecorated(false);
   _treeview_monsters->setUniformRowHeights(true);
-  _treeview_monsters->setColumnCount(7);
+  _treeview_monsters->setColumnCount(8);
   _treeview_monsters->setHeaderLabels(
-      {"Lv", "Hostile Target", "Sector", "HP", "Max Hit", "Bounty", "Kills"});
+      {"Lv", "Hostile Target", "Sector", "HP", "INT", "Max Hit", "ICE", "Kills"});
   _treeview_monsters->setColumnWidth(0, 38);
-  _treeview_monsters->setColumnWidth(1, 165);
-  _treeview_monsters->setColumnWidth(2, 120);
-  _treeview_monsters->setColumnWidth(3, 55);
-  _treeview_monsters->setColumnWidth(4, 60);
-  _treeview_monsters->setColumnWidth(5, 55);
-  _treeview_monsters->setColumnWidth(6, 55);
+  _treeview_monsters->setColumnWidth(1, 155);
+  _treeview_monsters->setColumnWidth(2, 115);
+  _treeview_monsters->setColumnWidth(3, 50);
+  _treeview_monsters->setColumnWidth(4, 50);
+  _treeview_monsters->setColumnWidth(5, 65);
+  _treeview_monsters->setColumnWidth(6, 45);
+  _treeview_monsters->setColumnWidth(7, 50);
   connect(_treeview_monsters, &QTreeWidget::itemSelectionChanged, this,
           &MainWindow::updateLiveProgressOnly);
   connect(_treeview_monsters, &QTreeWidget::itemDoubleClicked, this,
@@ -521,18 +528,27 @@ void MainWindow::_setupWidget() {
   _label_equipped_weapon = new QLabel(frame_status);
   grid_info->addWidget(_label_equipped_weapon, 4, 1);
 
-  grid_info->addWidget(new QLabel("Armor (DR):", frame_status), 5, 0);
+  grid_info->addWidget(new QLabel("Defense & Firewall:", frame_status), 5, 0);
   _label_equipped_armor = new QLabel(frame_status);
   grid_info->addWidget(_label_equipped_armor, 5, 1);
 
-  grid_info->addWidget(new QLabel("Loaded Stim:", frame_status), 6, 0);
-  _label_equipped_food = new QLabel(frame_status);
-  grid_info->addWidget(_label_equipped_food, 6, 1);
+  grid_info->addWidget(new QLabel("ICE Pools:", frame_status), 6, 0);
+  _label_equipped_ice = new QLabel(frame_status);
+  grid_info->addWidget(_label_equipped_ice, 6, 1);
 
-  grid_info->addWidget(new QLabel("Hitpoints:", frame_status), 7, 0);
+  grid_info->addWidget(new QLabel("Loaded Stim:", frame_status), 7, 0);
+  _label_equipped_food = new QLabel(frame_status);
+  grid_info->addWidget(_label_equipped_food, 7, 1);
+
+  grid_info->addWidget(new QLabel("Hitpoints:", frame_status), 8, 0);
   _progressbar_hp = new QProgressBar(frame_status);
   _progressbar_hp->setRange(0, 100);
-  grid_info->addWidget(_progressbar_hp, 7, 1);
+  grid_info->addWidget(_progressbar_hp, 8, 1);
+
+  grid_info->addWidget(new QLabel("Integrity:", frame_status), 9, 0);
+  _progressbar_integrity = new QProgressBar(frame_status);
+  _progressbar_integrity->setRange(0, 100);
+  grid_info->addWidget(_progressbar_integrity, 9, 1);
 
   vbox_status->addLayout(grid_info);
 
@@ -617,6 +633,15 @@ void MainWindow::updateLiveProgressOnly() {
         QString("%1 / %2 HP").arg(_gameState.combat.player_hp).arg(mhp));
   }
 
+  if (_progressbar_integrity) {
+    int mint = std::max(1, _gameState.max_integrity());
+    _progressbar_integrity->setRange(0, mint);
+    _progressbar_integrity->setValue(
+        std::clamp(_gameState.combat.player_integrity, 0, mint));
+    _progressbar_integrity->setFormat(
+        QString("%1 / %2 INT").arg(_gameState.combat.player_integrity).arg(mint));
+  }
+
   MonsterId mon_id =
       (_gameState.info.active_type == ActiveActivityType::Combat)
           ? _gameState.combat.active_monster_id
@@ -638,17 +663,52 @@ void MainWindow::updateLiveProgressOnly() {
   }
 
   if (_progressbar_monster_hp) {
-    int mhp = std::max(1, mon_info.max_hp);
-    int chp = (_gameState.info.active_type == ActiveActivityType::Combat)
-                  ? _gameState.combat.monster_hp
-                  : mhp;
-    _progressbar_monster_hp->setRange(0, mhp);
-    _progressbar_monster_hp->setValue(std::clamp(chp, 0, mhp));
-    _progressbar_monster_hp->setFormat(
-        QString("%1: %2 / %3 HP")
-            .arg(QString::fromStdString(monster_name(mon_id)))
-            .arg(chp)
-            .arg(mhp));
+    if (mon_info.max_hp <= 0) {
+      _progressbar_monster_hp->setRange(0, 1);
+      _progressbar_monster_hp->setValue(0);
+      _progressbar_monster_hp->setFormat(
+          QString("%1: N/A (Pure Grid Entity)")
+              .arg(QString::fromStdString(monster_name(mon_id))));
+    } else {
+      int mhp = mon_info.max_hp;
+      int chp = (_gameState.info.active_type == ActiveActivityType::Combat)
+                    ? _gameState.combat.monster_hp
+                    : mhp;
+      _progressbar_monster_hp->setRange(0, mhp);
+      _progressbar_monster_hp->setValue(std::clamp(chp, 0, mhp));
+      _progressbar_monster_hp->setFormat(
+          QString("%1: %2 / %3 HP")
+              .arg(QString::fromStdString(monster_name(mon_id)))
+              .arg(chp)
+              .arg(mhp));
+    }
+  }
+
+  if (_progressbar_monster_integrity) {
+    if (mon_info.max_integrity <= 0) {
+      _progressbar_monster_integrity->setRange(0, 1);
+      _progressbar_monster_integrity->setValue(0);
+      _progressbar_monster_integrity->setFormat(
+          QString("%1: N/A (Unconnected)")
+              .arg(QString::fromStdString(monster_name(mon_id))));
+    } else {
+      int mint = mon_info.max_integrity;
+      int cint = (_gameState.info.active_type == ActiveActivityType::Combat)
+                     ? _gameState.combat.monster_integrity
+                     : mint;
+      int cice = (_gameState.info.active_type == ActiveActivityType::Combat)
+                     ? _gameState.combat.monster_ice_qty
+                     : mon_info.ice_pool;
+      _progressbar_monster_integrity->setRange(0, mint);
+      _progressbar_monster_integrity->setValue(std::clamp(cint, 0, mint));
+      _progressbar_monster_integrity->setFormat(
+          QString("%1: %2 / %3 INT (ICE: %4/%5)")
+              .arg(QString::fromStdString(monster_name(mon_id)))
+              .arg(cint)
+              .arg(mint)
+              .arg(cice)
+              .arg(mon_info.ice_pool));
+    }
   }
 
   if (_progressbar_monster_atk) {
@@ -700,10 +760,32 @@ void MainWindow::updateAllUi() {
             : QString("Unarmed (Max Hit: %1)").arg(_gameState.player_max_hit()));
   }
   if (_label_equipped_armor) {
-    _label_equipped_armor->setText(QString("DR: %1% | Evasion: %2 | Auto-Stim: Mk %3")
-                                       .arg(_gameState.player_damage_reduction())
-                                       .arg(_gameState.player_evasion())
-                                       .arg(_gameState.auto_stim_tier()));
+    ItemId fw_id = _gameState.equipment.at(EquipSlot::Firewall);
+    QString fw_str = is_valid_item(fw_id) ? get_item_info(fw_id).name : "None";
+    _label_equipped_armor->setText(
+        QString("DR: %1% | Cyber DR: %2% | FW: %3")
+            .arg(_gameState.player_damage_reduction())
+            .arg(_gameState.player_ice_damage_reduction())
+            .arg(fw_str));
+  }
+  if (_label_equipped_ice) {
+    QString atk_str =
+        (is_valid_item(_gameState.equipment.attack_ice_item) &&
+         _gameState.equipment.attack_ice_qty > 0)
+            ? QString("%1x %2 (Hit %3)")
+                  .arg(_gameState.equipment.attack_ice_qty)
+                  .arg(get_item_info(_gameState.equipment.attack_ice_item).name)
+                  .arg(_gameState.player_ice_max_hit())
+            : "None";
+    QString def_str =
+        (is_valid_item(_gameState.equipment.defense_ice_item) &&
+         _gameState.equipment.defense_ice_qty > 0)
+            ? QString("%1x %2 (+%3 INT)")
+                  .arg(_gameState.equipment.defense_ice_qty)
+                  .arg(get_item_info(_gameState.equipment.defense_ice_item).name)
+                  .arg(get_item_info(_gameState.equipment.defense_ice_item).heal_amount)
+            : "None";
+    _label_equipped_ice->setText(QString("Atk: %1 | Def: %2").arg(atk_str).arg(def_str));
   }
   if (_label_equipped_food) {
     if (is_valid_item(_gameState.equipment.food_item) &&
@@ -904,9 +986,10 @@ void MainWindow::_fillTreeviewMonsters() {
     item->setText(1, m_name);
     item->setText(2, QString::fromStdString(zone_name(mon.zone)));
     item->setText(3, QString::number(mon.max_hp));
-    item->setText(4, QString::number(mon.max_hit));
-    item->setText(5, QString("Lv %1").arg(mon.bounty_req));
-    item->setText(6, QString::number(kills));
+    item->setText(4, QString::number(mon.max_integrity));
+    item->setText(5, QString("%1 / %2").arg(mon.max_hit).arg(mon.ice_max_hit));
+    item->setText(6, QString::number(mon.ice_pool));
+    item->setText(7, QString::number(kills));
     item->setData(0, Qt::UserRole, QVariant::fromValue(mon_id));
 
     if ((prev_mon_id && mon_id == *prev_mon_id) ||
@@ -962,8 +1045,24 @@ void MainWindow::_fillTreeviewBank() {
 
     QString extra = QString::fromStdString(
         money_string(static_cast<uint64_t>(slot.qty) * info.price));
-    if (info.heal_amount > 0) {
+    if (info.category == ItemCategory::StimFood && info.heal_amount > 0) {
       extra += QString(" (+%1 HP)").arg(info.heal_amount);
+    } else if (info.category == ItemCategory::IntegrityPatch) {
+      if (info.bonus.speed_bonus_pct > 0) {
+        extra += QString(" (+%1 INT, +%2 XP)")
+                     .arg(info.heal_amount)
+                     .arg(info.bonus.speed_bonus_pct);
+      } else {
+        extra += QString(" (+%1 INT)").arg(info.heal_amount);
+      }
+    } else if (info.category == ItemCategory::AttackIce) {
+      extra += QString(" (+%1 ICE Str)").arg(info.bonus.strength);
+    } else if (info.category == ItemCategory::DefenseIce) {
+      extra += QString(" (+%1 INT)").arg(info.heal_amount);
+    } else if (info.category == ItemCategory::Firewall) {
+      extra += QString(" (+%1 INT, %2% DR)")
+                   .arg(info.bonus.strength)
+                   .arg(info.bonus.damage_reduction);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
       extra += QString(" (+%1 Str)").arg(info.bonus.strength);
     } else if (info.bonus.speed_bonus_pct > 0) {
@@ -1081,13 +1180,19 @@ void MainWindow::slotEquip() {
   if (!is_valid_item(item_id)) {
     QMessageBox::information(
         this, "Equip Item",
-        "Please select cyberware, a weapon, or a stim from the Cyber-Vault first.");
+        "Please select cyberware, ICE, a weapon, a patch, or a stim from the "
+        "Cyber-Vault first.");
   } else {
     const auto& info = get_item_info(item_id);
-    if (equip_slot(info.category) == EquipSlot::None && info.heal_amount <= 0) {
+    bool can_use = (equip_slot(info.category) != EquipSlot::None) ||
+                   (info.category == ItemCategory::StimFood && info.heal_amount > 0) ||
+                   (info.category == ItemCategory::AttackIce) ||
+                   (info.category == ItemCategory::DefenseIce) ||
+                   (info.category == ItemCategory::IntegrityPatch);
+    if (!can_use) {
       QMessageBox::information(
           this, "Equip Item",
-          QString("%1 cannot be equipped or loaded into the Stim-Injector.")
+          QString("%1 cannot be equipped, loaded as ICE, or used as a stim/patch.")
               .arg(info.name));
       return;
     }
@@ -1216,34 +1321,33 @@ void MainWindow::slotDocs() {
       QString::fromUtf8(
           "Welcome to Routineverse (Cyberpunk Idle RPG)!\n\n"
           "• Extraction Protocols:\n"
-          "  - Salvaging: Strip wiring, plasteel, nanotubes, and AI mainframe cores.\n"
+          "  - Salvaging: Strip wiring, plasteel, CPUs, RAM, nanotubes, and AI "
+          "mainframe cores.\n"
           "  - Fishing: Culture synth-biota and recover submerged Corp "
           "data-caches.\n"
           "  - Farming: Cultivate hydroponic crops (Hydro-Wheat, Soy, Scallions, Nori, "
           "Bamboo, Shiitake, Plasma Chili, Chrono-Lotus, Quantum Truffle) & mill "
           "Synth-Noodles.\n"
           "  - Deep-Mining: Extract industrial ores and rare Data Crystals.\n\n"
-          "• Processing, Smithing & Cyber-Fab:\n"
+          "• Processing, Smithing, Cyber-Fab & Hacking:\n"
           "  - Recycling: Process tech scrap into Raw Materials (with Carbon Cell "
           "procs).\n"
           "  - Synth-Cook: Prep Synth-Noodles, cook high-healing Cyber-Ramen bowls, "
-          "and "
-          "synthesize raw biota into combat stims.\n"
+          "and synthesize raw biota into combat stims.\n"
           "  - Smithing: Smelt ores into Alloy Ingots and forge Mono-Blades & "
           "Exo-Suits.\n"
           "  - Cyber-Fab: Combine Alloy Ingots with Recycled Raw Materials to "
-          "fabricate "
-          "Visors, Holo-Shields, and high-tier Data Crystals.\n\n"
-          "• Combat & Bounty Hunting:\n"
-          "  - Equip fabricated weapons, cyber-armor, and stims from your "
-          "Cyber-Vault.\n"
-          "  - Choose your Combat Mode (Precision = Accuracy, Overdrive = "
-          "Strength, Evasive = Defence).\n"
+          "fabricate Visors, Holo-Shields, CPUs, RAM, and high-tier Data Crystals.\n"
+          "  - Hacking: Use CPU processors and RAM modules to code Attack ICE bots, "
+          "Defense/Repair ICE bots, Firewalls, and Integrity Patches.\n\n"
+          "• Dual Combat (Hitpoints & Integrity) & Bounty Hunting:\n"
+          "  - Equip weapons, cyber-armor, Firewalls, Attack ICE, Defense ICE, and "
+          "stims from your Cyber-Vault.\n"
+          "  - Unconnected Slum hostiles have 0 Integrity (defeated via HP only); "
+          "Metaverse Grid Terminals/AIs have 0 HP (defeated via Integrity/ICE only); "
+          "connected hybrid enemies have both HP & Integrity and deploy their own ICE!\n"
           "  - Neutralize Bounty Contract targets to earn Bounty XP and Bounty "
-          "Tokens.\n"
-          "  - Unlock the Auto-Stim Injector in the Cyber-Shop to automatically heal "
-          "during "
-          "combat!\n\n"
+          "Tokens.\n\n"
           "• Time & Offline Simulation:\n"
           "  - Use +1m / +10m Fast-Forward buttons to simulate idle bursts at "
           "any time."));
@@ -1458,11 +1562,11 @@ WindowEquipment::WindowEquipment(GameState& gameState, QWidget* parent)
 }
 
 void WindowEquipment::_setupWidget() {
-  setWindowTitle("Cyberware Loadout & Combat Stats");
-  setMinimumWidth(460);
+  setWindowTitle("Cyberware Loadout, ICE Pools & Combat Stats");
+  setMinimumWidth(480);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);
-  QGroupBox* grp_gear = new QGroupBox("Installed Cyberware & Gear", this);
+  QGroupBox* grp_gear = new QGroupBox("Installed Cyberware, Gear & ICE Pools", this);
   QGridLayout* grid = new QGridLayout(grp_gear);
 
   const auto slots_span = all_equip_slots();
@@ -1484,13 +1588,31 @@ void WindowEquipment::_setupWidget() {
     grid->addWidget(_slot_buttons[idx], idx, 2);
   }
 
-  grid->addWidget(new QLabel("<b>Stim-Injector:</b>", grp_gear),
-                  _gameState.equipment.size(), 0);
+  int row = static_cast<int>(slots_span.size());
+  grid->addWidget(new QLabel("<b>Attack ICE Pool:</b>", grp_gear), row, 0);
+  _label_attack_ice = new QLabel(grp_gear);
+  grid->addWidget(_label_attack_ice, row, 1);
+  _btn_attack_ice = new QPushButton("Unequip", grp_gear);
+  connect(_btn_attack_ice, &QPushButton::clicked, this,
+          &WindowEquipment::onUnequipAttackIce);
+  grid->addWidget(_btn_attack_ice, row, 2);
+  row++;
+
+  grid->addWidget(new QLabel("<b>Defense ICE Pool:</b>", grp_gear), row, 0);
+  _label_defense_ice = new QLabel(grp_gear);
+  grid->addWidget(_label_defense_ice, row, 1);
+  _btn_defense_ice = new QPushButton("Unequip", grp_gear);
+  connect(_btn_defense_ice, &QPushButton::clicked, this,
+          &WindowEquipment::onUnequipDefenseIce);
+  grid->addWidget(_btn_defense_ice, row, 2);
+  row++;
+
+  grid->addWidget(new QLabel("<b>Stim-Injector:</b>", grp_gear), row, 0);
   _label_food = new QLabel(grp_gear);
-  grid->addWidget(_label_food, _gameState.equipment.size(), 1, 1, 2);
+  grid->addWidget(_label_food, row, 1, 1, 2);
   vbox->addWidget(grp_gear);
 
-  QGroupBox* grp_stats = new QGroupBox("Effective Combat Telemetry", this);
+  QGroupBox* grp_stats = new QGroupBox("Effective Combat & Cyber Telemetry", this);
   QVBoxLayout* vbox_stats = new QVBoxLayout(grp_stats);
   _label_stats = new QLabel(grp_stats);
   vbox_stats->addWidget(_label_stats);
@@ -1514,6 +1636,32 @@ void WindowEquipment::updateEquipmentUi() {
     }
   }
 
+  if (is_valid_item(_gameState.equipment.attack_ice_item) &&
+      _gameState.equipment.attack_ice_qty > 0) {
+    _label_attack_ice->setText(
+        QString("%1x %2")
+            .arg(_gameState.equipment.attack_ice_qty)
+            .arg(QString::fromStdString(
+                item_equip_summary(_gameState.equipment.attack_ice_item))));
+    _btn_attack_ice->setEnabled(true);
+  } else {
+    _label_attack_ice->setText("Empty");
+    _btn_attack_ice->setEnabled(false);
+  }
+
+  if (is_valid_item(_gameState.equipment.defense_ice_item) &&
+      _gameState.equipment.defense_ice_qty > 0) {
+    _label_defense_ice->setText(
+        QString("%1x %2")
+            .arg(_gameState.equipment.defense_ice_qty)
+            .arg(QString::fromStdString(
+                item_equip_summary(_gameState.equipment.defense_ice_item))));
+    _btn_defense_ice->setEnabled(true);
+  } else {
+    _label_defense_ice->setText("Empty");
+    _btn_defense_ice->setEnabled(false);
+  }
+
   if (is_valid_item(_gameState.equipment.food_item) &&
       _gameState.equipment.food_qty > 0) {
     const auto& fi = get_item_info(_gameState.equipment.food_item);
@@ -1527,24 +1675,36 @@ void WindowEquipment::updateEquipmentUi() {
 
   std::string st = std::format(
       "Combat Level: {}\n"
-      "Hitpoints: {} / {} HP\n"
-      "Combat Mode: {}\n"
-      "Weapon Cycle: {:.2f}s\n"
-      "Max Hit: {}\n"
-      "Accuracy Rating: {}\n"
-      "Evasion Rating: {}\n"
-      "Damage Reduction: {}%\n"
+      "Hitpoints: {} / {} HP   |   Integrity: {} / {} INT\n"
+      "Combat Mode: {}   |   Weapon Cycle: {:.2f}s\n"
+      "Physical Max Hit: {}   |   Accuracy: {}   |   Evasion: {}   |   DR: {}%\n"
+      "ICE Max Hit: {}   |   Cyber Acc: {}   |   Cyber Eva: {}   |   Cyber DR: {}%\n"
       "Auto-Stim Threshold: {} HP",
       _gameState.combat_level(), _gameState.combat.player_hp, _gameState.max_hp(),
+      _gameState.combat.player_integrity, _gameState.max_integrity(),
       combat_style_name(_gameState.combat.style),
       _gameState.player_attack_interval_ms() / 1000.0, _gameState.player_max_hit(),
       _gameState.player_accuracy(), _gameState.player_evasion(),
-      _gameState.player_damage_reduction(), _gameState.auto_eat_threshold_hp());
+      _gameState.player_damage_reduction(), _gameState.player_ice_max_hit(),
+      _gameState.player_ice_accuracy(), _gameState.player_ice_evasion(),
+      _gameState.player_ice_damage_reduction(), _gameState.auto_eat_threshold_hp());
   _label_stats->setText(QString::fromStdString(st));
 }
 
 void WindowEquipment::onUnequipSlot(EquipSlot slot) {
   _gameState.unequip_slot(slot);
+  updateEquipmentUi();
+  emit stateChanged();
+}
+
+void WindowEquipment::onUnequipAttackIce() {
+  _gameState.unequip_attack_ice();
+  updateEquipmentUi();
+  emit stateChanged();
+}
+
+void WindowEquipment::onUnequipDefenseIce() {
+  _gameState.unequip_defense_ice();
   updateEquipmentUi();
   emit stateChanged();
 }
@@ -1560,21 +1720,23 @@ WindowBestiary::WindowBestiary(const GameState& gameState, QWidget* parent)
 
 void WindowBestiary::_setupWidget() {
   setWindowTitle("Hostile Database & Salvage Tables");
-  resize(780, 420);
+  resize(880, 440);
 
   QVBoxLayout* vbox = new QVBoxLayout(this);
   QTreeWidget* tree = new QTreeWidget(this);
   tree->setRootIsDecorated(false);
   tree->setUniformRowHeights(true);
-  tree->setColumnCount(7);
-  tree->setHeaderLabels({"Lv", "Hostile Target", "Sector", "HP / MaxHit", "Hit% vs You",
-                         "Kills", "Credits & Salvage Table"});
+  tree->setColumnCount(8);
+  tree->setHeaderLabels({"Lv", "Hostile Target", "Sector", "HP / INT",
+                         "Hit (Phys/ICE)", "ICE Pool", "Kills",
+                         "Credits & Salvage Table"});
   tree->setColumnWidth(0, 40);
-  tree->setColumnWidth(1, 175);
-  tree->setColumnWidth(2, 125);
-  tree->setColumnWidth(3, 85);
-  tree->setColumnWidth(4, 90);
-  tree->setColumnWidth(5, 55);
+  tree->setColumnWidth(1, 165);
+  tree->setColumnWidth(2, 120);
+  tree->setColumnWidth(3, 95);
+  tree->setColumnWidth(4, 95);
+  tree->setColumnWidth(5, 65);
+  tree->setColumnWidth(6, 55);
 
   for (MonsterId mon_id : all_monster_ids()) {
     const auto& mon = get_monster_info(mon_id);
@@ -1595,12 +1757,11 @@ void WindowBestiary::_setupWidget() {
     item->setText(0, QString::number(mon.combat_level));
     item->setText(1, QString::fromStdString(monster_name(mon.id)));
     item->setText(2, QString::fromStdString(zone_name(mon.zone)));
-    item->setText(3, QString("%1 HP / %2").arg(mon.max_hp).arg(mon.max_hit));
-    item->setText(4, QString("You %1% / Foe %2%")
-                         .arg(_gameState.player_hit_chance_pct(mon_id))
-                         .arg(_gameState.monster_hit_chance_pct(mon_id)));
-    item->setText(5, QString::number(kills));
-    item->setText(6, drops_str);
+    item->setText(3, QString("%1 HP / %2 INT").arg(mon.max_hp).arg(mon.max_integrity));
+    item->setText(4, QString("%1 / %2").arg(mon.max_hit).arg(mon.ice_max_hit));
+    item->setText(5, QString::number(mon.ice_pool));
+    item->setText(6, QString::number(kills));
+    item->setText(7, drops_str);
   }
 
   vbox->addWidget(tree);

@@ -175,7 +175,44 @@
   X(HeavyChassis, "Heavy Mech Chassis", CyberLoot, 30, 0, 1, 0, 0, 0, 0, 0)                          \
   X(ApexCyberCore, "Apex Cyber-Core", CyberLoot, 180, 0, 1, 0, 0, 0, 0, 0)                           \
   X(Microchip, "Microchip", CyberLoot, 3, 0, 1, 0, 0, 0, 0, 0)                                       \
-  X(SynthWeaveHide, "Synth-Weave Hide", CyberLoot, 16, 0, 1, 0, 0, 0, 0, 0)
+  X(SynthWeaveHide, "Synth-Weave Hide", CyberLoot, 16, 0, 1, 0, 0, 0, 0, 0)                          \
+  /* Hacking Hardware - CPUs & RAMs */                                                               \
+  X(ScrapCpu, "Scrap Logic CPU", Hardware, 12, 0, 1, 0, 0, 0, 0, 0)                                  \
+  X(PositronicCpu, "Positronic Multi-Core CPU", Hardware, 95, 0, 25, 0, 0, 0, 0, 0)                  \
+  X(QuantumCpu, "Quantum Co-Processor", Hardware, 340, 0, 55, 0, 0, 0, 0, 0)                         \
+  X(NeuralCpu, "Neural Overmind CPU", Hardware, 920, 0, 80, 0, 0, 0, 0, 0)                           \
+  X(ScrapRam, "Scrap DRAM Stick", Hardware, 10, 0, 1, 0, 0, 0, 0, 0)                                 \
+  X(OpticRam, "Optic-NAND Storage Bank", Hardware, 85, 0, 25, 0, 0, 0, 0, 0)                         \
+  X(CryoRam, "Cryo-Holographic RAM", Hardware, 310, 0, 55, 0, 0, 0, 0, 0)                            \
+  X(QuantumRam, "Quantum Qubit Vault", Hardware, 860, 0, 80, 0, 0, 0, 0, 0)                          \
+  /* Firewalls & Barriers (str = +Max Integrity, def = Cyber Evasion, dr = ICE DR%) */               \
+  X(BasicFirewall, "Packet Filter Firewall", Firewall, 65, 0, 1, 0, 25, 10, 6, 0)                    \
+  X(ProxyFirewall, "Proxy-Mesh Barrier", Firewall, 260, 0, 20, 0, 60, 24, 12, 0)                     \
+  X(NeuralFirewall, "Neural Blackwall Barrier", Firewall, 850, 0, 45, 0, 120, 45, 18, 0)             \
+  X(CryoFirewall, "Cryo-Lattice Aegis", Firewall, 2400, 0, 65, 0, 200, 70, 25, 0)                    \
+  X(QuantumFirewall, "Quantum Encryption Barrier", Firewall, 6800, 0, 80, 0, 320, 105, 32, 0)        \
+  X(SingularityFirewall, "Singularity AI Bastion", Firewall, 16500, 0, 92, 0, 480, 150, 40, 0)       \
+  /* Attack ICE Bots (atk = Cyber Accuracy, str = ICE Max Hit bonus) */                              \
+  X(SpikeIceMk1, "Spike-ICE v1.0", AttackIce, 8, 0, 1, 12, 14, 0, 0, 0)                              \
+  X(BreachIceMk2, "Breach-ICE v2.0", AttackIce, 25, 0, 20, 24, 28, 0, 0, 0)                          \
+  X(ViperIceMk3, "Viper-ICE v3.0", AttackIce, 65, 0, 40, 42, 48, 0, 0, 0)                            \
+  X(KrakenIceMk4, "Kraken-ICE v4.0", AttackIce, 160, 0, 60, 68, 76, 0, 0, 0)                         \
+  X(WraithIceMk5, "Wraith-ICE v5.0", AttackIce, 380, 0, 80, 102, 115, 0, 0, 0)                       \
+  X(SingularityIceMk6, "Overmind-ICE v6.0", AttackIce, 850, 0, 92, 150, 170, 0, 0, 0)                \
+  /* Defense & Repair ICE Bots (heal = +INT repair, def = Cyber Evasion, dr = ICE DR%) */            \
+  X(WatchdogIceMk1, "Watchdog-ICE v1.0", DefenseIce, 10, 30, 1, 0, 0, 8, 5, 0)                       \
+  X(MedicIceMk2, "SysMedic-ICE v2.0", DefenseIce, 30, 65, 20, 0, 0, 18, 9, 0)                        \
+  X(AegisIceMk3, "Aegis-ICE v3.0", DefenseIce, 75, 130, 40, 0, 0, 32, 14, 0)                         \
+  X(SeraphIceMk4, "Seraph-ICE v4.0", DefenseIce, 185, 240, 60, 0, 0, 50, 19, 0)                      \
+  X(ArchonIceMk5, "Archon-ICE v5.0", DefenseIce, 420, 400, 80, 0, 0, 75, 25, 0)                      \
+  X(GuardianIceMk6, "Bastion-ICE v6.0", DefenseIce, 950, 650, 95, 0, 0, 110, 32, 0)                  \
+  /* Integrity Recovery & Upgrade Patches (heal = +INT restored, spd = +Integrity XP) */             \
+  X(ParityPatch, "Parity Checksum Patch", IntegrityPatch, 14, 40, 1, 0, 0, 0, 0, 0)                  \
+  X(KernelHotfix, "Kernel Hotfix Script", IntegrityPatch, 45, 100, 20, 0, 0, 0, 0, 0)                \
+  X(SectorDefrag, "Sector Defrag Daemon", IntegrityPatch, 120, 220, 40, 0, 0, 0, 0, 0)               \
+  X(NeuralRestore, "Neural State Restore", IntegrityPatch, 290, 450, 65, 0, 0, 0, 0, 0)              \
+  X(QuantumRollback, "Quantum Snapshot Rollback", IntegrityPatch, 720, 850, 85, 0, 0, 0, 0, 0)       \
+  X(FirmwareBoostMk1, "Integrity Firmware Matrix", IntegrityPatch, 150, 100, 15, 0, 0, 0, 0, 250)
 
 enum class ItemId : uint16_t {
 #define X(id, name, cat, price, heal, req_lvl, atk, str, def, dr, spd) id,
@@ -209,16 +246,21 @@ enum class ItemCategory : uint8_t {
   Reactor,
   AutoStim,
   CyberLoot,
+  Hardware,
+  Firewall,
+  AttackIce,
+  DefenseIce,
+  IntegrityPatch,
 };
 
 std::string item_category_name(ItemCategory cat);
 
 struct Bonus {
-  int attack = 0;            // Accuracy bonus
-  int strength = 0;          // Max hit bonus
-  int defence = 0;           // Evasion bonus
-  int damage_reduction = 0;  // Damage reduction %
-  int speed_bonus_pct = 0;   // Tool interval reduction % (or Auto-Stim threshold %)
+  int attack = 0;            // Accuracy bonus (or ICE Cyber Accuracy)
+  int strength = 0;          // Max hit bonus (or ICE Max Hit / Firewall +Max INT)
+  int defence = 0;           // Evasion bonus (or Cyber Evasion)
+  int damage_reduction = 0;  // Damage reduction % (or ICE Barrier DR%)
+  int speed_bonus_pct = 0;   // Tool interval reduction %, Auto-Stim %, or Firmware XP
 };
 
 struct ItemInfo {
@@ -226,7 +268,7 @@ struct ItemInfo {
   const char* name;
   ItemCategory category;
   int price;
-  int heal_amount;  // > 0 if usable stim/ration
+  int heal_amount;  // > 0 if usable stim/ration or Defense ICE / Integrity Patch
   int req_level;    // Required skill level to equip
   Bonus bonus{};
 };

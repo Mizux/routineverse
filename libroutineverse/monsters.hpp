@@ -13,6 +13,7 @@
   X(IndustrialSector, "Industrial Sector") \
   X(MegacorpPlaza, "Megacorp Plaza")       \
   X(OrbitalSpire, "Orbital Spire")         \
+  X(MetaverseGrid, "Metaverse Grid")       \
   X(MainframeCore, "Mainframe Core [BOSS]")
 
 enum class ZoneId : uint8_t {
@@ -23,18 +24,22 @@ enum class ZoneId : uint8_t {
 std::string zone_name(ZoneId zone);
 std::span<const ZoneId> all_zone_ids() noexcept;
 
-#define RV_MONSTER_ID_LIST(X)               \
-  X(StrayServoDrone, "Stray Servo-Drone")   \
-  X(BioVatHound, "Bio-Vat Hound")           \
-  X(StreetScavenger, "Street Scavenger")    \
-  X(ChromeGangPunk, "Chrome Gang Punk")     \
-  X(RiotEnforcerBot, "Riot Enforcer Bot")   \
-  X(ChemMutantBrute, "Chem-Mutant Brute")   \
-  X(CryoSecMech, "Cryo-Sec Mech")           \
-  X(CorpShadowOp, "Corp Shadow-Op")         \
-  X(CobaltCyberNinja, "Cobalt Cyber-Ninja") \
-  X(NeutroniumCyborg, "Neutronium Cyborg")  \
-  X(ApexCyberWyrm, "Apex Cyber-Wyrm")       \
+#define RV_MONSTER_ID_LIST(X)                   \
+  X(StrayServoDrone, "Stray Servo-Drone")       \
+  X(BioVatHound, "Bio-Vat Hound")               \
+  X(SlumDataTerminal, "Slum Data-Terminal")     \
+  X(StreetScavenger, "Street Scavenger")        \
+  X(ChromeGangPunk, "Chrome Gang Punk")         \
+  X(RiotEnforcerBot, "Riot Enforcer Bot")       \
+  X(CorpSubroutineAi, "Corp Subroutine AI")     \
+  X(ChemMutantBrute, "Chem-Mutant Brute")       \
+  X(CryoSecMech, "Cryo-Sec Mech")               \
+  X(BlackwallDaemon, "Blackwall Sentinel AI")   \
+  X(CorpShadowOp, "Corp Shadow-Op")             \
+  X(CobaltCyberNinja, "Cobalt Cyber-Ninja")     \
+  X(NeutroniumCyborg, "Neutronium Cyborg")      \
+  X(ArchonNetAi, "ARCHON-0, Metaverse AI")      \
+  X(ApexCyberWyrm, "Apex Cyber-Wyrm")           \
   X(Nexus9, "NEXUS-9, Rogue Overmind")
 
 enum class MonsterId : uint8_t {
@@ -56,9 +61,12 @@ struct MonsterInfo {
   MonsterId id;
   ZoneId zone;
   int combat_level;
-  int max_hp;
+  int max_hp;         // 0 for pure Metaverse Terminal / AI targets
+  int max_integrity;  // 0 for unconnected targets (e.g. Neon Slums)
   int attack_interval_ms;
-  int max_hit;
+  int max_hit;        // Physical damage to player HP
+  int ice_max_hit;    // Cyber/ICE damage to player Integrity
+  int ice_pool;       // Number of ICE bots in opponent's pool
   int accuracy;
   int evasion;
   int xp_reward;

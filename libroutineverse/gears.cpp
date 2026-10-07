@@ -44,6 +44,8 @@ EquipSlot equip_slot(ItemCategory cat) {
       return EquipSlot::Reactor;
     case ItemCategory::AutoStim:
       return EquipSlot::AutoStim;
+    case ItemCategory::Firewall:
+      return EquipSlot::Firewall;
     default:
       return EquipSlot::None;
   }

@@ -146,6 +146,7 @@ class MainWindow : public QWidget {
   QPushButton* _button_bounty_task = nullptr;
   QProgressBar* _progressbar_player_atk = nullptr;
   QProgressBar* _progressbar_monster_hp = nullptr;
+  QProgressBar* _progressbar_monster_integrity = nullptr;
   QProgressBar* _progressbar_monster_atk = nullptr;
 
   QPushButton* _button_start = nullptr;
@@ -175,8 +176,10 @@ class MainWindow : public QWidget {
   QLabel* _label_tools = nullptr;
   QLabel* _label_equipped_weapon = nullptr;
   QLabel* _label_equipped_armor = nullptr;
+  QLabel* _label_equipped_ice = nullptr;
   QLabel* _label_equipped_food = nullptr;
   QProgressBar* _progressbar_hp = nullptr;
+  QProgressBar* _progressbar_integrity = nullptr;
   HistoryChartView* _drawingarea_status = nullptr;
   QShortcut* _shortcut_quit = nullptr;
 };
@@ -241,6 +244,8 @@ class WindowEquipment : public QDialog {
 
  private slots:
   void onUnequipSlot(EquipSlot slot);
+  void onUnequipAttackIce();
+  void onUnequipDefenseIce();
 
  private:
   void _setupWidget();
@@ -248,6 +253,10 @@ class WindowEquipment : public QDialog {
   GameState& _gameState;
   std::vector<QLabel*> _slot_labels;
   std::vector<QPushButton*> _slot_buttons;
+  QLabel* _label_attack_ice = nullptr;
+  QPushButton* _btn_attack_ice = nullptr;
+  QLabel* _label_defense_ice = nullptr;
+  QPushButton* _btn_defense_ice = nullptr;
   QLabel* _label_food = nullptr;
   QLabel* _label_stats = nullptr;
 };

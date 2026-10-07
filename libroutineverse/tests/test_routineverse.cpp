@@ -22,8 +22,13 @@ void test_enum_safety() {
   TEST_CHECK(!is_valid_item(ItemId::None));
   TEST_CHECK(is_valid_item(ItemId::CopperWireScrap));
   TEST_CHECK(is_valid_item(ItemId::SynthWeaveHide));
+  TEST_CHECK(is_valid_item(ItemId::ScrapCpu));
+  TEST_CHECK(is_valid_item(ItemId::SpikeIceMk1));
+  TEST_CHECK(is_valid_item(ItemId::WatchdogIceMk1));
+  TEST_CHECK(is_valid_item(ItemId::BasicFirewall));
+  TEST_CHECK(is_valid_item(ItemId::ParityPatch));
   TEST_CHECK(!is_valid_item(static_cast<ItemId>(999)));
-  TEST_CHECK(!is_valid_item(static_cast<ItemId>(152)));
+  TEST_CHECK(!is_valid_item(static_cast<ItemId>(all_item_ids().size() + 1)));
   TEST_CHECK(!is_valid_item(static_cast<ItemId>(65535)));
 
   // Safe fallback in get_item_info
@@ -38,6 +43,7 @@ void test_enum_safety() {
 
   // EquipSlot & upgrade helpers
   TEST_CHECK(!all_equip_slots().empty());
+  TEST_CHECK(equip_slot(ItemCategory::Firewall) == EquipSlot::Firewall);
   TEST_CHECK(!cutter_upgrades().empty());
   TEST_CHECK(!harvester_upgrades().empty());
   TEST_CHECK(!drill_upgrades().empty());
@@ -68,14 +74,25 @@ void test_enum_safety() {
   TEST_CHECK(monster_name(MonsterId::StrayServoDrone) == "Stray Servo-Drone");
   TEST_CHECK(!monster_summary(MonsterId::StrayServoDrone).empty());
   TEST_CHECK(get_monster_info(MonsterId::StrayServoDrone).combat_level == 1);
+  TEST_CHECK(get_monster_info(MonsterId::StrayServoDrone).max_integrity == 0);
+  TEST_CHECK(get_monster_info(MonsterId::SlumDataTerminal).max_hp == 0);
+  TEST_CHECK(get_monster_info(MonsterId::SlumDataTerminal).max_integrity > 0);
   TEST_CHECK(zone_name(get_monster_info(MonsterId::StrayServoDrone).zone) ==
              "Neon Slums");
+  TEST_CHECK(zone_name(get_monster_info(MonsterId::SlumDataTerminal).zone) ==
+             "Metaverse Grid");
 
   // Skill helpers
   TEST_CHECK(!all_skills().empty());
   TEST_CHECK(!all_actions().empty());
   TEST_CHECK(skill_name(SkillType::Salvaging) == "Salvaging");
   TEST_CHECK(skill_short_name(SkillType::Salvaging) == "SLV");
+  TEST_CHECK(skill_name(SkillType::Hacking) == "Hacking");
+  TEST_CHECK(skill_short_name(SkillType::Hacking) == "HCK");
+  TEST_CHECK(!is_combat_skill(SkillType::Hacking));
+  TEST_CHECK(skill_name(SkillType::Integrity) == "Integrity");
+  TEST_CHECK(skill_short_name(SkillType::Integrity) == "INT");
+  TEST_CHECK(is_combat_skill(SkillType::Integrity));
 
   // Activity type name helper
   TEST_CHECK(activity_type_name(ActiveActivityType::Skill) == "Skill");
@@ -136,21 +153,29 @@ void test_equip_rollback_on_full_vault() {
   std::cout << "[PASSED] test_equip_rollback_on_full_vault" << std::endl;
 }
 
-void test_save_load_roundtrip_v3() {
-  std::cout << "[RUNNING] test_save_load_roundtrip_v3..." << std::endl;
+void test_save_load_roundtrip_v4() {
+  std::cout << "[RUNNING] test_save_load_roundtrip_v4..." << std::endl;
 
   GameState gs1;
   gs1.credits = 123456;
   gs1.bounty_tokens = 789;
-  gs1.start_combat(MonsterId::StrayServoDrone);
+  gs1.start_combat(MonsterId::SlumDataTerminal);
   gs1.combat.player_hp = 45;
+  gs1.combat.player_integrity = 77;
+  gs1.combat.monster_integrity = 33;
+  gs1.combat.monster_ice_qty = 4;
   gs1.stats.monster_kills[MonsterId::StrayServoDrone] = 111;
   gs1.stats.monster_kills[MonsterId::Nexus9] = 42;  // Nexus-9 boss kills
   gs1.stats.total_monsters_killed = 153;
   gs1.equipment[EquipSlot::Weapon] = ItemId::NeutroniumBlade;
+  gs1.equipment[EquipSlot::Firewall] = ItemId::BasicFirewall;
+  gs1.equipment.attack_ice_item = ItemId::SpikeIceMk1;
+  gs1.equipment.attack_ice_qty = 25;
+  gs1.equipment.defense_ice_item = ItemId::WatchdogIceMk1;
+  gs1.equipment.defense_ice_qty = 12;
 
   std::filesystem::path test_save =
-      std::filesystem::temp_directory_path() / "routineverse_test_v3.save";
+      std::filesystem::temp_directory_path() / "routineverse_test_v4.save";
 
   bool saved = gs1.save_to_file(test_save.string());
   TEST_CHECK(saved);
@@ -162,17 +187,25 @@ void test_save_load_roundtrip_v3() {
   TEST_CHECK(gs2.credits == 123456);
   TEST_CHECK(gs2.bounty_tokens == 789);
   TEST_CHECK(gs2.combat.player_hp == 45);
+  TEST_CHECK(gs2.combat.player_integrity == 77);
+  TEST_CHECK(gs2.combat.monster_integrity == 33);
+  TEST_CHECK(gs2.combat.monster_ice_qty == 4);
   TEST_CHECK(gs2.info.active_type == ActiveActivityType::Combat);
-  TEST_CHECK(gs2.combat.active_monster_id == MonsterId::StrayServoDrone);
+  TEST_CHECK(gs2.combat.active_monster_id == MonsterId::SlumDataTerminal);
   TEST_CHECK(gs2.stats.monster_kills[MonsterId::StrayServoDrone] == 111);
   TEST_CHECK(gs2.stats.monster_kills[MonsterId::Nexus9] == 42);
   TEST_CHECK(gs2.stats.total_monsters_killed == 153);
   TEST_CHECK(gs2.equipment.at(EquipSlot::Weapon) == ItemId::NeutroniumBlade);
+  TEST_CHECK(gs2.equipment.at(EquipSlot::Firewall) == ItemId::BasicFirewall);
+  TEST_CHECK(gs2.equipment.attack_ice_item == ItemId::SpikeIceMk1);
+  TEST_CHECK(gs2.equipment.attack_ice_qty == 25);
+  TEST_CHECK(gs2.equipment.defense_ice_item == ItemId::WatchdogIceMk1);
+  TEST_CHECK(gs2.equipment.defense_ice_qty == 12);
 
   std::error_code ec;
   std::filesystem::remove(test_save, ec);
 
-  std::cout << "[PASSED] test_save_load_roundtrip_v3" << std::endl;
+  std::cout << "[PASSED] test_save_load_roundtrip_v4" << std::endl;
 }
 
 void test_reactor_upgrade_and_xp() {
@@ -266,6 +299,90 @@ void test_auto_eat_behavior() {
   std::cout << "[PASSED] test_auto_eat_behavior" << std::endl;
 }
 
+void test_hacking_and_ice_pools() {
+  std::cout << "[RUNNING] test_hacking_and_ice_pools..." << std::endl;
+
+  GameState gs;
+  // New game starts with Integrity level 10 (100 max integrity)
+  TEST_CHECK(gs.skill_level(SkillType::Integrity) == 10);
+  TEST_CHECK(gs.max_integrity() == 100);
+  TEST_CHECK(gs.combat.player_integrity == 100);
+
+  // Test coding Spike ICE Mk.I via Hacking skill
+  auto hack_acts = actions_for_skill(SkillType::Hacking);
+  TEST_CHECK(!hack_acts.empty());
+  int spike_act_id = hack_acts[0];
+  const auto& spike_act = all_actions()[spike_act_id];
+  TEST_CHECK(spike_act.product_item == ItemId::SpikeIceMk1);
+
+  gs.stop_activity();
+  gs.bank.clear();
+  gs.bank.add_item(ItemId::ScrapCpu, 5);
+  gs.bank.add_item(ItemId::ScrapRam, 5);
+
+  gs.start_skill_action(spike_act_id);
+  gs.tick(gs.info.active_target_ms + 100);
+  TEST_CHECK(gs.bank.item_qty(ItemId::SpikeIceMk1) >= 2);
+  TEST_CHECK(gs.skill_xp(SkillType::Hacking) > 0);
+
+  // Equip additional Spike ICE Mk.I from bank into Attack ICE pool
+  uint16_t prev_atk_ice = gs.equipment.attack_ice_qty;
+  bool eq_ice = gs.equip_item(ItemId::SpikeIceMk1);
+  TEST_CHECK(eq_ice);
+  TEST_CHECK(gs.equipment.attack_ice_qty > prev_atk_ice);
+
+  // Equip Basic Firewall (+25 max Integrity, +6% cyber DR)
+  gs.bank.add_item(ItemId::BasicFirewall, 1);
+  TEST_CHECK(gs.equip_item(ItemId::BasicFirewall));
+  TEST_CHECK(gs.equipment.at(EquipSlot::Firewall) == ItemId::BasicFirewall);
+  TEST_CHECK(gs.max_integrity() == 125);
+
+  // Test Integrity Patch healing (+40 INT) and Firmware Boost permanent XP (+250 XP)
+  gs.combat.player_integrity = 50;
+  gs.bank.add_item(ItemId::ParityPatch, 2);
+  TEST_CHECK(gs.equip_item(ItemId::ParityPatch));
+  TEST_CHECK(gs.combat.player_integrity == 90);
+
+  uint64_t int_xp_before = gs.skill_xp(SkillType::Integrity);
+  while (gs.skill_level(SkillType::Hacking) < 35) {
+    gs.skills.xp[SkillType::Hacking] += 5000;
+  }
+  gs.bank.add_item(ItemId::FirmwareBoostMk1, 1);
+  TEST_CHECK(gs.equip_item(ItemId::FirmwareBoostMk1));
+  TEST_CHECK(gs.skill_xp(SkillType::Integrity) == int_xp_before + 250);
+
+  // Fighting unconnected monster (StrayServoDrone, max_integrity == 0) should NOT consume Attack ICE
+  uint16_t atk_ice_before_slum = gs.equipment.attack_ice_qty;
+  gs.start_combat(MonsterId::StrayServoDrone);
+  gs.tick(5000);
+  TEST_CHECK(gs.equipment.attack_ice_qty == atk_ice_before_slum);
+
+  // Fighting pure Metaverse monster (SlumDataTerminal, max_hp == 0, max_integrity > 0)
+  gs.stop_activity();
+  int max_hit_with_ice = gs.player_ice_max_hit();
+  gs.unequip_attack_ice();
+  TEST_CHECK(gs.equipment.attack_ice_qty == 0);
+  int max_hit_without_ice = gs.player_ice_max_hit();
+  TEST_CHECK(max_hit_with_ice > max_hit_without_ice);
+
+  // Re-equip Attack ICE and engage SlumDataTerminal
+  gs.bank.add_item(ItemId::SpikeIceMk1, 50);
+  TEST_CHECK(gs.equip_item(ItemId::SpikeIceMk1));
+  uint16_t atk_ice_start = gs.equipment.attack_ice_qty;
+  uint64_t hack_xp_start = gs.skill_xp(SkillType::Hacking);
+
+  gs.start_combat(MonsterId::SlumDataTerminal);
+  TEST_CHECK(gs.info.active_type == ActiveActivityType::Combat);
+  gs.fast_forward_seconds(30);
+
+  // Should have consumed Attack ICE, gained Hacking & Integrity XP, and killed SlumDataTerminal
+  TEST_CHECK(gs.equipment.attack_ice_qty < atk_ice_start);
+  TEST_CHECK(gs.skill_xp(SkillType::Hacking) > hack_xp_start);
+  TEST_CHECK(gs.stats.monster_kills[MonsterId::SlumDataTerminal] >= 1);
+
+  std::cout << "[PASSED] test_hacking_and_ice_pools" << std::endl;
+}
+
 int main() {
   std::cout << "========================================" << std::endl;
   std::cout << "Running Routineverse Test Suite" << std::endl;
@@ -273,9 +390,10 @@ int main() {
 
   test_enum_safety();
   test_equip_rollback_on_full_vault();
-  test_save_load_roundtrip_v3();
+  test_save_load_roundtrip_v4();
   test_reactor_upgrade_and_xp();
   test_auto_eat_behavior();
+  test_hacking_and_ice_pools();
 
   std::cout << "========================================" << std::endl;
   std::cout << "All Routineverse tests passed successfully!" << std::endl;

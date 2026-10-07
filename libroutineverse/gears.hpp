@@ -17,7 +17,8 @@
   X(Harvester, 5, "Harvester")   \
   X(Drill, 6, "Drill")           \
   X(Reactor, 7, "Reactor")       \
-  X(AutoStim, 8, "Auto-Stim")
+  X(AutoStim, 8, "Auto-Stim")    \
+  X(Firewall, 9, "Firewall")
 
 enum class EquipSlot : int8_t {
 #define X(id, val, name) id = val,

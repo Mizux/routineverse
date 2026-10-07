@@ -40,12 +40,18 @@ class GameState {
   bool sell_item(ItemId item_id, int qty);
   uint64_t sell_all_non_equipped();
 
-  // Equipment & Stims
+  // Equipment & Stims & ICE
   bool equip_item(ItemId item_id);
   bool unequip_slot(EquipSlot slot);
   bool equip_food(ItemId item_id);
+  bool equip_attack_ice(ItemId item_id);
+  bool equip_defense_ice(ItemId item_id);
+  bool unequip_attack_ice();
+  bool unequip_defense_ice();
+  bool use_integrity_patch(ItemId item_id);
   bool eat_food();
   void check_auto_eat();
+  void check_auto_repair_integrity();
 
   // Bounty Contracts
   void assign_new_bounty_contract();
@@ -79,6 +85,7 @@ class GameState {
 
   int combat_level() const;
   int max_hp() const;
+  int max_integrity() const;
   int player_attack_interval_ms() const;
   int player_max_hit() const;
   int player_accuracy() const;
@@ -86,6 +93,12 @@ class GameState {
   int player_damage_reduction() const;
   int player_hit_chance_pct(MonsterId monster_id) const;
   int monster_hit_chance_pct(MonsterId monster_id) const;
+  int player_ice_max_hit() const;
+  int player_ice_accuracy() const;
+  int player_ice_evasion() const;
+  int player_ice_damage_reduction() const;
+  int player_ice_hit_chance_pct(MonsterId monster_id) const;
+  int monster_ice_hit_chance_pct(MonsterId monster_id) const;
   int auto_eat_threshold_hp() const;
 
   // History & Logging
@@ -148,13 +161,17 @@ class GameState {
 
   struct Equipment {
     std::map<EquipSlot, ItemId> items = {
-        {EquipSlot::Weapon, ItemId::None},  {EquipSlot::Head, ItemId::None},
-        {EquipSlot::Armor, ItemId::None},   {EquipSlot::Shield, ItemId::None},
-        {EquipSlot::Cutter, ItemId::None},  {EquipSlot::Harvester, ItemId::None},
-        {EquipSlot::Drill, ItemId::None},   {EquipSlot::Reactor, ItemId::None},
-        {EquipSlot::AutoStim, ItemId::None}};
+        {EquipSlot::Weapon, ItemId::None},    {EquipSlot::Head, ItemId::None},
+        {EquipSlot::Armor, ItemId::None},     {EquipSlot::Shield, ItemId::None},
+        {EquipSlot::Cutter, ItemId::None},    {EquipSlot::Harvester, ItemId::None},
+        {EquipSlot::Drill, ItemId::None},     {EquipSlot::Reactor, ItemId::None},
+        {EquipSlot::AutoStim, ItemId::None},  {EquipSlot::Firewall, ItemId::None}};
     ItemId food_item = ItemId::None;
     int food_qty = 0;
+    ItemId attack_ice_item = ItemId::None;
+    int attack_ice_qty = 0;
+    ItemId defense_ice_item = ItemId::None;
+    int defense_ice_qty = 0;
 
     void reset();
     ItemId at(EquipSlot slot) const {
@@ -177,6 +194,11 @@ class GameState {
     int strength_bonus() const;
     int defence_bonus() const;
     int damage_reduction() const;
+    int firewall_integrity_bonus() const;
+    int cyber_attack_bonus() const;
+    int cyber_strength_bonus() const;
+    int cyber_defence_bonus() const;
+    int cyber_damage_reduction() const;
     int speed_bonus_pct(EquipSlot slot) const;
   };
   Equipment equipment;
@@ -197,8 +219,11 @@ class GameState {
   struct CombatState {
     CombatStyle style = CombatStyle::Accurate;
     int player_hp = 100;
+    int player_integrity = 100;
     MonsterId active_monster_id = MonsterId::StrayServoDrone;
     int monster_hp = 30;
+    int monster_integrity = 0;
+    int monster_ice_qty = 0;
     int player_attack_timer_ms = 0;
     int monster_attack_timer_ms = 0;
     int hp_regen_timer_ms = 0;
@@ -207,7 +232,7 @@ class GameState {
     uint8_t bounty_remaining = 10;
     uint16_t bounties_completed = 0;
 
-    void reset(int initial_hp);
+    void reset(int initial_hp, int initial_integrity = 100);
   };
   CombatState combat;
 
@@ -251,7 +276,8 @@ class GameState {
     static constexpr int ITEM_TOTAL_LEVEL = 2;
     static constexpr int ITEM_TOTAL_XP = 3;
     static constexpr int ITEM_HP = 4;
-    static constexpr int ITEM_FIRST_SKILL = 5;
+    static constexpr int ITEM_INTEGRITY = 5;
+    static constexpr int ITEM_FIRST_SKILL = 6;
 
     static int total_items() noexcept;
     static std::string item_name(int item_idx);
@@ -264,6 +290,7 @@ class GameState {
     std::list<int> total_level;
     std::list<uint64_t> total_xp;
     std::list<int> hp;
+    std::list<int> integrity;
     std::unordered_map<SkillType, std::list<uint64_t>> skill_xp;
 
     void clear();

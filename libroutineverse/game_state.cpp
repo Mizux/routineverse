@@ -13,8 +13,9 @@
 void GameState::Skills::reset() {
   xp.clear();
   for (SkillType sk : all_skills()) xp[sk] = 0;
-  // Hitpoints starts at Level 10 (1,154 XP)
+  // Hitpoints and Integrity start at Level 10 (1,154 XP)
   xp[SkillType::Hitpoints] = xp_for_level(10);
+  xp[SkillType::Integrity] = xp_for_level(10);
   action_mastery_xp.assign(all_actions().size(), 0);
 }
 
@@ -60,9 +61,14 @@ void GameState::Equipment::reset() {
       {EquipSlot::Drill, ItemId::ScrapDrill},
       {EquipSlot::Reactor, ItemId::BasicReactor},
       {EquipSlot::AutoStim, ItemId::None},
+      {EquipSlot::Firewall, ItemId::None},
   };
   food_item = ItemId::None;
   food_qty = 0;
+  attack_ice_item = ItemId::SpikeIceMk1;
+  attack_ice_qty = 10;
+  defense_ice_item = ItemId::WatchdogIceMk1;
+  defense_ice_qty = 5;
 }
 
 int GameState::Equipment::upgrade_tier(EquipSlot slot) const {
@@ -90,6 +96,7 @@ int GameState::Equipment::auto_stim_tier() const {
 int GameState::Equipment::attack_bonus() const {
   int bonus = 0;
   for (const auto& [slot, id] : items) {
+    if (slot == EquipSlot::Firewall) continue;
     if (is_valid_item(id)) bonus += get_item_info(id).bonus.attack;
   }
   return bonus;
@@ -98,6 +105,7 @@ int GameState::Equipment::attack_bonus() const {
 int GameState::Equipment::strength_bonus() const {
   int bonus = 0;
   for (const auto& [slot, id] : items) {
+    if (slot == EquipSlot::Firewall) continue;
     if (is_valid_item(id)) bonus += get_item_info(id).bonus.strength;
   }
   return bonus;
@@ -106,6 +114,7 @@ int GameState::Equipment::strength_bonus() const {
 int GameState::Equipment::defence_bonus() const {
   int bonus = 0;
   for (const auto& [slot, id] : items) {
+    if (slot == EquipSlot::Firewall) continue;
     if (is_valid_item(id)) bonus += get_item_info(id).bonus.defence;
   }
   return bonus;
@@ -114,13 +123,53 @@ int GameState::Equipment::defence_bonus() const {
 int GameState::Equipment::damage_reduction() const {
   int dr = 0;
   for (const auto& [slot, id] : items) {
+    if (slot == EquipSlot::Firewall) continue;
     if (is_valid_item(id)) dr += get_item_info(id).bonus.damage_reduction;
   }
   return std::clamp(dr, 0, 75);
 }
 
+int GameState::Equipment::firewall_integrity_bonus() const {
+  ItemId fw = at(EquipSlot::Firewall);
+  return is_valid_item(fw) ? get_item_info(fw).bonus.strength : 0;
+}
+
+int GameState::Equipment::cyber_attack_bonus() const {
+  if (attack_ice_qty > 0 && is_valid_item(attack_ice_item)) {
+    return get_item_info(attack_ice_item).bonus.attack;
+  }
+  return 0;
+}
+
+int GameState::Equipment::cyber_strength_bonus() const {
+  if (attack_ice_qty > 0 && is_valid_item(attack_ice_item)) {
+    return get_item_info(attack_ice_item).bonus.strength;
+  }
+  return 0;
+}
+
+int GameState::Equipment::cyber_defence_bonus() const {
+  int bonus = 0;
+  ItemId fw = at(EquipSlot::Firewall);
+  if (is_valid_item(fw)) bonus += get_item_info(fw).bonus.defence;
+  if (defense_ice_qty > 0 && is_valid_item(defense_ice_item)) {
+    bonus += get_item_info(defense_ice_item).bonus.defence;
+  }
+  return bonus;
+}
+
+int GameState::Equipment::cyber_damage_reduction() const {
+  int dr = 0;
+  ItemId fw = at(EquipSlot::Firewall);
+  if (is_valid_item(fw)) dr += get_item_info(fw).bonus.damage_reduction;
+  if (defense_ice_qty > 0 && is_valid_item(defense_ice_item)) {
+    dr += get_item_info(defense_ice_item).bonus.damage_reduction;
+  }
+  return std::clamp(dr, 0, 75);
+}
+
 int GameState::Equipment::speed_bonus_pct(EquipSlot slot) const {
-  ItemId id = items.at(slot);
+  ItemId id = at(slot);
   return is_valid_item(id) ? get_item_info(id).bonus.speed_bonus_pct : 0;
 }
 
@@ -132,11 +181,15 @@ void GameState::GameInfo::reset(int initial_target_ms) {
   status_banner = "Strip Copper Wiring (Salvaging)";
 }
 
-void GameState::CombatState::reset(int initial_hp) {
+void GameState::CombatState::reset(int initial_hp, int initial_integrity) {
   style = CombatStyle::Accurate;
   player_hp = initial_hp;
+  player_integrity = initial_integrity;
   active_monster_id = MonsterId::StrayServoDrone;
-  monster_hp = get_monster_info(MonsterId::StrayServoDrone).max_hp;
+  const auto& mon = get_monster_info(MonsterId::StrayServoDrone);
+  monster_hp = mon.max_hp;
+  monster_integrity = mon.max_integrity;
+  monster_ice_qty = mon.ice_pool;
   player_attack_timer_ms = 0;
   monster_attack_timer_ms = 0;
   hp_regen_timer_ms = 0;
@@ -176,15 +229,17 @@ void GameState::new_game() {
   bank.clear();
   bank.capacity = 24;
 
-  // Give starter Scrap Vibro-Knife and starter tools equipped
+  // Give starter Scrap Vibro-Knife, starter tools, and starter ICE pools
   equipment.reset();
 
   add_item(ItemId::CopperWireScrap, 5, false);
   add_item(ItemId::KrillRation, 5, false);
+  add_item(ItemId::ScrapCpu, 3, false);
+  add_item(ItemId::ScrapRam, 3, false);
 
   info.reset(action_effective_interval_ms(0));
 
-  combat.reset(max_hp());
+  combat.reset(max_hp(), max_integrity());
   stats.reset();
 
   game_log.clear();
@@ -193,7 +248,7 @@ void GameState::new_game() {
 
   add_log(
       "Welcome to Routineverse! You jack into Neo-Sector with a Scrap "
-      "Vibro-Knife, 10 Krill Rations, and 250 Cr.");
+      "Vibro-Knife, starter ICE bots, and 250 Cr.");
   add_log(
       "Active protocol: Strip Copper Wiring. Select any skill or hostile "
       "target to begin!");
@@ -218,6 +273,8 @@ std::string GameState::History::item_name(int item_idx) {
       return "Total Skill XP";
     case ITEM_HP:
       return "Player Hitpoints";
+    case ITEM_INTEGRITY:
+      return "Player Integrity";
     default: {
       int s_idx = item_idx - ITEM_FIRST_SKILL;
       const auto skills = all_skills();
@@ -235,6 +292,7 @@ void GameState::History::clear() {
   total_level.clear();
   total_xp.clear();
   hp.clear();
+  integrity.clear();
   skill_xp.clear();
   for (SkillType sk : all_skills()) skill_xp[sk] = {};
 }
@@ -252,6 +310,7 @@ void GameState::History::add_record(const GameState& state) {
   push_capped(total_level, state.total_skill_level());
   push_capped(total_xp, state.total_skill_xp());
   push_capped(hp, state.combat.player_hp);
+  push_capped(integrity, state.combat.player_integrity);
   for (SkillType sk : all_skills()) {
     push_capped(skill_xp[sk], state.skill_xp(sk));
   }
@@ -275,6 +334,9 @@ std::vector<double> GameState::History::series_values(const GameState& state,
   } else if (item_idx == ITEM_HP) {
     for (int v : hp) values.push_back(static_cast<double>(v));
     values.push_back(static_cast<double>(state.combat.player_hp));
+  } else if (item_idx == ITEM_INTEGRITY) {
+    for (int v : integrity) values.push_back(static_cast<double>(v));
+    values.push_back(static_cast<double>(state.combat.player_integrity));
   } else {
     const auto skills = all_skills();
     int s_idx =
@@ -415,15 +477,28 @@ bool GameState::start_combat(MonsterId monster_id) {
     return false;
   }
   check_auto_eat();
+  check_auto_repair_integrity();
   info.active_type = ActiveActivityType::Combat;
   combat.active_monster_id = monster_id;
   combat.monster_hp = mon.max_hp;
+  combat.monster_integrity = mon.max_integrity;
+  combat.monster_ice_qty = mon.ice_pool;
   combat.player_attack_timer_ms = 0;
   combat.monster_attack_timer_ms = 0;
   info.status_banner = std::format("Engaging {} (Lv {}) in {}", monster_name(mon.id),
                                    mon.combat_level, zone_name(mon.zone));
-  add_log(std::format("Engaged hostile {} ({} HP) in {}.", monster_name(mon.id),
-                      mon.max_hp, zone_name(mon.zone)));
+  if (mon.max_hp == 0) {
+    add_log(std::format("Jacked into hostile {} ({} INT, {} ICE) in {}.",
+                        monster_name(mon.id), mon.max_integrity, mon.ice_pool,
+                        zone_name(mon.zone)));
+  } else if (mon.max_integrity == 0) {
+    add_log(std::format("Engaged unconnected hostile {} ({} HP) in {}.",
+                        monster_name(mon.id), mon.max_hp, zone_name(mon.zone)));
+  } else {
+    add_log(std::format("Engaged hostile {} ({} HP / {} INT, {} ICE) in {}.",
+                        monster_name(mon.id), mon.max_hp, mon.max_integrity,
+                        mon.ice_pool, zone_name(mon.zone)));
+  }
   return true;
 }
 
@@ -449,6 +524,9 @@ void GameState::gain_xp(SkillType skill, uint64_t amount) {
     if (skill == SkillType::Hitpoints) {
       combat.player_hp += (new_lvl - old_lvl) * 10;
       combat.player_hp = std::min(combat.player_hp, max_hp());
+    } else if (skill == SkillType::Integrity) {
+      combat.player_integrity += (new_lvl - old_lvl) * 10;
+      combat.player_integrity = std::min(combat.player_integrity, max_integrity());
     }
   }
 }
@@ -463,13 +541,13 @@ void GameState::complete_skill_action(int global_action_id) {
   int m_lvl = mastery_level(global_action_id);
 
   // Resource preservation chance for
-  // Fabrication/Synthesis/Smithing/Recycling/Farming skills (5% + 0.2% per
+  // Fabrication/Synthesis/Smithing/Recycling/Farming/Hacking skills (5% + 0.2% per
   // mastery level)
   bool preserved = false;
   if (is_valid_item(act.input_item_1) &&
       (act.skill == SkillType::Smithing || act.skill == SkillType::CyberFab ||
        act.skill == SkillType::SynthCook || act.skill == SkillType::Recycling ||
-       act.skill == SkillType::Farming)) {
+       act.skill == SkillType::Farming || act.skill == SkillType::Hacking)) {
     int pres_chance = 5 + (m_lvl / 5);
     if (rand_int(1, 100) <= pres_chance) {
       preserved = true;
@@ -559,14 +637,19 @@ void GameState::tick(int elapsed_ms) {
   if (elapsed_ms <= 0) return;
   total_ticks_ms += elapsed_ms;
 
-  // Passive nanite HP regeneration outside/inside combat (+1% max HP every 5
-  // seconds)
+  // Passive nanite HP & Firewall Integrity regeneration outside/inside combat (+1% max
+  // every 5 seconds)
   combat.hp_regen_timer_ms += elapsed_ms;
   while (combat.hp_regen_timer_ms >= 5000) {
     combat.hp_regen_timer_ms -= 5000;
     if (combat.player_hp < max_hp()) {
       int regen = std::max(1, max_hp() / 100);
       combat.player_hp = std::min(max_hp(), combat.player_hp + regen);
+    }
+    if (combat.player_integrity < max_integrity()) {
+      int int_regen = std::max(1, max_integrity() / 100);
+      combat.player_integrity =
+          std::min(max_integrity(), combat.player_integrity + int_regen);
     }
   }
 
@@ -611,47 +694,112 @@ void GameState::step_combat_tick(int elapsed_ms) {
   combat.player_attack_timer_ms += elapsed_ms;
   combat.monster_attack_timer_ms += elapsed_ms;
 
-  // Player attacks
+  // Player attacks (Physical & ICE)
   while (info.active_type == ActiveActivityType::Combat &&
          combat.player_attack_timer_ms >= plr_interval) {
     combat.player_attack_timer_ms -= plr_interval;
-    if (rand_int(1, 100) <= player_hit_chance_pct(combat.active_monster_id)) {
-      int dmg = rand_int(std::max(1, player_max_hit() / 4), player_max_hit());
-      dmg = std::min(dmg, combat.monster_hp);
-      combat.monster_hp -= dmg;
 
-      // Grant combat XP based on damage dealt
-      uint64_t c_xp = std::max(4, dmg / 2);
-      if (combat.style == CombatStyle::Accurate) {
-        gain_xp(SkillType::Attack, c_xp);
-      } else if (combat.style == CombatStyle::Aggressive) {
-        gain_xp(SkillType::Strength, c_xp);
-      } else {
-        gain_xp(SkillType::Defence, c_xp);
+    // 1. Physical strike against monster HP (if monster has a physical form)
+    if (mon.max_hp > 0 && combat.monster_hp > 0) {
+      if (rand_int(1, 100) <= player_hit_chance_pct(combat.active_monster_id)) {
+        int dmg = rand_int(std::max(1, player_max_hit() / 4), player_max_hit());
+        dmg = std::min(dmg, combat.monster_hp);
+        combat.monster_hp -= dmg;
+
+        // Grant physical combat XP based on damage dealt
+        uint64_t c_xp = std::max(4, dmg / 2);
+        if (combat.style == CombatStyle::Accurate) {
+          gain_xp(SkillType::Attack, c_xp);
+        } else if (combat.style == CombatStyle::Aggressive) {
+          gain_xp(SkillType::Strength, c_xp);
+        } else {
+          gain_xp(SkillType::Defence, c_xp);
+        }
+        gain_xp(SkillType::Hitpoints, std::max(uint64_t{2}, c_xp / 3));
       }
-      gain_xp(SkillType::Hitpoints, std::max(uint64_t{2}, c_xp / 3));
     }
 
-    if (combat.monster_hp <= 0) {
+    // 2. ICE / Cyber strike against monster Integrity (if monster is connected or in
+    // Metaverse)
+    if (mon.max_integrity > 0 && combat.monster_integrity > 0) {
+      int hit_chance = player_ice_hit_chance_pct(combat.active_monster_id);
+      int max_h = player_ice_max_hit();
+      bool used_ice = false;
+      if (equipment.attack_ice_qty > 0 && is_valid_item(equipment.attack_ice_item)) {
+        equipment.attack_ice_qty--;
+        if (equipment.attack_ice_qty == 0) {
+          equipment.attack_ice_item = ItemId::None;
+        }
+        used_ice = true;
+      }
+
+      if (used_ice || mon.max_hp == 0) {
+        if (rand_int(1, 100) <= hit_chance) {
+          int ice_dmg = rand_int(std::max(1, max_h / 4), max_h);
+          ice_dmg = std::min(ice_dmg, combat.monster_integrity);
+          combat.monster_integrity -= ice_dmg;
+
+          // Chance for Attack ICE to neutralize one of the opponent's ICE bots
+          if (used_ice && combat.monster_ice_qty > 0 && rand_int(1, 100) <= 35) {
+            combat.monster_ice_qty--;
+          }
+
+          uint64_t h_xp = std::max(4, ice_dmg / 2);
+          gain_xp(SkillType::Hacking, h_xp);
+          gain_xp(SkillType::Integrity, std::max(uint64_t{2}, h_xp / 2));
+        }
+      }
+    }
+
+    // Dual win condition: depleting EITHER HP (when max_hp > 0) OR Integrity (when
+    // max_integrity > 0) defeats the target!
+    bool hp_defeated = (mon.max_hp > 0 && combat.monster_hp <= 0);
+    bool int_defeated = (mon.max_integrity > 0 && combat.monster_integrity <= 0);
+    if (hp_defeated || int_defeated) {
       on_monster_defeated(combat.active_monster_id);
       break;
     }
   }
 
-  // Monster attacks
+  // Monster attacks (Physical & Enemy ICE)
   while (info.active_type == ActiveActivityType::Combat &&
          combat.monster_attack_timer_ms >= mon.attack_interval_ms) {
     combat.monster_attack_timer_ms -= mon.attack_interval_ms;
-    if (rand_int(1, 100) <= monster_hit_chance_pct(combat.active_monster_id)) {
-      int raw_dmg = rand_int(1, mon.max_hit);
-      int dr = player_damage_reduction();
-      int dmg = std::max(1, (raw_dmg * (100 - dr)) / 100);
-      combat.player_hp -= dmg;
-      check_auto_eat();
-      if (combat.player_hp <= 0) {
-        on_player_defeated();
-        break;
+
+    // 1. Monster physical attack
+    if (mon.max_hit > 0) {
+      if (rand_int(1, 100) <= monster_hit_chance_pct(combat.active_monster_id)) {
+        int raw_dmg = rand_int(1, mon.max_hit);
+        int dr = player_damage_reduction();
+        int dmg = std::max(1, (raw_dmg * (100 - dr)) / 100);
+        combat.player_hp -= dmg;
+        check_auto_eat();
       }
+    }
+
+    // 2. Monster ICE bot attack / self-repair
+    if (mon.ice_max_hit > 0 && (combat.monster_ice_qty > 0 || mon.max_hp == 0)) {
+      if (mon.max_integrity > 0 && combat.monster_integrity > 0 &&
+          combat.monster_integrity < mon.max_integrity / 2 &&
+          combat.monster_ice_qty > 1 && rand_int(1, 100) <= 25) {
+        // Opponent uses one of its ICE bots to repair its own Integrity
+        combat.monster_ice_qty--;
+        combat.monster_integrity =
+            std::min(mon.max_integrity, combat.monster_integrity + mon.ice_max_hit);
+      } else if (rand_int(1, 100) <=
+                 monster_ice_hit_chance_pct(combat.active_monster_id)) {
+        int raw_ice = rand_int(1, mon.ice_max_hit);
+        int idr = player_ice_damage_reduction();
+        int ice_dmg = std::max(1, (raw_ice * (100 - idr)) / 100);
+        combat.player_integrity -= ice_dmg;
+        gain_xp(SkillType::Integrity, std::max(1, ice_dmg / 4));
+        check_auto_repair_integrity();
+      }
+    }
+
+    if (combat.player_hp <= 0 || combat.player_integrity <= 0) {
+      on_player_defeated();
+      break;
     }
   }
 }
@@ -666,14 +814,21 @@ void GameState::on_monster_defeated(MonsterId monster_id) {
   stats.total_credits_earned += cr_drop;
 
   // Bonus XP on kill
-  if (combat.style == CombatStyle::Accurate) {
-    gain_xp(SkillType::Attack, mon.xp_reward);
-  } else if (combat.style == CombatStyle::Aggressive) {
-    gain_xp(SkillType::Strength, mon.xp_reward);
-  } else {
-    gain_xp(SkillType::Defence, mon.xp_reward);
+  if (mon.max_hp > 0) {
+    if (combat.style == CombatStyle::Accurate) {
+      gain_xp(SkillType::Attack, mon.xp_reward);
+    } else if (combat.style == CombatStyle::Aggressive) {
+      gain_xp(SkillType::Strength, mon.xp_reward);
+    } else {
+      gain_xp(SkillType::Defence, mon.xp_reward);
+    }
+    gain_xp(SkillType::Hitpoints, mon.xp_reward / 3);
   }
-  gain_xp(SkillType::Hitpoints, mon.xp_reward / 3);
+  if (mon.max_integrity > 0 &&
+      (mon.max_hp == 0 || combat.monster_integrity < mon.max_integrity)) {
+    gain_xp(SkillType::Hacking, mon.xp_reward / 2 + 10);
+    gain_xp(SkillType::Integrity, mon.xp_reward / 3 + 5);
+  }
 
   // Bounty contract check
   if (monster_id == combat.bounty_target_id && combat.bounty_remaining > 0) {
@@ -718,19 +873,30 @@ void GameState::on_monster_defeated(MonsterId monster_id) {
 
   // Respawn monster
   combat.monster_hp = mon.max_hp;
+  combat.monster_integrity = mon.max_integrity;
+  combat.monster_ice_qty = mon.ice_pool;
   combat.player_attack_timer_ms = 0;
   combat.monster_attack_timer_ms = 0;
 }
 
 void GameState::on_player_defeated() {
   stats.player_deaths++;
+  bool integrity_crash = (combat.player_integrity <= 0);
   combat.player_hp = max_hp();
+  combat.player_integrity = max_integrity();
   uint64_t lost_cr = std::min(credits, std::max(uint64_t{10}, credits / 10));
   credits -= lost_cr;
-  add_log(
-      std::format("CRITICAL FLATLINE fighting {}! Trauma Team reconstructed "
-                  "you in Neo-Sector for {}.",
-                  monster_name(combat.active_monster_id), money_string(lost_cr)));
+  if (integrity_crash) {
+    add_log(
+        std::format("CRITICAL KERNEL PANIC (0 INT) vs {}! Emergency neural reboot "
+                    "cost {}.",
+                    monster_name(combat.active_monster_id), money_string(lost_cr)));
+  } else {
+    add_log(
+        std::format("CRITICAL FLATLINE fighting {}! Trauma Team reconstructed "
+                    "you in Neo-Sector for {}.",
+                    monster_name(combat.active_monster_id), money_string(lost_cr)));
+  }
   stop_activity();
 }
 
@@ -877,6 +1043,15 @@ bool GameState::equip_item(ItemId item_id) {
   const auto& info = get_item_info(item_id);
   const EquipSlot slot = equip_slot(info.category);
   if (slot == EquipSlot::None) {
+    if (info.category == ItemCategory::AttackIce) {
+      return equip_attack_ice(item_id);
+    }
+    if (info.category == ItemCategory::DefenseIce) {
+      return equip_defense_ice(item_id);
+    }
+    if (info.category == ItemCategory::IntegrityPatch) {
+      return use_integrity_patch(item_id);
+    }
     if (info.heal_amount > 0) {
       return equip_food(item_id);
     }
@@ -897,6 +1072,14 @@ bool GameState::equip_item(ItemId item_id) {
       if (skill_level(SkillType::Defence) < info.req_level) {
         add_log(std::format("Requires Defence Level {} to equip {}.", info.req_level,
                             info.name));
+        return false;
+      }
+      break;
+    case EquipSlot::Firewall:
+      if (std::max(skill_level(SkillType::Hacking), skill_level(SkillType::Integrity)) <
+          info.req_level) {
+        add_log(std::format("Requires Hacking or Integrity Level {} to equip {}.",
+                            info.req_level, info.name));
         return false;
       }
       break;
@@ -952,6 +1135,10 @@ bool GameState::equip_item(ItemId item_id) {
     add_item(old_item, 1, false);
   }
   equipment[slot] = item_id;
+  if (slot == EquipSlot::Firewall && info.bonus.strength > 0) {
+    combat.player_integrity =
+        std::min(max_integrity(), combat.player_integrity + info.bonus.strength);
+  }
   add_log(std::format("Installed {} in {} slot.", info.name, equip_slot_name(slot)));
   return true;
 }
@@ -966,6 +1153,7 @@ bool GameState::unequip_slot(EquipSlot slot) {
   }
   add_item(cur, 1, false);
   equipment[slot] = ItemId::None;
+  combat.player_integrity = std::min(combat.player_integrity, max_integrity());
   add_log(std::format("Unequipped {}.", get_item_info(cur).name));
   return true;
 }
@@ -973,7 +1161,7 @@ bool GameState::unequip_slot(EquipSlot slot) {
 bool GameState::equip_food(ItemId item_id) {
   if (!is_valid_item(item_id)) return false;
   const auto& info = get_item_info(item_id);
-  if (info.heal_amount <= 0) return false;
+  if (info.category != ItemCategory::StimFood || info.heal_amount <= 0) return false;
   int have = item_qty(item_id);
   if (have <= 0) return false;
 
@@ -1007,26 +1195,195 @@ bool GameState::equip_food(ItemId item_id) {
   return true;
 }
 
-bool GameState::eat_food() {
-  if (!is_valid_item(equipment.food_item) || equipment.food_qty <= 0) {
-    add_log("No stim-pack or ration loaded!");
+bool GameState::equip_attack_ice(ItemId item_id) {
+  if (!is_valid_item(item_id)) return false;
+  const auto& info = get_item_info(item_id);
+  if (info.category != ItemCategory::AttackIce) return false;
+  if (skill_level(SkillType::Hacking) < info.req_level) {
+    add_log(std::format("Requires Hacking Level {} to deploy {}.", info.req_level,
+                        info.name));
     return false;
   }
-  if (combat.player_hp >= max_hp()) {
-    add_log("You are already at full Hitpoints!");
+  int have = item_qty(item_id);
+  if (have <= 0) return false;
+
+  if (equipment.attack_ice_item == item_id) {
+    remove_item(item_id, have);
+    equipment.attack_ice_qty += have;
+    add_log(std::format("Loaded {}x {} into Attack ICE Pool ({} total).", have,
+                        info.name, equipment.attack_ice_qty));
+    return true;
+  }
+
+  if (is_valid_item(equipment.attack_ice_item) && equipment.attack_ice_qty > 0) {
+    bool frees_slot = (have == bank.item_qty(item_id));
+    bool can_store = frees_slot || bank.can_store_item(equipment.attack_ice_item);
+    if (!can_store) {
+      add_log("Cyber-Vault is full! Cannot swap Attack ICE pool.");
+      return false;
+    }
+    remove_item(item_id, have);
+    add_item(equipment.attack_ice_item, equipment.attack_ice_qty, false);
+  } else {
+    remove_item(item_id, have);
+  }
+  equipment.attack_ice_item = item_id;
+  equipment.attack_ice_qty = have;
+  add_log(std::format("Deployed {}x {} in Attack ICE Pool (+{}CAtk, +{}CStr).", have,
+                      info.name, info.bonus.attack, info.bonus.strength));
+  return true;
+}
+
+bool GameState::equip_defense_ice(ItemId item_id) {
+  if (!is_valid_item(item_id)) return false;
+  const auto& info = get_item_info(item_id);
+  if (info.category != ItemCategory::DefenseIce) return false;
+  if (skill_level(SkillType::Hacking) < info.req_level) {
+    add_log(std::format("Requires Hacking Level {} to deploy {}.", info.req_level,
+                        info.name));
     return false;
   }
-  const auto& food_info = get_item_info(equipment.food_item);
-  int heal = food_info.heal_amount;
-  equipment.food_qty--;
-  int before = combat.player_hp;
-  combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
-  add_log(std::format("Used {} and restored +{} HP ({}/{} HP).", food_info.name,
-                      combat.player_hp - before, combat.player_hp, max_hp()));
-  if (equipment.food_qty == 0) {
-    equipment.food_item = ItemId::None;
+  int have = item_qty(item_id);
+  if (have <= 0) return false;
+
+  if (equipment.defense_ice_item == item_id) {
+    remove_item(item_id, have);
+    equipment.defense_ice_qty += have;
+    add_log(std::format("Loaded {}x {} into Defense ICE Pool ({} total).", have,
+                        info.name, equipment.defense_ice_qty));
+    check_auto_repair_integrity();
+    return true;
+  }
+
+  if (is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0) {
+    bool frees_slot = (have == bank.item_qty(item_id));
+    bool can_store = frees_slot || bank.can_store_item(equipment.defense_ice_item);
+    if (!can_store) {
+      add_log("Cyber-Vault is full! Cannot swap Defense ICE pool.");
+      return false;
+    }
+    remove_item(item_id, have);
+    add_item(equipment.defense_ice_item, equipment.defense_ice_qty, false);
+  } else {
+    remove_item(item_id, have);
+  }
+  equipment.defense_ice_item = item_id;
+  equipment.defense_ice_qty = have;
+  add_log(std::format("Deployed {}x {} in Defense ICE Pool (+{}INT repair, {}%IDR).",
+                      have, info.name, info.heal_amount, info.bonus.damage_reduction));
+  check_auto_repair_integrity();
+  return true;
+}
+
+bool GameState::unequip_attack_ice() {
+  if (!is_valid_item(equipment.attack_ice_item) || equipment.attack_ice_qty <= 0) {
+    return false;
+  }
+  if (!can_store_item(equipment.attack_ice_item)) {
+    add_log("Cyber-Vault is full! Cannot unequip Attack ICE pool.");
+    return false;
+  }
+  ItemId id = equipment.attack_ice_item;
+  int q = equipment.attack_ice_qty;
+  add_item(id, q, false);
+  equipment.attack_ice_item = ItemId::None;
+  equipment.attack_ice_qty = 0;
+  add_log(std::format("Returned {}x {} to Cyber-Vault.", q, get_item_info(id).name));
+  return true;
+}
+
+bool GameState::unequip_defense_ice() {
+  if (!is_valid_item(equipment.defense_ice_item) || equipment.defense_ice_qty <= 0) {
+    return false;
+  }
+  if (!can_store_item(equipment.defense_ice_item)) {
+    add_log("Cyber-Vault is full! Cannot unequip Defense ICE pool.");
+    return false;
+  }
+  ItemId id = equipment.defense_ice_item;
+  int q = equipment.defense_ice_qty;
+  add_item(id, q, false);
+  equipment.defense_ice_item = ItemId::None;
+  equipment.defense_ice_qty = 0;
+  add_log(std::format("Returned {}x {} to Cyber-Vault.", q, get_item_info(id).name));
+  return true;
+}
+
+bool GameState::use_integrity_patch(ItemId item_id) {
+  if (!is_valid_item(item_id)) return false;
+  const auto& info = get_item_info(item_id);
+  if (info.category != ItemCategory::IntegrityPatch) return false;
+  if (item_qty(item_id) <= 0) return false;
+
+  int bonus_xp = info.bonus.speed_bonus_pct;
+  if (bonus_xp <= 0 && combat.player_integrity >= max_integrity()) {
+    add_log("Your Firewall Integrity is already at 100%!");
+    return false;
+  }
+
+  remove_item(item_id, 1);
+  if (bonus_xp > 0) {
+    gain_xp(SkillType::Integrity, bonus_xp);
+  }
+  int before = combat.player_integrity;
+  combat.player_integrity =
+      std::min(max_integrity(), combat.player_integrity + info.heal_amount);
+  int restored = combat.player_integrity - before;
+  if (bonus_xp > 0) {
+    add_log(std::format("Installed {}! Upgraded Integrity (+{} XP) and restored +{} INT "
+                        "({}/{} INT).",
+                        info.name, bonus_xp, restored, combat.player_integrity,
+                        max_integrity()));
+  } else {
+    add_log(std::format("Executed {} and restored +{} INT ({}/{} INT).", info.name,
+                        restored, combat.player_integrity, max_integrity()));
   }
   return true;
+}
+
+bool GameState::eat_food() {
+  bool used_any = false;
+  if (is_valid_item(equipment.food_item) && equipment.food_qty > 0 &&
+      combat.player_hp < max_hp()) {
+    const auto& food_info = get_item_info(equipment.food_item);
+    int heal = food_info.heal_amount;
+    equipment.food_qty--;
+    int before = combat.player_hp;
+    combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
+    add_log(std::format("Used {} and restored +{} HP ({}/{} HP).", food_info.name,
+                        combat.player_hp - before, combat.player_hp, max_hp()));
+    if (equipment.food_qty == 0) {
+      equipment.food_item = ItemId::None;
+    }
+    used_any = true;
+  }
+
+  if (is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0 &&
+      combat.player_integrity < max_integrity()) {
+    const auto& ice_info = get_item_info(equipment.defense_ice_item);
+    int repair = ice_info.heal_amount;
+    equipment.defense_ice_qty--;
+    int before = combat.player_integrity;
+    combat.player_integrity = std::min(max_integrity(), combat.player_integrity + repair);
+    gain_xp(SkillType::Integrity, std::max(2, repair / 5));
+    add_log(std::format("{} repaired +{} INT ({}/{} INT).", ice_info.name,
+                        combat.player_integrity - before, combat.player_integrity,
+                        max_integrity()));
+    if (equipment.defense_ice_qty == 0) {
+      equipment.defense_ice_item = ItemId::None;
+    }
+    used_any = true;
+  }
+
+  if (!used_any) {
+    if (!is_valid_item(equipment.food_item) &&
+        !is_valid_item(equipment.defense_ice_item)) {
+      add_log("No stim-pack or Defense-ICE loaded!");
+    } else {
+      add_log("Hitpoints and Firewall Integrity are already full!");
+    }
+  }
+  return used_any;
 }
 
 void GameState::check_auto_eat() {
@@ -1039,6 +1396,26 @@ void GameState::check_auto_eat() {
     combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
     if (equipment.food_qty == 0) {
       equipment.food_item = ItemId::None;
+      break;
+    }
+  }
+}
+
+void GameState::check_auto_repair_integrity() {
+  if (!is_valid_item(equipment.defense_ice_item) || equipment.defense_ice_qty <= 0) {
+    return;
+  }
+  int max_int = max_integrity();
+  int threshold = (max_int * 60) / 100;
+  while (combat.player_integrity <= threshold &&
+         is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0) {
+    int repair = get_item_info(equipment.defense_ice_item).heal_amount;
+    if (repair <= 0) break;
+    equipment.defense_ice_qty--;
+    combat.player_integrity = std::min(max_int, combat.player_integrity + repair);
+    gain_xp(SkillType::Integrity, std::max(2, repair / 5));
+    if (equipment.defense_ice_qty == 0) {
+      equipment.defense_ice_item = ItemId::None;
       break;
     }
   }
@@ -1135,12 +1512,18 @@ int GameState::combat_level() const {
   int str = skill_level(SkillType::Strength);
   int def = skill_level(SkillType::Defence);
   int hp = skill_level(SkillType::Hitpoints);
-  double base = 0.25 * (def + hp);
-  double melee = 0.325 * (atk + str);
-  return std::max(3, static_cast<int>(std::floor(base + melee)));
+  int hck = skill_level(SkillType::Hacking);
+  int integ = skill_level(SkillType::Integrity);
+  double base = 0.25 * (def + hp + integ / 2);
+  double off = 0.325 * std::max(atk + str, hck * 2);
+  return std::max(3, static_cast<int>(std::floor(base + off)));
 }
 
 int GameState::max_hp() const { return skill_level(SkillType::Hitpoints) * 10; }
+
+int GameState::max_integrity() const {
+  return skill_level(SkillType::Integrity) * 10 + equipment.firewall_integrity_bonus();
+}
 
 int GameState::player_attack_interval_ms() const { return 2400; }
 
@@ -1177,6 +1560,45 @@ int GameState::player_hit_chance_pct(MonsterId monster_id) const {
 int GameState::monster_hit_chance_pct(MonsterId monster_id) const {
   int acc = get_monster_info(monster_id).accuracy;
   int eva = player_evasion();
+  int pct = (acc * 100) / std::max(1, acc + eva / 2);
+  return std::clamp(pct, 10, 92);
+}
+
+int GameState::player_ice_max_hit() const {
+  int hck_lvl = skill_level(SkillType::Hacking);
+  int ice_str = equipment.cyber_strength_bonus();
+  if (ice_str <= 0) {
+    return 6 + hck_lvl * 2;
+  }
+  return 10 + hck_lvl * 3 + (ice_str * (10 + hck_lvl)) / 10;
+}
+
+int GameState::player_ice_accuracy() const {
+  int hck_lvl = skill_level(SkillType::Hacking);
+  int ice_atk = equipment.cyber_attack_bonus();
+  return 25 + hck_lvl * 5 + ice_atk * 3;
+}
+
+int GameState::player_ice_evasion() const {
+  int int_lvl = skill_level(SkillType::Integrity);
+  int fw_def = equipment.cyber_defence_bonus();
+  return 20 + int_lvl * 5 + fw_def * 3;
+}
+
+int GameState::player_ice_damage_reduction() const {
+  return equipment.cyber_damage_reduction();
+}
+
+int GameState::player_ice_hit_chance_pct(MonsterId monster_id) const {
+  int acc = player_ice_accuracy();
+  int eva = get_monster_info(monster_id).evasion;
+  int pct = (acc * 100) / std::max(1, acc + eva / 2);
+  return std::clamp(pct, 15, 97);
+}
+
+int GameState::monster_ice_hit_chance_pct(MonsterId monster_id) const {
+  int acc = get_monster_info(monster_id).accuracy;
+  int eva = player_ice_evasion();
   int pct = (acc * 100) / std::max(1, acc + eva / 2);
   return std::clamp(pct, 10, 92);
 }
@@ -1219,7 +1641,7 @@ bool GameState::save_to_file(const std::string& path) const {
   if (!out.is_open()) return false;
 
   const auto skills_span = all_skills();
-  out << "ROUTINEVERSE_SAVE_V3\n";
+  out << "ROUTINEVERSE_SAVE_V4\n";
   out << credits << " " << bounty_tokens << " " << total_ticks_ms << "\n";
   for (size_t i = 0; i < skills_span.size(); ++i) {
     out << skill_xp(skills_span[i]) << (i + 1 == skills_span.size() ? "\n" : " ");
@@ -1236,10 +1658,15 @@ bool GameState::save_to_file(const std::string& path) const {
   for (EquipSlot slot : all_equip_slots()) {
     out << static_cast<int>(equipment.at(slot)) << " ";
   }
-  out << static_cast<int>(equipment.food_item) << " " << equipment.food_qty << "\n";
+  out << static_cast<int>(equipment.food_item) << " " << equipment.food_qty << " "
+      << static_cast<int>(equipment.attack_ice_item) << " " << equipment.attack_ice_qty
+      << " " << static_cast<int>(equipment.defense_ice_item) << " "
+      << equipment.defense_ice_qty << "\n";
   out << static_cast<int>(info.active_type) << " " << info.active_action_id << " "
       << static_cast<int>(combat.active_monster_id) << " " << combat.player_hp << " "
-      << combat.monster_hp << " " << static_cast<int>(combat.style) << "\n";
+      << combat.monster_hp << " " << static_cast<int>(combat.style) << " "
+      << combat.player_integrity << " " << combat.monster_integrity << " "
+      << combat.monster_ice_qty << "\n";
   out << static_cast<unsigned int>(combat.bounty_target_id) << " "
       << static_cast<unsigned int>(combat.bounty_remaining) << " "
       << combat.bounties_completed << "\n";
@@ -1273,7 +1700,7 @@ bool GameState::load_from_file(const std::string& path) {
   std::string header;
   if (!(in >> header) ||
       (header != "ROUTINEVERSE_SAVE_V1" && header != "ROUTINEVERSE_SAVE_V2" &&
-       header != "ROUTINEVERSE_SAVE_V3")) {
+       header != "ROUTINEVERSE_SAVE_V3" && header != "ROUTINEVERSE_SAVE_V4")) {
     return false;
   }
 
@@ -1325,8 +1752,32 @@ bool GameState::load_from_file(const std::string& path) {
     }
   }
 
-  if (header == "ROUTINEVERSE_SAVE_V2" || header == "ROUTINEVERSE_SAVE_V3") {
+  equipment.attack_ice_item = ItemId::None;
+  equipment.attack_ice_qty = 0;
+  equipment.defense_ice_item = ItemId::None;
+  equipment.defense_ice_qty = 0;
+
+  if (header == "ROUTINEVERSE_SAVE_V4") {
     for (EquipSlot slot : all_equip_slots()) {
+      int raw_id = -1;
+      if (!(in >> raw_id)) return false;
+      equipment[slot] = parse_item_id(raw_id);
+    }
+
+    int raw_food_id = -1, raw_atk_ice = -1, raw_def_ice = -1;
+    if (!(in >> raw_food_id >> equipment.food_qty >> raw_atk_ice >>
+          equipment.attack_ice_qty >> raw_def_ice >> equipment.defense_ice_qty)) {
+      return false;
+    }
+    equipment.food_item = parse_item_id(raw_food_id);
+    equipment.attack_ice_item = parse_item_id(raw_atk_ice);
+    equipment.defense_ice_item = parse_item_id(raw_def_ice);
+  } else if (header == "ROUTINEVERSE_SAVE_V2" || header == "ROUTINEVERSE_SAVE_V3") {
+    for (EquipSlot slot : all_equip_slots()) {
+      if (slot == EquipSlot::Firewall) {
+        equipment[slot] = ItemId::None;
+        continue;
+      }
       int raw_id = -1;
       if (!(in >> raw_id)) return false;
       equipment[slot] = parse_item_id(raw_id);
@@ -1342,6 +1793,7 @@ bool GameState::load_from_file(const std::string& path) {
       if (!(in >> raw_id)) return false;
       equipment[slot] = parse_item_id(raw_id);
     }
+    equipment[EquipSlot::Firewall] = ItemId::None;
 
     int raw_food_id = -1;
     if (!(in >> raw_food_id >> equipment.food_qty)) return false;
@@ -1386,6 +1838,18 @@ bool GameState::load_from_file(const std::string& path) {
                      ? styles[style_t]
                      : CombatStyle::Accurate;
 
+  if (header == "ROUTINEVERSE_SAVE_V4") {
+    if (!(in >> combat.player_integrity >> combat.monster_integrity >>
+          combat.monster_ice_qty)) {
+      return false;
+    }
+  } else {
+    combat.player_integrity = max_integrity();
+    const auto& mon = get_monster_info(combat.active_monster_id);
+    combat.monster_integrity = mon.max_integrity;
+    combat.monster_ice_qty = mon.ice_pool;
+  }
+
   int b_tid = 0, b_rem = 0, b_comp = 0;
   if (!(in >> b_tid >> b_rem >> b_comp)) return false;
   combat.bounty_target_id = parse_monster_id(b_tid);
@@ -1399,7 +1863,7 @@ bool GameState::load_from_file(const std::string& path) {
 
   stats.monster_kills.clear();
   for (MonsterId mon_id : all_monster_ids()) stats.monster_kills[mon_id] = 0;
-  if (header == "ROUTINEVERSE_SAVE_V3") {
+  if (header == "ROUTINEVERSE_SAVE_V3" || header == "ROUTINEVERSE_SAVE_V4") {
     for (MonsterId mon_id : all_monster_ids()) {
       uint16_t kills = 0;
       if (in >> kills) {

@@ -18,10 +18,12 @@
   X(DeepMining, "Deep-Mining", "MIN", false) \
   X(Smithing, "Smithing", "SMT", false)      \
   X(CyberFab, "Cyber-Fab", "FAB", false)     \
+  X(Hacking, "Hacking", "HCK", false)        \
   X(Attack, "Attack", "ATK", true)           \
   X(Strength, "Strength", "STR", true)       \
   X(Defence, "Defence", "DEF", true)         \
   X(Hitpoints, "Hitpoints", "HP", true)      \
+  X(Integrity, "Integrity", "INT", true)     \
   X(Bounty, "Bounty", "BNT", true)
 
 enum class SkillType : uint8_t {

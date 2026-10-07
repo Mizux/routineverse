@@ -57,6 +57,16 @@ std::string item_category_name(ItemCategory cat) {
       return "Auto-Stim";
     case ItemCategory::CyberLoot:
       return "Salvage";
+    case ItemCategory::Hardware:
+      return "CPU/RAM";
+    case ItemCategory::Firewall:
+      return "Firewall";
+    case ItemCategory::AttackIce:
+      return "Atk-ICE";
+    case ItemCategory::DefenseIce:
+      return "Def-ICE";
+    case ItemCategory::IntegrityPatch:
+      return "INT-Patch";
   }
   return "Item";
 }
@@ -75,6 +85,22 @@ std::string item_equip_summary(ItemId id) {
     case ItemCategory::AutoStim:
       return std::format("{} (Auto-Stim <= {}% HP)", info.name,
                          info.bonus.speed_bonus_pct);
+    case ItemCategory::Firewall:
+      return std::format("{} (+{}MaxINT, +{}CDef, {}%IDR)", info.name,
+                         info.bonus.strength, info.bonus.defence,
+                         info.bonus.damage_reduction);
+    case ItemCategory::AttackIce:
+      return std::format("{} (+{}CAtk, +{}CStr)", info.name, info.bonus.attack,
+                         info.bonus.strength);
+    case ItemCategory::DefenseIce:
+      return std::format("{} (+{}INT, +{}CDef, {}%IDR)", info.name, info.heal_amount,
+                         info.bonus.defence, info.bonus.damage_reduction);
+    case ItemCategory::IntegrityPatch:
+      if (info.bonus.speed_bonus_pct > 0) {
+        return std::format("{} (+{}INT, +{}XP)", info.name, info.heal_amount,
+                           info.bonus.speed_bonus_pct);
+      }
+      return std::format("{} (+{}INT)", info.name, info.heal_amount);
     default:
       return std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
                          info.bonus.attack, info.bonus.strength, info.bonus.defence,
