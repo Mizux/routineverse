@@ -214,7 +214,7 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
   const auto& gs = window.gameState();
   long long minutes = gs.total_ticks_ms / 60000;
   long long seconds = (gs.total_ticks_ms / 1000) % 60;
-  auto boss_it = gs.stats.monster_kills.find(MonsterId::Nexus9RogueOvermind);
+  auto boss_it = gs.stats.monster_kills.find(MonsterId::Nexus9);
   uint16_t boss_kills = (boss_it != gs.stats.monster_kills.end()) ? boss_it->second : 0;
   std::string text = std::format(
       "Operative Summary & Milestones:\n\n"
@@ -232,8 +232,8 @@ void window_main_button_highscores_clicked_cb(MainWindow& window) {
       money_string(gs.stats.total_credits_earned), money_string(gs.total_bank_value()),
       gs.used_bank_slots(), gs.bank.capacity, number_string(gs.bounty_tokens),
       gs.combat.bounties_completed, number_string(gs.stats.total_items_gathered),
-      number_string(gs.stats.total_monsters_killed), gs.stats.player_deaths,
-      boss_kills, minutes, seconds);
+      number_string(gs.stats.total_monsters_killed), gs.stats.player_deaths, boss_kills,
+      minutes, seconds);
   QMessageBox::information(&window, "Telemetry & Milestones",
                            QString::fromStdString(text));
 }

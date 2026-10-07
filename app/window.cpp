@@ -625,14 +625,15 @@ ItemId MainWindow::selectedBankItemId() const {
 
 void MainWindow::updateLiveProgressOnly() {
   if (_label_active_banner) {
-    _label_active_banner->setText(QString::fromStdString(_gameState.info.status_banner));
+    _label_active_banner->setText(
+        QString::fromStdString(_gameState.info.status_banner));
   }
   if (_progressbar_action) {
     if (_gameState.info.active_type == ActiveActivityType::Skill) {
-      int pct =
-          (_gameState.info.active_target_ms > 0)
-              ? (_gameState.info.active_progress_ms * 100) / _gameState.info.active_target_ms
-              : 0;
+      int pct = (_gameState.info.active_target_ms > 0)
+                    ? (_gameState.info.active_progress_ms * 100) /
+                          _gameState.info.active_target_ms
+                    : 0;
       _progressbar_action->setValue(std::clamp(pct, 0, 100));
       _progressbar_action->setFormat(
           QString("%1% (%2s)")
@@ -640,8 +641,9 @@ void MainWindow::updateLiveProgressOnly() {
               .arg(_gameState.info.active_target_ms / 1000.0, 0, 'f', 1));
     } else if (_gameState.info.active_type == ActiveActivityType::Combat) {
       int plr_int = _gameState.player_attack_interval_ms();
-      int pct =
-          (plr_int > 0) ? (_gameState.combat.player_attack_timer_ms * 100) / plr_int : 0;
+      int pct = (plr_int > 0)
+                    ? (_gameState.combat.player_attack_timer_ms * 100) / plr_int
+                    : 0;
       _progressbar_action->setValue(std::clamp(pct, 0, 100));
       _progressbar_action->setFormat(QString("Weapon Cycle: %1%").arg(pct));
     } else {
@@ -672,11 +674,10 @@ void MainWindow::updateLiveProgressOnly() {
     int pct = (plr_cur * 100) / plr_int;
     _progressbar_player_atk->setRange(0, plr_int);
     _progressbar_player_atk->setValue(plr_cur);
-    _progressbar_player_atk->setFormat(
-        QString("%1s / %2s (%3%)")
-            .arg(plr_cur / 1000.0, 0, 'f', 1)
-            .arg(plr_int / 1000.0, 0, 'f', 1)
-            .arg(pct));
+    _progressbar_player_atk->setFormat(QString("%1s / %2s (%3%)")
+                                           .arg(plr_cur / 1000.0, 0, 'f', 1)
+                                           .arg(plr_int / 1000.0, 0, 'f', 1)
+                                           .arg(pct));
   }
 
   if (_progressbar_monster_hp) {
@@ -695,17 +696,17 @@ void MainWindow::updateLiveProgressOnly() {
 
   if (_progressbar_monster_atk) {
     int mon_int = std::max(1, mon_info.attack_interval_ms);
-    int mon_cur = (_gameState.info.active_type == ActiveActivityType::Combat)
-                      ? std::clamp(_gameState.combat.monster_attack_timer_ms, 0, mon_int)
-                      : 0;
+    int mon_cur =
+        (_gameState.info.active_type == ActiveActivityType::Combat)
+            ? std::clamp(_gameState.combat.monster_attack_timer_ms, 0, mon_int)
+            : 0;
     int pct = (mon_cur * 100) / mon_int;
     _progressbar_monster_atk->setRange(0, mon_int);
     _progressbar_monster_atk->setValue(mon_cur);
-    _progressbar_monster_atk->setFormat(
-        QString("%1s / %2s (%3%)")
-            .arg(mon_cur / 1000.0, 0, 'f', 1)
-            .arg(mon_int / 1000.0, 0, 'f', 1)
-            .arg(pct));
+    _progressbar_monster_atk->setFormat(QString("%1s / %2s (%3%)")
+                                            .arg(mon_cur / 1000.0, 0, 'f', 1)
+                                            .arg(mon_int / 1000.0, 0, 'f', 1)
+                                            .arg(pct));
   }
 }
 
@@ -761,8 +762,9 @@ void MainWindow::updateAllUi() {
   }
   if (_label_bounty_task) {
     const auto& mon = get_monster_info(_gameState.combat.bounty_target_id);
-    _label_bounty_task->setText(
-        QString("Bounty: %1x %2").arg(_gameState.combat.bounty_remaining).arg(monster_name(mon.id).c_str()));
+    _label_bounty_task->setText(QString("Bounty: %1x %2")
+                                    .arg(_gameState.combat.bounty_remaining)
+                                    .arg(monster_name(mon.id).c_str()));
   }
   if (_group_bank) {
     _group_bank->setTitle(
@@ -904,7 +906,8 @@ void MainWindow::_fillTreeviewMonsters() {
     }
 
     auto kills_it = _gameState.stats.monster_kills.find(mon_id);
-    uint16_t kills = (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
+    uint16_t kills =
+        (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
 
     item->setText(0, QString::number(mon.combat_level));
     item->setText(1, m_name);
@@ -1271,7 +1274,7 @@ void WindowEquipment::updateEquipmentUi() {
   }
 
   if (is_valid_item(_gameState.equipment.food_item) &&
-       _gameState.equipment.food_qty > 0) {
+      _gameState.equipment.food_qty > 0) {
     const auto& fi = get_item_info(_gameState.equipment.food_item);
     _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
                              .arg(_gameState.equipment.food_qty)
@@ -1345,7 +1348,8 @@ void WindowBestiary::_setupWidget() {
     }
 
     auto kills_it = _gameState.stats.monster_kills.find(mon_id);
-    uint16_t kills = (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
+    uint16_t kills =
+        (kills_it != _gameState.stats.monster_kills.end()) ? kills_it->second : 0;
 
     item->setText(0, QString::number(mon.combat_level));
     item->setText(1, QString::fromStdString(monster_name(mon.id)));
@@ -1388,8 +1392,7 @@ void WindowHistory::_setupWidget(int initial_item) {
   for (int i = 0; i < total; ++i) {
     _combo_item->addItem(HistoryChartView::itemName(i));
   }
-  _combo_item->setCurrentIndex(
-      std::clamp(initial_item, 0, total - 1));
+  _combo_item->setCurrentIndex(std::clamp(initial_item, 0, total - 1));
   connect(_combo_item, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           &WindowHistory::onItemChanged);
   hbox_top->addWidget(_combo_item, 1);

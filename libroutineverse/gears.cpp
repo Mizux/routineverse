@@ -5,8 +5,8 @@
 std::string equip_slot_name(EquipSlot slot) {
   switch (slot) {
 #define X(id, val, name) \
-    case EquipSlot::id: \
-      return name;
+  case EquipSlot::id:    \
+    return name;
     RV_EQUIP_SLOT_LIST(X, X)
 #undef X
   }
@@ -108,17 +108,18 @@ std::span<const ShopUpgradeInfo> drill_upgrades() noexcept {
 
 std::span<const ShopUpgradeInfo> reactor_upgrades() noexcept {
   static const std::array upgrades{std::to_array<ShopUpgradeInfo>({
-      {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0, ItemId::BasicReactor},
-      {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP", 10, 250,
-       5, ItemId::PlasteelReactor},
+      {0, "Basic Micro-Reactor", "Starter Synth-Reactor", 1, 0, 0,
+       ItemId::BasicReactor},
+      {1, "Plasteel Thermal Unit", "-5% Recycling/Synth-Cook Interval & +5% XP", 10,
+       250, 5, ItemId::PlasteelReactor},
       {2, "Nanotube Induction Core", "-10% Recycling/Synth-Cook Interval & +10% XP", 25,
        900, 10, ItemId::NanotubeReactor},
-      {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP", 45, 3000,
-       15, ItemId::PositronicReactor},
+      {3, "Positronic Reactor", "-15% Recycling/Synth-Cook Interval & +15% XP", 45,
+       3000, 15, ItemId::PositronicReactor},
       {4, "Plasma Fusion Furnace", "-20% Recycling/Synth-Cook Interval & +20% XP", 60,
        10000, 20, ItemId::PlasmaReactor},
-      {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP", 75, 30000,
-       26, ItemId::QuantumReactor},
+      {5, "Quantum Synth-Core", "-26% Recycling/Synth-Cook Interval & +26% XP", 75,
+       30000, 26, ItemId::QuantumReactor},
       {6, "AI Mainframe Reactor", "-34% Recycling/Synth-Cook Interval & +34% XP", 90,
        95000, 34, ItemId::MainframeReactor},
   })};
@@ -145,4 +146,3 @@ int find_upgrade_tier(std::span<const ShopUpgradeInfo> upgrades, ItemId id) {
   }
   return 0;
 }
-

@@ -7,12 +7,12 @@
 
 #include "items.hpp"
 
-#define RV_ZONE_ID_LIST(X) \
-  X(NeonSlums, "Neon Slums") \
-  X(BackAlleySector, "Back-Alley Sector") \
+#define RV_ZONE_ID_LIST(X)                 \
+  X(NeonSlums, "Neon Slums")               \
+  X(BackAlleySector, "Back-Alley Sector")  \
   X(IndustrialSector, "Industrial Sector") \
-  X(MegacorpPlaza, "Megacorp Plaza") \
-  X(OrbitalSpire, "Orbital Spire") \
+  X(MegacorpPlaza, "Megacorp Plaza")       \
+  X(OrbitalSpire, "Orbital Spire")         \
   X(MainframeCore, "Mainframe Core [BOSS]")
 
 enum class ZoneId : uint8_t {
@@ -23,19 +23,19 @@ enum class ZoneId : uint8_t {
 std::string zone_name(ZoneId zone);
 std::span<const ZoneId> all_zone_ids() noexcept;
 
-#define RV_MONSTER_ID_LIST(X) \
-  X(StrayServoDrone, "Stray Servo-Drone") \
-  X(BioVatHound, "Bio-Vat Hound") \
-  X(StreetScavenger, "Street Scavenger") \
-  X(ChromeGangPunk, "Chrome Gang Punk") \
-  X(RiotEnforcerBot, "Riot Enforcer Bot") \
-  X(ChemMutantBrute, "Chem-Mutant Brute") \
-  X(CryoSecMech, "Cryo-Sec Mech") \
-  X(CorpShadowOp, "Corp Shadow-Op") \
+#define RV_MONSTER_ID_LIST(X)               \
+  X(StrayServoDrone, "Stray Servo-Drone")   \
+  X(BioVatHound, "Bio-Vat Hound")           \
+  X(StreetScavenger, "Street Scavenger")    \
+  X(ChromeGangPunk, "Chrome Gang Punk")     \
+  X(RiotEnforcerBot, "Riot Enforcer Bot")   \
+  X(ChemMutantBrute, "Chem-Mutant Brute")   \
+  X(CryoSecMech, "Cryo-Sec Mech")           \
+  X(CorpShadowOp, "Corp Shadow-Op")         \
   X(CobaltCyberNinja, "Cobalt Cyber-Ninja") \
-  X(NeutroniumCyborg, "Neutronium Cyborg") \
-  X(ApexCyberWyrm, "Apex Cyber-Wyrm") \
-  X(Nexus9RogueOvermind, "NEXUS-9, Rogue Overmind")
+  X(NeutroniumCyborg, "Neutronium Cyborg")  \
+  X(ApexCyberWyrm, "Apex Cyber-Wyrm")       \
+  X(Nexus9, "NEXUS-9, Rogue Overmind")
 
 enum class MonsterId : uint8_t {
 #define X(id, name) id,

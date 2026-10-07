@@ -158,8 +158,7 @@ void GameState::LogBuffer::clear() { entries.clear(); }
 void GameState::LogBuffer::add(const std::string& entry) {
   entries.push_back(entry);
   if (entries.size() > max_entries) {
-    entries.erase(entries.begin(),
-                  entries.begin() + (entries.size() - max_entries));
+    entries.erase(entries.begin(), entries.begin() + (entries.size() - max_entries));
   }
 }
 
@@ -255,8 +254,7 @@ int GameState::auto_stim_tier() const { return equipment.auto_stim_tier(); }
 
 int GameState::action_effective_interval_ms(int global_action_id) const {
   const auto actions = all_actions();
-  if (global_action_id < 0 ||
-      global_action_id >= static_cast<int>(actions.size())) {
+  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
     return 2000;
   }
   const auto& act = actions[global_action_id];
@@ -289,8 +287,7 @@ int GameState::action_effective_interval_ms(int global_action_id) const {
 
 bool GameState::can_perform_action(int global_action_id) const {
   const auto actions = all_actions();
-  if (global_action_id < 0 ||
-      global_action_id >= static_cast<int>(actions.size())) {
+  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
     return false;
   }
   const auto& act = actions[global_action_id];
@@ -306,8 +303,7 @@ bool GameState::can_perform_action(int global_action_id) const {
 
 bool GameState::start_skill_action(int global_action_id) {
   const auto actions = all_actions();
-  if (global_action_id < 0 ||
-      global_action_id >= static_cast<int>(actions.size())) {
+  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
     return false;
   }
   const auto& act = actions[global_action_id];
@@ -335,8 +331,8 @@ bool GameState::start_skill_action(int global_action_id) {
   info.active_progress_ms = 0;
   info.active_target_ms = action_effective_interval_ms(global_action_id);
   info.status_banner = std::format("{} ({})", act.name, skill_name(act.skill));
-  add_log(
-      std::format("Started {} ({:.2f}s cycle).", act.name, info.active_target_ms / 1000.0));
+  add_log(std::format("Started {} ({:.2f}s cycle).", act.name,
+                      info.active_target_ms / 1000.0));
   return true;
 }
 
@@ -353,10 +349,10 @@ bool GameState::start_combat(MonsterId monster_id) {
   combat.monster_hp = mon.max_hp;
   combat.player_attack_timer_ms = 0;
   combat.monster_attack_timer_ms = 0;
-  info.status_banner = std::format("Engaging {} (Lv {}) in {}", monster_name(mon.id), mon.combat_level,
-                                   zone_name(mon.zone));
-  add_log(std::format("Engaged hostile {} ({} HP) in {}.", monster_name(mon.id), mon.max_hp,
-                      zone_name(mon.zone)));
+  info.status_banner = std::format("Engaging {} (Lv {}) in {}", monster_name(mon.id),
+                                   mon.combat_level, zone_name(mon.zone));
+  add_log(std::format("Engaged hostile {} ({} HP) in {}.", monster_name(mon.id),
+                      mon.max_hp, zone_name(mon.zone)));
   return true;
 }
 
@@ -642,11 +638,11 @@ void GameState::on_monster_defeated(MonsterId monster_id) {
   }
 
   if (loot_str.empty()) {
-    add_log(
-        std::format("Neutralized {}! Siphoned {}.", monster_name(mon.id), money_string(cr_drop)));
+    add_log(std::format("Neutralized {}! Siphoned {}.", monster_name(mon.id),
+                        money_string(cr_drop)));
   } else {
-    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.", monster_name(mon.id),
-                        money_string(cr_drop), loot_str));
+    add_log(std::format("Neutralized {}! Siphoned {} and salvaged {}.",
+                        monster_name(mon.id), money_string(cr_drop), loot_str));
   }
 
   // Respawn monster
@@ -673,8 +669,7 @@ void GameState::assign_new_bounty_contract() {
   int c_lvl = combat_level();
   for (MonsterId mon_id : all_monster_ids()) {
     const auto& mon = get_monster_info(mon_id);
-    if (mon.bounty_req <= b_lvl &&
-        mon.combat_level <= c_lvl + 15 && !mon.is_boss) {
+    if (mon.bounty_req <= b_lvl && mon.combat_level <= c_lvl + 15 && !mon.is_boss) {
       eligible.push_back(mon_id);
     }
   }
@@ -684,8 +679,7 @@ void GameState::assign_new_bounty_contract() {
   combat.bounty_remaining = rand_int(6, 15);
   const auto& target_mon = get_monster_info(combat.bounty_target_id);
   add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
-                      combat.bounty_remaining,
-                      monster_name(target_mon.id),
+                      combat.bounty_remaining, monster_name(target_mon.id),
                       zone_name(target_mon.zone)));
 }
 
@@ -843,8 +837,8 @@ bool GameState::equip_item(ItemId item_id) {
       }
       break;
     case EquipSlot::Harvester:
-      if (std::max(skill_level(SkillType::Fishing),
-                   skill_level(SkillType::Farming)) < info.req_level) {
+      if (std::max(skill_level(SkillType::Fishing), skill_level(SkillType::Farming)) <
+          info.req_level) {
         add_log(std::format("Requires Fishing or Farming Level {} to equip {}.",
                             info.req_level, info.name));
         return false;
@@ -967,8 +961,8 @@ bool GameState::eat_food() {
 void GameState::check_auto_eat() {
   if (auto_stim_tier() <= 0) return;
   int threshold = auto_eat_threshold_hp();
-  while (combat.player_hp <= threshold &&
-         is_valid_item(equipment.food_item) && equipment.food_qty > 0) {
+  while (combat.player_hp <= threshold && is_valid_item(equipment.food_item) &&
+         equipment.food_qty > 0) {
     int heal = get_item_info(equipment.food_item).heal_amount;
     equipment.food_qty--;
     combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
@@ -1050,8 +1044,8 @@ bool GameState::buy_reactor_upgrade() {
   const auto upgrades = reactor_upgrades();
   if (cur_t + 1 >= static_cast<int>(upgrades.size())) return false;
   const auto& upg = upgrades[cur_t + 1];
-  if (std::max(skill_level(SkillType::Recycling),
-               skill_level(SkillType::SynthCook)) < upg.req_skill_level) {
+  if (std::max(skill_level(SkillType::Recycling), skill_level(SkillType::SynthCook)) <
+      upg.req_skill_level) {
     add_log(std::format("Requires Recycling or Synth-Cook Level {} to buy {}.",
                         upg.req_skill_level, upg.name));
     return false;
@@ -1246,7 +1240,8 @@ bool GameState::load_from_file(const std::string& path) {
 
   auto parse_item_id = [](int raw) -> ItemId {
     const auto items = all_item_ids();
-    return (raw >= 0 && raw < static_cast<int>(items.size())) ? items[raw] : ItemId::None;
+    return (raw >= 0 && raw < static_cast<int>(items.size())) ? items[raw]
+                                                              : ItemId::None;
   };
   auto parse_monster_id = [](int raw) -> MonsterId {
     const auto monsters = all_monster_ids();
@@ -1388,4 +1383,3 @@ bool GameState::load_from_file(const std::string& path) {
   add_log("Loaded saved neural state.");
   return true;
 }
-

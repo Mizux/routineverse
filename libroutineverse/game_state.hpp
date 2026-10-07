@@ -266,4 +266,3 @@ class GameState {
 
   int history_timer_ms_ = 0;
 };
-

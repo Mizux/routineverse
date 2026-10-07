@@ -28,4 +28,3 @@ std::string number_string(uint64_t value) {
   std::reverse(out.begin(), out.end());
   return out;
 }
-

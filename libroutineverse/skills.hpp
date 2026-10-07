@@ -9,19 +9,20 @@
 
 // Skills
 
-#define RV_SKILL_TYPE_LIST(X) \
-  X(Salvaging, "Salvaging", "SLV", false) \
-  X(Fishing, "Fishing", "FSH", false) \
-  X(Farming, "Farming", "FRM", false) \
-  X(Recycling, "Recycling", "REC", false) \
-  X(SynthCook, "Synth-Cook", "SYN", false) \
+// enum, name, short_name, is_combat
+#define RV_SKILL_TYPE_LIST(X)                \
+  X(Salvaging, "Salvaging", "SLV", false)    \
+  X(Fishing, "Fishing", "FSH", false)        \
+  X(Farming, "Farming", "FRM", false)        \
+  X(Recycling, "Recycling", "REC", false)    \
+  X(SynthCook, "Synth-Cook", "SYN", false)   \
   X(DeepMining, "Deep-Mining", "MIN", false) \
-  X(Smithing, "Smithing", "SMT", false) \
-  X(CyberFab, "Cyber-Fab", "FAB", false) \
-  X(Attack, "Attack", "ATK", true) \
-  X(Strength, "Strength", "STR", true) \
-  X(Defence, "Defence", "DEF", true) \
-  X(Hitpoints, "Hitpoints", "HP", true) \
+  X(Smithing, "Smithing", "SMT", false)      \
+  X(CyberFab, "Cyber-Fab", "FAB", false)     \
+  X(Attack, "Attack", "ATK", true)           \
+  X(Strength, "Strength", "STR", true)       \
+  X(Defence, "Defence", "DEF", true)         \
+  X(Hitpoints, "Hitpoints", "HP", true)      \
   X(Bounty, "Bounty", "BNT", true)
 
 enum class SkillType : uint8_t {

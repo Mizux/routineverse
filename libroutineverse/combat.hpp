@@ -4,8 +4,8 @@
 #include <span>
 #include <string>
 
-#define RV_COMBAT_STYLE_LIST(X) \
-  X(Accurate, "Precision (Accuracy)") \
+#define RV_COMBAT_STYLE_LIST(X)         \
+  X(Accurate, "Precision (Accuracy)")   \
   X(Aggressive, "Overdrive (Strength)") \
   X(Defensive, "Evasive (Defence)")
 
@@ -19,8 +19,8 @@ std::span<const CombatStyle> all_combat_styles() noexcept;
 CombatStyle next_combat_style(CombatStyle style) noexcept;
 
 #define RV_ACTIVE_ACTIVITY_TYPE_LIST(X) \
-  X(None, -1, "None") \
-  X(Skill, 0, "Skill") \
+  X(None, -1, "None")                   \
+  X(Skill, 0, "Skill")                  \
   X(Combat, 1, "Combat")
 
 enum class ActiveActivityType : int8_t {

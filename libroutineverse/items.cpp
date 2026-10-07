@@ -526,22 +526,22 @@ const ItemInfo& get_item_info(ItemId id) {
        0,
        1,
        {0, 0, 0, 0}},
-      {ItemId::SapphireCortex,
-       "Sapphire Cortex",
+      {ItemId::RubyLaserCore,
+       "Ruby Laser Core",
        ItemCategory::DataCrystal,
        250,
        0,
        1,
        {0, 0, 0, 0}},
-      {ItemId::RubyLaserCore,
-       "Ruby Laser Core",
+      {ItemId::EmeraldCryptokey,
+       "Emerald Cryptokey",
        ItemCategory::DataCrystal,
        450,
        0,
        1,
        {0, 0, 0, 0}},
-      {ItemId::EmeraldCryptokey,
-       "Emerald Cryptokey",
+      {ItemId::SapphireCortex,
+       "Sapphire Cortex",
        ItemCategory::DataCrystal,
        750,
        0,
@@ -1053,7 +1053,6 @@ const ItemInfo& get_item_info(ItemId id) {
   return item_info[idx];
 }
 
-
 std::string item_category_name(ItemCategory cat) {
   switch (cat) {
     case ItemCategory::Scrap:
@@ -1098,7 +1097,6 @@ std::string item_category_name(ItemCategory cat) {
   return "Item";
 }
 
-
 std::string item_equip_summary(ItemId id) {
   if (!is_valid_item(id)) return "Empty";
   const auto& info = get_item_info(id);
@@ -1120,9 +1118,7 @@ std::string item_equip_summary(ItemId id) {
   }
 }
 
-std::string item_name(ItemId id) {
-  return get_item_info(id).name;
-}
+std::string item_name(ItemId id) { return get_item_info(id).name; }
 
 std::span<const ItemId> all_item_ids() noexcept {
   static constexpr std::array ids{std::to_array<ItemId>({
@@ -1136,4 +1132,3 @@ std::span<const ItemId> all_item_ids() noexcept {
 bool is_valid_item(ItemId id) noexcept {
   return id != ItemId::None && static_cast<size_t>(id) < all_item_ids().size();
 }
-

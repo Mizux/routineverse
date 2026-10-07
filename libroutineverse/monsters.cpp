@@ -7,8 +7,8 @@
 std::string zone_name(ZoneId zone) {
   switch (zone) {
 #define X(id, name) \
-    case ZoneId::id: \
-      return name;
+  case ZoneId::id:  \
+    return name;
     RV_ZONE_ID_LIST(X)
 #undef X
   }
@@ -26,9 +26,9 @@ std::span<const ZoneId> all_zone_ids() noexcept {
 
 std::string monster_name(MonsterId monster) {
   switch (monster) {
-#define X(id, name) \
-    case MonsterId::id: \
-      return name;
+#define X(id, name)   \
+  case MonsterId::id: \
+    return name;
     RV_MONSTER_ID_LIST(X)
 #undef X
   }
@@ -233,7 +233,7 @@ const MonsterInfo& get_monster_info(MonsterId id) {
          {ItemId::ChronoBlade, 15, 1, 1},
          {ItemId::QuantumOre, 30, 1, 3},
          {ItemId::ChronoHarvester, 6, 1, 1}}}},
-      {MonsterId::Nexus9RogueOvermind,
+      {MonsterId::Nexus9,
        ZoneId::MainframeCore,
        150,
        3500,
@@ -260,7 +260,6 @@ const MonsterInfo& get_monster_info(MonsterId id) {
 
 std::string monster_summary(MonsterId id) {
   const auto& mon = get_monster_info(id);
-  return std::format("{} (Lv {}, {} HP, MaxHit {}, {})",
-                     monster_name(id), mon.combat_level, mon.max_hp,
-                     mon.max_hit, zone_name(mon.zone));
+  return std::format("{} (Lv {}, {} HP, MaxHit {}, {})", monster_name(id),
+                     mon.combat_level, mon.max_hp, mon.max_hit, zone_name(mon.zone));
 }

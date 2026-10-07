@@ -5,13 +5,13 @@
 
 #include "routineverse.hpp"
 
-#define TEST_CHECK(cond)                                                       \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      std::cerr << "Assertion failed: " #cond " at " << __FILE__ << ":"        \
-                << __LINE__ << std::endl;                                      \
-      std::exit(1);                                                            \
-    }                                                                          \
+#define TEST_CHECK(cond)                                                            \
+  do {                                                                              \
+    if (!(cond)) {                                                                  \
+      std::cerr << "Assertion failed: " #cond " at " << __FILE__ << ":" << __LINE__ \
+                << std::endl;                                                       \
+      std::exit(1);                                                                 \
+    }                                                                               \
   } while (0)
 
 void test_enum_safety() {
@@ -132,7 +132,7 @@ void test_save_load_roundtrip_v3() {
   gs1.bounty_tokens = 789;
   gs1.combat.player_hp = 45;
   gs1.stats.monster_kills[MonsterId::StrayServoDrone] = 111;
-  gs1.stats.monster_kills[MonsterId::Nexus9RogueOvermind] = 42; // Nexus-9 boss kills
+  gs1.stats.monster_kills[MonsterId::Nexus9] = 42;  // Nexus-9 boss kills
   gs1.stats.total_monsters_killed = 153;
   gs1.equipment[EquipSlot::Weapon] = ItemId::NeutroniumBlade;
 
@@ -150,7 +150,7 @@ void test_save_load_roundtrip_v3() {
   TEST_CHECK(gs2.bounty_tokens == 789);
   TEST_CHECK(gs2.combat.player_hp == 45);
   TEST_CHECK(gs2.stats.monster_kills[MonsterId::StrayServoDrone] == 111);
-  TEST_CHECK(gs2.stats.monster_kills[MonsterId::Nexus9RogueOvermind] == 42);
+  TEST_CHECK(gs2.stats.monster_kills[MonsterId::Nexus9] == 42);
   TEST_CHECK(gs2.stats.total_monsters_killed == 153);
   TEST_CHECK(gs2.equipment.at(EquipSlot::Weapon) == ItemId::NeutroniumBlade);
 
@@ -184,7 +184,7 @@ void test_reactor_upgrade_and_xp() {
 
   // Gain XP in SynthCook: should receive 5% bonus
   uint64_t sc_before = gs.skill_xp(SkillType::SynthCook);
-  gs.start_skill_action(0); // stop whatever was running
+  gs.start_skill_action(0);  // stop whatever was running
   gs.stop_activity();
 
   auto syn_actions = actions_for_skill(SkillType::SynthCook);

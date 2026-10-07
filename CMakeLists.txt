@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.25...4.4)
 # Enable output of compile commands during generation.
 option(CMAKE_EXPORT_COMPILE_COMMANDS "Export compile command" ON)
 
-project(RoutineVerse VERSION 1.0.0 LANGUAGES CXX)
+project(RoutineVerse VERSION 0.1.0 LANGUAGES CXX)
 set(PROJECT_NAMESPACE rv)
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
