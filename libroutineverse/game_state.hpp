@@ -111,7 +111,7 @@ class GameState {
   bool load_from_file(const std::string& path = default_save_path());
 
   // Persistent Game State
-  uint64_t credits = 250;
+  uint64_t credits = 256;
   uint64_t bounty_tokens = 0;
   uint64_t total_ticks_ms = 0;
 
@@ -208,7 +208,7 @@ class GameState {
     ActiveActivityType active_type = ActiveActivityType::None;
     SkillActionId active_action_id = SkillActionId::StripCopperWiring;
     int active_progress_ms = 0;
-    int active_target_ms = 2000;
+    int active_target_ms = 2048;
     std::string status_banner;
 
     void reset(int initial_target_ms);
@@ -221,7 +221,7 @@ class GameState {
     int player_hp = 100;
     int player_integrity = 100;
     MonsterId active_monster_id = MonsterId::StrayServoDrone;
-    int monster_hp = 30;
+    int monster_hp = 32;
     int monster_integrity = 0;
     int monster_ice_qty = 0;
     int player_attack_timer_ms = 0;
@@ -229,7 +229,7 @@ class GameState {
     int hp_regen_timer_ms = 0;
 
     MonsterId bounty_target_id = MonsterId::StrayServoDrone;
-    uint8_t bounty_remaining = 10;
+    uint8_t bounty_remaining = 8;
     uint16_t bounties_completed = 0;
 
     void reset(int initial_hp, int initial_integrity = 100);
@@ -241,7 +241,7 @@ class GameState {
     std::unordered_map<MonsterId, uint16_t> monster_kills{};
     uint64_t total_items_gathered = 0;
     uint64_t total_monsters_killed = 0;
-    uint64_t total_credits_earned = 250;
+    uint64_t total_credits_earned = 256;
     uint16_t player_deaths = 0;
 
     void reset();
@@ -250,9 +250,9 @@ class GameState {
 
   // Log Buffer
   struct LogBuffer {
-    explicit LogBuffer(size_t max_entries = 120) : max_entries(max_entries) {}
+    explicit LogBuffer(size_t max_entries = 128) : max_entries(max_entries) {}
 
-    size_t max_entries = 120;
+    size_t max_entries = 128;
     std::deque<std::string> entries;
 
     void clear();
@@ -282,9 +282,9 @@ class GameState {
     static int total_items() noexcept;
     static std::string item_name(int item_idx);
 
-    explicit History(size_t max_entries = 60) : max_entries(max_entries) {}
+    explicit History(size_t max_entries = 64) : max_entries(max_entries) {}
 
-    size_t max_entries = 60;
+    size_t max_entries = 64;
     std::list<uint64_t> credits;
     std::list<uint64_t> bank_value;
     std::list<int> total_level;

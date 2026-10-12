@@ -8,8 +8,10 @@
 #include <vector>
 
 namespace {
-constexpr uint8_t MAX_SKILL_LEVEL = 99;
+constexpr uint8_t MAX_SKILL_LEVEL = 128;
 }  // namespace
+
+int max_skill_level() noexcept { return MAX_SKILL_LEVEL; }
 
 std::span<const uint64_t> xp_table() noexcept {
   static const auto table = []() {
@@ -18,7 +20,7 @@ std::span<const uint64_t> xp_table() noexcept {
     t[1] = 0;
     double points = 0.0;
     for (size_t lvl = 1; lvl < MAX_SKILL_LEVEL; ++lvl) {
-      points += std::floor(lvl + 300.0 * std::pow(2.0, lvl / 7.0));
+      points += std::floor(lvl + 256.0 * std::pow(2.0, lvl / 8.0));
       t[lvl + 1] = static_cast<uint64_t>(std::floor(points / 4.0));
     }
     return t;

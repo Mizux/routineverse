@@ -13,7 +13,7 @@
 void GameState::Skills::reset() {
   xp.clear();
   for (SkillType sk : all_skills()) xp[sk] = 0;
-  // Hitpoints and Integrity start at Level 10 (1,154 XP)
+  // Hitpoints and Integrity start at Level 10
   xp[SkillType::Hitpoints] = xp_for_level(10);
   xp[SkillType::Integrity] = xp_for_level(10);
   action_mastery_xp.clear();
@@ -64,9 +64,9 @@ void GameState::Equipment::reset() {
   food_item = ItemId::None;
   food_qty = 0;
   attack_ice_item = ItemId::SpikeIceMk1;
-  attack_ice_qty = 10;
+  attack_ice_qty = 16;
   defense_ice_item = ItemId::WatchdogIceMk1;
-  defense_ice_qty = 5;
+  defense_ice_qty = 8;
 }
 
 int GameState::Equipment::upgrade_tier(EquipSlot slot) const {
@@ -202,7 +202,7 @@ void GameState::Stats::reset() {
   for (MonsterId id : all_monster_ids()) monster_kills[id] = 0;
   total_items_gathered = 0;
   total_monsters_killed = 0;
-  total_credits_earned = 250;
+  total_credits_earned = 256;
   player_deaths = 0;
 }
 
@@ -218,7 +218,7 @@ void GameState::LogBuffer::add(const std::string& entry) {
 GameState::GameState() { new_game(); }
 
 void GameState::new_game() {
-  credits = 250;
+  credits = 256;
   bounty_tokens = 0;
   total_ticks_ms = 0;
 
@@ -230,10 +230,10 @@ void GameState::new_game() {
   // Give starter Scrap Vibro-Knife, starter tools, and starter ICE pools
   equipment.reset();
 
-  add_item(ItemId::CopperWireScrap, 5, false);
-  add_item(ItemId::KrillRation, 5, false);
-  add_item(ItemId::ScrapCpu, 3, false);
-  add_item(ItemId::ScrapRam, 3, false);
+  add_item(ItemId::CopperWireScrap, 8, false);
+  add_item(ItemId::KrillRation, 8, false);
+  add_item(ItemId::ScrapCpu, 4, false);
+  add_item(ItemId::ScrapRam, 4, false);
 
   info.reset(action_effective_interval_ms(SkillActionId::StripCopperWiring));
 
@@ -246,7 +246,7 @@ void GameState::new_game() {
 
   add_log(
       "Welcome to Routineverse! You jack into Neo-Sector with a Scrap "
-      "Vibro-Knife, starter ICE bots, and 250 Cr.");
+      "Vibro-Knife, starter ICE bots, and 256 Cr.");
   add_log(
       "Active protocol: Strip Copper Wiring. Select any skill or hostile "
       "target to begin!");
@@ -404,12 +404,12 @@ int GameState::action_effective_interval_ms(SkillActionId action_id) const {
     default:
       break;
   }
-  // Mastery also reduces interval slightly (up to -10% at Mastery 99)
+  // Mastery also reduces interval slightly (up to -16% at Mastery 128)
   int m_lvl = mastery_level(action_id);
-  bonus_pct += (m_lvl / 10);
+  bonus_pct += (m_lvl / 8);
 
-  int eff = (act.base_interval_ms * std::max(35, 100 - bonus_pct)) / 100;
-  return std::max(400, eff);
+  int eff = (act.base_interval_ms * std::max(32, 100 - bonus_pct)) / 100;
+  return std::max(256, eff);
 }
 
 bool GameState::can_perform_action(SkillActionId action_id) const {
@@ -527,14 +527,14 @@ void GameState::complete_skill_action(SkillActionId action_id) {
   int m_lvl = mastery_level(action_id);
 
   // Resource preservation chance for
-  // Fabrication/Synthesis/Smithing/Recycling/Farming/Hacking skills (5% + 0.2% per
-  // mastery level)
+  // Fabrication/Synthesis/Smithing/Recycling/Farming/Hacking skills (8% + 1% per 8
+  // mastery levels)
   bool preserved = false;
   if (is_valid_item(act.input_item_1) &&
       (act.skill == SkillType::Smithing || act.skill == SkillType::CyberFab ||
        act.skill == SkillType::SynthCook || act.skill == SkillType::Recycling ||
        act.skill == SkillType::Farming || act.skill == SkillType::Hacking)) {
-    int pres_chance = 5 + (m_lvl / 5);
+    int pres_chance = 8 + (m_lvl / 8);
     if (rand_int(1, 100) <= pres_chance) {
       preserved = true;
     }
@@ -551,19 +551,19 @@ void GameState::complete_skill_action(SkillActionId action_id) {
 
   // Gain Skill XP & Mastery XP
   gain_xp(act.skill, act.xp);
-  skills.action_mastery_xp[action_id] += std::max(10, act.xp / 2);
+  skills.action_mastery_xp[action_id] += std::max(8, act.xp / 2);
 
-  // Double output chance (5% + 0.3% per mastery level)
+  // Double output chance (8% + 1% per 4 mastery levels)
   int qty = act.product_qty;
-  if (qty > 0 && rand_int(1, 100) <= (5 + m_lvl / 3)) {
+  if (qty > 0 && rand_int(1, 100) <= (8 + m_lvl / 4)) {
     qty *= 2;
   }
 
   if (act.skill == SkillType::SynthCook && is_valid_item(act.product_item) &&
       get_item_info(act.product_item).bonus.recover_amount > 0) {
-    // Synthesis success chance (75% base + mastery/level bonus up to 99%)
+    // Synthesis success chance (64% base + mastery/level bonus)
     int cook_chance = std::min(
-        99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 + m_lvl / 4);
+        100, 64 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 + m_lvl / 4);
     if (rand_int(1, 100) <= cook_chance) {
       add_item(act.product_item, qty, false);
       stats.total_items_gathered += qty;
@@ -579,16 +579,16 @@ void GameState::complete_skill_action(SkillActionId action_id) {
 
   // Bonus procs by skill
   if (act.skill == SkillType::Recycling) {
-    // 25% chance to recover a Carbon Cell while recycling scrap, plus minor
+    // 32% chance to recover a Carbon Cell while recycling scrap, plus minor
     // credit yield
-    if (rand_int(1, 100) <= 25) {
+    if (rand_int(1, 100) <= 32) {
       add_item(ItemId::CarbonCell, 1, false);
     }
-    credits += 2 + act.req_level / 5;
-    stats.total_credits_earned += 2 + act.req_level / 5;
+    credits += 2 + act.req_level / 4;
+    stats.total_credits_earned += 2 + act.req_level / 4;
   } else if (act.skill == SkillType::Farming && !is_valid_item(act.input_item_1)) {
-    // 20% chance to harvest bonus Hydro-Wheat alongside hydroponic crops!
-    if (rand_int(1, 100) <= 20) {
+    // 16% chance to harvest bonus Hydro-Wheat alongside hydroponic crops!
+    if (rand_int(1, 100) <= 16) {
       add_item(ItemId::HydroWheat, 1, false);
     }
   } else if (act.skill == SkillType::DeepMining) {
@@ -602,9 +602,9 @@ void GameState::complete_skill_action(SkillActionId action_id) {
       }
     }
   } else if (act.skill == SkillType::Fishing) {
-    // 5% chance to recover a submerged Corp Data-Cache (Credits)
-    if (rand_int(1, 100) <= 5) {
-      uint64_t bonus_cr = 25 + act.req_level * 8;
+    // 4% chance to recover a submerged Corp Data-Cache (Credits)
+    if (rand_int(1, 100) <= 4) {
+      uint64_t bonus_cr = 32 + act.req_level * 8;
       credits += bonus_cr;
       stats.total_credits_earned += bonus_cr;
       add_log(std::format("Recovered a submerged Corp Data-Cache worth {}!",
@@ -624,10 +624,10 @@ void GameState::tick(int elapsed_ms) {
   total_ticks_ms += elapsed_ms;
 
   // Passive nanite HP & Firewall Integrity regeneration outside/inside combat (+1% max
-  // every 5 seconds)
+  // every 4,096 ms)
   combat.hp_regen_timer_ms += elapsed_ms;
-  while (combat.hp_regen_timer_ms >= 5000) {
-    combat.hp_regen_timer_ms -= 5000;
+  while (combat.hp_regen_timer_ms >= 4096) {
+    combat.hp_regen_timer_ms -= 4096;
     if (combat.player_hp < max_hp()) {
       int regen = std::max(1, max_hp() / 100);
       combat.player_hp = std::min(max_hp(), combat.player_hp + regen);
@@ -655,8 +655,8 @@ void GameState::tick(int elapsed_ms) {
   }
 
   history_timer_ms_ += elapsed_ms;
-  if (history_timer_ms_ >= 5000) {
-    history_timer_ms_ %= 5000;
+  if (history_timer_ms_ >= 4096) {
+    history_timer_ms_ %= 4096;
     record_history_snapshot();
   }
 }
@@ -664,7 +664,7 @@ void GameState::tick(int elapsed_ms) {
 void GameState::fast_forward_seconds(int seconds) {
   if (seconds <= 0) return;
   int remaining_ms = seconds * 1000;
-  const int step = 250;
+  const int step = 256;
   while (remaining_ms > 0) {
     int dt = std::min(step, remaining_ms);
     tick(dt);
@@ -682,7 +682,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
 
   // Player attacks (Physical & ICE)
   while (info.active_type == ActiveActivityType::Combat &&
-         combat.player_attack_timer_ms >= plr_interval) {
+          combat.player_attack_timer_ms >= plr_interval) {
     combat.player_attack_timer_ms -= plr_interval;
 
     // 1. Physical strike against monster HP (if monster has a physical form)
@@ -701,7 +701,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
         } else {
           gain_xp(SkillType::Defence, c_xp);
         }
-        gain_xp(SkillType::Hitpoints, std::max(uint64_t{2}, c_xp / 3));
+        gain_xp(SkillType::Hitpoints, std::max(uint64_t{2}, c_xp / 4));
       }
     }
 
@@ -726,7 +726,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
           combat.monster_integrity -= ice_dmg;
 
           // Chance for Attack ICE to neutralize one of the opponent's ICE bots
-          if (used_ice && combat.monster_ice_qty > 0 && rand_int(1, 100) <= 35) {
+          if (used_ice && combat.monster_ice_qty > 0 && rand_int(1, 100) <= 32) {
             combat.monster_ice_qty--;
           }
 
@@ -749,7 +749,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
 
   // Monster attacks (Physical & Enemy ICE)
   while (info.active_type == ActiveActivityType::Combat &&
-         combat.monster_attack_timer_ms >= mon.attack_interval_ms) {
+          combat.monster_attack_timer_ms >= mon.attack_interval_ms) {
     combat.monster_attack_timer_ms -= mon.attack_interval_ms;
 
     // 1. Monster physical attack
@@ -767,7 +767,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
     if (mon.ice_max_hit > 0 && (combat.monster_ice_qty > 0 || mon.max_hp == 0)) {
       if (mon.max_integrity > 0 && combat.monster_integrity > 0 &&
           combat.monster_integrity < mon.max_integrity / 2 &&
-          combat.monster_ice_qty > 1 && rand_int(1, 100) <= 25) {
+          combat.monster_ice_qty > 1 && rand_int(1, 100) <= 32) {
         // Opponent uses one of its ICE bots to repair its own Integrity
         combat.monster_ice_qty--;
         combat.monster_integrity =
@@ -808,25 +808,25 @@ void GameState::on_monster_defeated(MonsterId monster_id) {
     } else {
       gain_xp(SkillType::Defence, mon.xp_reward);
     }
-    gain_xp(SkillType::Hitpoints, mon.xp_reward / 3);
+    gain_xp(SkillType::Hitpoints, mon.xp_reward / 4);
   }
   if (mon.max_integrity > 0 &&
       (mon.max_hp == 0 || combat.monster_integrity < mon.max_integrity)) {
-    gain_xp(SkillType::Hacking, mon.xp_reward / 2 + 10);
-    gain_xp(SkillType::Integrity, mon.xp_reward / 3 + 5);
+    gain_xp(SkillType::Hacking, mon.xp_reward / 2 + 8);
+    gain_xp(SkillType::Integrity, mon.xp_reward / 4 + 4);
   }
 
   // Bounty contract check
   if (monster_id == combat.bounty_target_id && combat.bounty_remaining > 0) {
     combat.bounty_remaining--;
-    gain_xp(SkillType::Bounty, mon.xp_reward / 2 + 15);
-    int bt = std::max(5, mon.combat_level * 2);
+    gain_xp(SkillType::Bounty, mon.xp_reward / 2 + 16);
+    int bt = std::max(4, mon.combat_level * 2);
     bounty_tokens += bt;
     if (combat.bounty_remaining <= 0) {
       combat.bounties_completed++;
-      int bonus_bt = 50 + combat.bounties_completed * 15;
+      int bonus_bt = 64 + combat.bounties_completed * 16;
       bounty_tokens += bonus_bt;
-      gain_xp(SkillType::Bounty, 120 + mon.xp_reward);
+      gain_xp(SkillType::Bounty, 128 + mon.xp_reward);
       add_log(
           std::format("BOUNTY CONTRACT COMPLETE! Earned +{} Bounty Tokens! "
                       "Assigning new target...",
@@ -870,7 +870,7 @@ void GameState::on_player_defeated() {
   bool integrity_crash = (combat.player_integrity <= 0);
   combat.player_hp = max_hp();
   combat.player_integrity = max_integrity();
-  uint64_t lost_cr = std::min(credits, std::max(uint64_t{10}, credits / 10));
+  uint64_t lost_cr = std::min(credits, std::max(uint64_t{8}, credits / 8));
   credits -= lost_cr;
   if (integrity_crash) {
     add_log(
@@ -892,14 +892,14 @@ void GameState::assign_new_bounty_contract() {
   int c_lvl = combat_level();
   for (MonsterId mon_id : all_monster_ids()) {
     const auto& mon = get_monster_info(mon_id);
-    if (mon.bounty_req <= b_lvl && mon.combat_level <= c_lvl + 15 && !mon.is_boss) {
+    if (mon.bounty_req <= b_lvl && mon.combat_level <= c_lvl + 16 && !mon.is_boss) {
       eligible.push_back(mon_id);
     }
   }
   if (eligible.empty()) eligible.push_back(MonsterId::StrayServoDrone);
   combat.bounty_target_id =
       eligible[rand_int(0, static_cast<int>(eligible.size()) - 1)];
-  combat.bounty_remaining = rand_int(6, 15);
+  combat.bounty_remaining = rand_int(8, 16);
   const auto& target_mon = get_monster_info(combat.bounty_target_id);
   add_log(std::format("New Bounty Contract: Neutralize {}x {} ({}).",
                       combat.bounty_remaining, monster_name(target_mon.id),
@@ -960,7 +960,7 @@ bool GameState::Bank::remove_item(ItemId item_id, int qty) {
 
 uint64_t GameState::Bank::next_slot_cost() const {
   int extra = std::max(0, (capacity - 24) / 4);
-  return 150 + extra * extra * 120 + extra * 150;
+  return 128 + extra * extra * 128 + extra * 128;
 }
 
 int GameState::item_qty(ItemId item_id) const { return bank.item_qty(item_id); }
@@ -1351,7 +1351,7 @@ bool GameState::eat_food() {
     equipment.defense_ice_qty--;
     int before = combat.player_integrity;
     combat.player_integrity = std::min(max_integrity(), combat.player_integrity + repair);
-    gain_xp(SkillType::Integrity, std::max(2, repair / 5));
+    gain_xp(SkillType::Integrity, std::max(2, repair / 4));
     add_log(std::format("{} repaired +{} INT ({}/{} INT).", ice_info.name,
                         combat.player_integrity - before, combat.player_integrity,
                         max_integrity()));
@@ -1392,14 +1392,14 @@ void GameState::check_auto_repair_integrity() {
     return;
   }
   int max_int = max_integrity();
-  int threshold = (max_int * 60) / 100;
+  int threshold = (max_int * 64) / 100;
   while (combat.player_integrity <= threshold &&
          is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0) {
     int repair = get_item_info(equipment.defense_ice_item).bonus.recover_amount;
     if (repair <= 0) break;
     equipment.defense_ice_qty--;
     combat.player_integrity = std::min(max_int, combat.player_integrity + repair);
-    gain_xp(SkillType::Integrity, std::max(2, repair / 5));
+    gain_xp(SkillType::Integrity, std::max(2, repair / 4));
     if (equipment.defense_ice_qty == 0) {
       equipment.defense_ice_item = ItemId::None;
       break;
@@ -1511,27 +1511,27 @@ int GameState::max_integrity() const {
   return skill_level(SkillType::Integrity) * 10 + equipment.firewall_integrity_bonus();
 }
 
-int GameState::player_attack_interval_ms() const { return 2400; }
+int GameState::player_attack_interval_ms() const { return 2048; }
 
 int GameState::player_max_hit() const {
   int str_lvl = skill_level(SkillType::Strength);
-  if (combat.style == CombatStyle::Aggressive) str_lvl += 3;
+  if (combat.style == CombatStyle::Aggressive) str_lvl += 4;
   int str_bonus = equipment.strength_bonus();
-  return 12 + str_lvl * 3 + (str_bonus * (10 + str_lvl)) / 12;
+  return 16 + str_lvl * 2 + (str_bonus * (8 + str_lvl)) / 8;
 }
 
 int GameState::player_accuracy() const {
   int atk_lvl = skill_level(SkillType::Attack);
-  if (combat.style == CombatStyle::Technical) atk_lvl += 3;
+  if (combat.style == CombatStyle::Technical) atk_lvl += 4;
   int atk_bonus = equipment.attack_bonus();
-  return 25 + atk_lvl * 5 + atk_bonus * 3;
+  return 32 + atk_lvl * 4 + atk_bonus * 4;
 }
 
 int GameState::player_evasion() const {
   int def_lvl = skill_level(SkillType::Defence);
-  if (combat.style == CombatStyle::Defensive) def_lvl += 3;
+  if (combat.style == CombatStyle::Defensive) def_lvl += 4;
   int def_bonus = equipment.defence_bonus();
-  return 20 + def_lvl * 5 + def_bonus * 3;
+  return 16 + def_lvl * 4 + def_bonus * 4;
 }
 
 int GameState::player_damage_reduction() const { return equipment.damage_reduction(); }
@@ -1540,35 +1540,35 @@ int GameState::player_hit_chance_pct(MonsterId monster_id) const {
   int acc = player_accuracy();
   int eva = get_monster_info(monster_id).evasion;
   int pct = (acc * 100) / std::max(1, acc + eva / 2);
-  return std::clamp(pct, 15, 97);
+  return std::clamp(pct, 16, 96);
 }
 
 int GameState::monster_hit_chance_pct(MonsterId monster_id) const {
   int acc = get_monster_info(monster_id).accuracy;
   int eva = player_evasion();
   int pct = (acc * 100) / std::max(1, acc + eva / 2);
-  return std::clamp(pct, 10, 92);
+  return std::clamp(pct, 8, 96);
 }
 
 int GameState::player_ice_max_hit() const {
   int hck_lvl = skill_level(SkillType::Hacking);
   int ice_str = equipment.cyber_strength_bonus();
   if (ice_str <= 0) {
-    return 6 + hck_lvl * 2;
+    return 8 + hck_lvl * 2;
   }
-  return 10 + hck_lvl * 3 + (ice_str * (10 + hck_lvl)) / 10;
+  return 8 + hck_lvl * 4 + (ice_str * (8 + hck_lvl)) / 8;
 }
 
 int GameState::player_ice_accuracy() const {
   int hck_lvl = skill_level(SkillType::Hacking);
   int ice_atk = equipment.cyber_attack_bonus();
-  return 25 + hck_lvl * 5 + ice_atk * 3;
+  return 32 + hck_lvl * 4 + ice_atk * 4;
 }
 
 int GameState::player_ice_evasion() const {
   int int_lvl = skill_level(SkillType::Integrity);
   int fw_def = equipment.cyber_defence_bonus();
-  return 20 + int_lvl * 5 + fw_def * 3;
+  return 16 + int_lvl * 4 + fw_def * 4;
 }
 
 int GameState::player_ice_damage_reduction() const {
@@ -1579,14 +1579,14 @@ int GameState::player_ice_hit_chance_pct(MonsterId monster_id) const {
   int acc = player_ice_accuracy();
   int eva = get_monster_info(monster_id).evasion;
   int pct = (acc * 100) / std::max(1, acc + eva / 2);
-  return std::clamp(pct, 15, 97);
+  return std::clamp(pct, 16, 96);
 }
 
 int GameState::monster_ice_hit_chance_pct(MonsterId monster_id) const {
   int acc = get_monster_info(monster_id).accuracy;
   int eva = player_ice_evasion();
   int pct = (acc * 100) / std::max(1, acc + eva / 2);
-  return std::clamp(pct, 10, 92);
+  return std::clamp(pct, 8, 96);
 }
 
 int GameState::auto_eat_threshold_hp() const {

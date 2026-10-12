@@ -38,6 +38,7 @@ std::span<const SkillType> all_skills() noexcept;
 
 bool is_combat_skill(SkillType skill) noexcept;
 
+int max_skill_level() noexcept;
 int max_total_skill_level() noexcept;
 
 // enum, skill, name, req_level, base_interval_ms, xp, (product_item, product_qty)[,

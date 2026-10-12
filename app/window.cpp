@@ -868,7 +868,7 @@ void MainWindow::_fillTreeviewSkills() {
       name_str = "⚔ " + name_str;
     }
     item->setText(0, name_str);
-    item->setText(1, QString("%1 / 99").arg(lvl));
+    item->setText(1, QString("%1 / %2").arg(lvl).arg(max_skill_level()));
     item->setText(2, QString::fromStdString(number_string(s_xp)));
     item->setText(3, QString("%1%").arg(prog, 0, 'f', 0));
     item->setData(0, Qt::UserRole, QVariant::fromValue(sk));

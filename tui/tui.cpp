@@ -688,7 +688,8 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
     std::string prefix = is_training ? "* " : "  ";
     std::string sname = prefix + skill_name(sk);
     if (static_cast<int>(sname.size()) > 13) sname = sname.substr(0, 13);
-    mvprintw(row, x + 2, "%-13s %2d/99 %3d%%", sname.c_str(), lvl, pct);
+    mvprintw(row, x + 2, "%-13s %3d/%d %3d%%", sname.c_str(), lvl,
+             max_skill_level(), pct);
     attroff(COLOR_PAIR(cp) | ((is_sel || is_training) ? A_BOLD : A_NORMAL));
     row++;
   }
