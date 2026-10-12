@@ -5,10 +5,13 @@
 
 const ItemInfo& get_item_info(ItemId id) {
   static constexpr std::array item_info{std::to_array<ItemInfo>({
-#define X(id, name, cat, price, heal, req_lvl, atk, str, def, dr, spd) \
-  {ItemId::id, name, ItemCategory::cat, price, heal, req_lvl, {atk, str, def, dr, spd}},
+#define RV_BONUS(atk, str, def, dr, spd) \
+  Bonus { atk, str, def, dr, spd }
+#define X(id, name, cat, price, heal, req_lvl, bonus) \
+  {ItemId::id, name, ItemCategory::cat, price, heal, req_lvl, RV_BONUS bonus},
       RV_ITEM_ID_LIST(X)
 #undef X
+#undef RV_BONUS
   })};
   size_t idx = static_cast<size_t>(id);
   if (idx >= item_info.size()) {
@@ -112,7 +115,7 @@ std::string item_name(ItemId id) { return get_item_info(id).name; }
 
 std::span<const ItemId> all_item_ids() noexcept {
   static constexpr std::array ids{std::to_array<ItemId>({
-#define X(id, name, cat, price, heal, req_lvl, atk, str, def, dr, spd) ItemId::id,
+#define X(id, name, cat, price, heal, req_lvl, bonus) ItemId::id,
       RV_ITEM_ID_LIST(X)
 #undef X
   })};
