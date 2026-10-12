@@ -142,7 +142,7 @@ class GameState {
     void clear();
     bool empty() const { return items.empty(); }
     size_t size() const { return items.size(); }
-    int used_slots() const { return static_cast<int>(items.size()); }
+    size_t used_slots() const { return items.size(); }
     int item_qty(ItemId item_id) const;
     uint64_t total_value() const;
     bool can_store_item(ItemId item_id) const;
