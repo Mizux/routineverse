@@ -608,15 +608,15 @@ void TuiApp::drawDashboard() {
   int log_h = 6;
   int main_h = rows - main_y - log_h - 1;
 
-  int left_w = std::max(26, cols * 24 / 100);
-  int center_w = std::max(38, cols * 44 / 100);
-  int right_w = cols - left_w - center_w;
+  int left_w = (cols < 90) ? 26 : 30;
+  int right_w = std::clamp(cols * 34 / 100, 24, 48);
+  int center_w = cols - left_w - right_w;
 
   drawSkillsPane(main_y, 0, main_h, left_w);
   drawActionsOrCombatPane(main_y, left_w, main_h, center_w);
 
-  int bank_h = std::max(7, main_h * 40 / 100);
-  int status_h = std::max(8, main_h * 34 / 100);
+  int status_h = std::min(9, std::max(7, main_h * 34 / 100));
+  int bank_h = std::max(7, (main_h - status_h) * 55 / 100);
   int graph_h = main_h - bank_h - status_h;
 
   drawBankPane(main_y, left_w + center_w, bank_h, right_w);
@@ -655,7 +655,7 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   int row = y + 1;
 
   attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-  mvprintw(row++, x + 2, "%-12s %5s %5s", "Skill", "Level", "Prog");
+  mvprintw(row++, x + 2, "%-13s %7s %4s", "Skill", "Level", "Prog");
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   const auto skills = all_skills();
