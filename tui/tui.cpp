@@ -615,7 +615,7 @@ void TuiApp::drawDashboard() {
   drawSkillsPane(main_y, 0, main_h, left_w);
   drawActionsOrCombatPane(main_y, left_w, main_h, center_w);
 
-  int status_h = std::min(9, std::max(7, main_h * 34 / 100));
+  int status_h = std::min(11, std::max(7, main_h * 42 / 100));
   int bank_h = std::max(7, (main_h - status_h) * 55 / 100);
   int graph_h = main_h - bank_h - status_h;
 
@@ -1019,11 +1019,29 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   ItemId w_id = _gameState.equipment.at(EquipSlot::Weapon);
   std::string w_str = is_valid_item(w_id) ? get_item_info(w_id).name : "Unarmed";
 
+  w_id = _gameState.equipment.at(EquipSlot::Shield);
+  std::string w_shield = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
+
+  w_id = _gameState.equipment.at(EquipSlot::AutoStim);
+  std::string w_autostim =
+      is_valid_item(w_id)
+          ? std::format("Mk {} ({}%)", _gameState.equipment.auto_stim_tier(),
+                        get_item_info(w_id).bonus.speed_bonus_pct)
+          : "None";
+
+  w_id = _gameState.equipment.at(EquipSlot::Head);
+  std::string w_visor = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
+
   w_id = _gameState.equipment.at(EquipSlot::Armor);
   std::string w_armor = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
 
   w_id = _gameState.equipment.at(EquipSlot::Firewall);
-  std::string w_fw = is_valid_item(w_id) ? get_item_info(w_id).name : "None";
+  std::string w_fw =
+      is_valid_item(w_id)
+          ? std::format("{} (+{}INT, {}%IDR)", get_item_info(w_id).name,
+                        get_item_info(w_id).bonus.strength,
+                        get_item_info(w_id).bonus.damage_reduction)
+          : "None";
 
   std::string atk_ice_str =
       (is_valid_item(_gameState.equipment.attack_ice_item) &&
@@ -1036,33 +1054,53 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
   std::string def_ice_str =
       (is_valid_item(_gameState.equipment.defense_ice_item) &&
        _gameState.equipment.defense_ice_qty > 0)
-          ? std::format("{}x {} (+{}INT)", _gameState.equipment.defense_ice_qty,
-                        get_item_info(_gameState.equipment.defense_ice_item).name,
-                        get_item_info(_gameState.equipment.defense_ice_item).bonus.recover_amount)
+          ? std::format(
+                "{}x {} (+{}INT)", _gameState.equipment.defense_ice_qty,
+                get_item_info(_gameState.equipment.defense_ice_item).name,
+                get_item_info(_gameState.equipment.defense_ice_item).bonus.recover_amount)
           : "None";
 
   std::string food_str =
       (is_valid_item(_gameState.equipment.food_item) &&
        _gameState.equipment.food_qty > 0)
-          ? std::format("{}x {} (+{}HP)", _gameState.equipment.food_qty,
-                        get_item_info(_gameState.equipment.food_item).name,
-                        get_item_info(_gameState.equipment.food_item).bonus.recover_amount)
+          ? std::format(
+                "{}x {} (+{}HP)", _gameState.equipment.food_qty,
+                get_item_info(_gameState.equipment.food_item).name,
+                get_item_info(_gameState.equipment.food_item).bonus.recover_amount)
           : "None";
 
   auto print_line = [&](short cp, const std::string& s) {
     if (row >= y + h - 1) return;
     attron(COLOR_PAIR(cp));
-    std::string clipped =
-        static_cast<int>(s.size()) > inner_w ? s.substr(0, inner_w) : s;
+    int cols_count = 0;
+    size_t byte_pos = 0;
+    while (byte_pos < s.size()) {
+      unsigned char c = static_cast<unsigned char>(s[byte_pos]);
+      size_t char_len = 1;
+      if ((c & 0xE0) == 0xC0) {
+        char_len = 2;
+      } else if ((c & 0xF0) == 0xE0) {
+        char_len = 3;
+      } else if ((c & 0xF8) == 0xF0) {
+        char_len = 4;
+      }
+      if (cols_count + 1 > inner_w) break;
+      cols_count++;
+      byte_pos += char_len;
+    }
+    std::string clipped = s.substr(0, byte_pos);
     mvaddstr(row++, x + 2, clipped.c_str());
     attroff(COLOR_PAIR(cp));
   };
 
   print_line(CP_RED,
              std::format("Weapon: {} (MaxHit {})", w_str, _gameState.player_max_hit()));
-  print_line(CP_BORDER, std::format("Armor: {} │ Firewall: {}", w_armor, w_fw));
+  print_line(CP_BORDER,
+             std::format("Shield: {} │ Auto-Stim: {}", w_shield, w_autostim));
+  print_line(CP_BORDER, std::format("Visor: {} │ Armor: {}", w_visor, w_armor));
   print_line(CP_CYAN, std::format("Atk ICE: {}", atk_ice_str));
   print_line(CP_BLUE, std::format("Def ICE: {}", def_ice_str));
+  print_line(CP_MAGENTA, std::format("Firewall: {}", w_fw));
   print_line(CP_GREEN, std::format("Stim [f]: {}", food_str));
   print_line(
       CP_YELLOW,
