@@ -207,7 +207,7 @@ MainWindow::MainWindow(GameState game_state, QWidget* parent)
 }
 
 void MainWindow::_setupWidget() {
-  setWindowTitle(QString::fromUtf8(kProgramName.data(), kProgramName.size()));
+  setWindowTitle(QString::fromUtf8(kProgramName));
 
   _tick_timer = new QTimer(this);
   _tick_timer->setInterval(100);
