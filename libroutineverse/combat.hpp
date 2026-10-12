@@ -5,7 +5,7 @@
 #include <string>
 
 #define RV_COMBAT_STYLE_LIST(X)         \
-  X(Accurate, "Precision (Accuracy)")   \
+  X(Technical, "Precision (Accuracy)")  \
   X(Aggressive, "Overdrive (Strength)") \
   X(Defensive, "Evasive (Defence)")
 

@@ -24,14 +24,14 @@ std::span<const CombatStyle> all_combat_styles() noexcept {
 
 CombatStyle next_combat_style(CombatStyle style) noexcept {
   switch (style) {
-    case CombatStyle::Accurate:
+    case CombatStyle::Technical:
       return CombatStyle::Aggressive;
     case CombatStyle::Aggressive:
       return CombatStyle::Defensive;
     case CombatStyle::Defensive:
-      return CombatStyle::Accurate;
+      return CombatStyle::Technical;
   }
-  return CombatStyle::Accurate;
+  return CombatStyle::Technical;
 }
 
 std::string activity_type_name(ActiveActivityType type) {

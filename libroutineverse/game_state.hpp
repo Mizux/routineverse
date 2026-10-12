@@ -217,7 +217,7 @@ class GameState {
 
   // Combat & Bounty state
   struct CombatState {
-    CombatStyle style = CombatStyle::Accurate;
+    CombatStyle style = CombatStyle::Technical;
     int player_hp = 100;
     int player_integrity = 100;
     MonsterId active_monster_id = MonsterId::StrayServoDrone;

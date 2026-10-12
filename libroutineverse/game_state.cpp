@@ -182,7 +182,7 @@ void GameState::GameInfo::reset(int initial_target_ms) {
 }
 
 void GameState::CombatState::reset(int initial_hp, int initial_integrity) {
-  style = CombatStyle::Accurate;
+  style = CombatStyle::Technical;
   player_hp = initial_hp;
   player_integrity = initial_integrity;
   active_monster_id = MonsterId::StrayServoDrone;
@@ -708,7 +708,7 @@ void GameState::step_combat_tick(int elapsed_ms) {
 
         // Grant physical combat XP based on damage dealt
         uint64_t c_xp = std::max(4, dmg / 2);
-        if (combat.style == CombatStyle::Accurate) {
+        if (combat.style == CombatStyle::Technical) {
           gain_xp(SkillType::Attack, c_xp);
         } else if (combat.style == CombatStyle::Aggressive) {
           gain_xp(SkillType::Strength, c_xp);
@@ -815,7 +815,7 @@ void GameState::on_monster_defeated(MonsterId monster_id) {
 
   // Bonus XP on kill
   if (mon.max_hp > 0) {
-    if (combat.style == CombatStyle::Accurate) {
+    if (combat.style == CombatStyle::Technical) {
       gain_xp(SkillType::Attack, mon.xp_reward);
     } else if (combat.style == CombatStyle::Aggressive) {
       gain_xp(SkillType::Strength, mon.xp_reward);
@@ -1536,7 +1536,7 @@ int GameState::player_max_hit() const {
 
 int GameState::player_accuracy() const {
   int atk_lvl = skill_level(SkillType::Attack);
-  if (combat.style == CombatStyle::Accurate) atk_lvl += 3;
+  if (combat.style == CombatStyle::Technical) atk_lvl += 3;
   int atk_bonus = equipment.attack_bonus();
   return 25 + atk_lvl * 5 + atk_bonus * 3;
 }
@@ -1836,7 +1836,7 @@ bool GameState::load_from_file(const std::string& path) {
   const auto styles = all_combat_styles();
   combat.style = (style_t >= 0 && style_t < static_cast<int>(styles.size()))
                      ? styles[style_t]
-                     : CombatStyle::Accurate;
+                     : CombatStyle::Technical;
 
   if (header == "ROUTINEVERSE_SAVE_V4") {
     if (!(in >> combat.player_integrity >> combat.monster_integrity >>

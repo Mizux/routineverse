@@ -58,9 +58,9 @@ void test_enum_safety() {
 
   // CombatStyle helpers
   TEST_CHECK(!all_combat_styles().empty());
-  TEST_CHECK(next_combat_style(CombatStyle::Accurate) == CombatStyle::Aggressive);
+  TEST_CHECK(next_combat_style(CombatStyle::Technical) == CombatStyle::Aggressive);
   TEST_CHECK(next_combat_style(CombatStyle::Aggressive) == CombatStyle::Defensive);
-  TEST_CHECK(next_combat_style(CombatStyle::Defensive) == CombatStyle::Accurate);
+  TEST_CHECK(next_combat_style(CombatStyle::Defensive) == CombatStyle::Technical);
 
   // ActivityType helpers
   TEST_CHECK(!all_activity_types().empty());
