@@ -16,7 +16,8 @@ void GameState::Skills::reset() {
   // Hitpoints and Integrity start at Level 10 (1,154 XP)
   xp[SkillType::Hitpoints] = xp_for_level(10);
   xp[SkillType::Integrity] = xp_for_level(10);
-  action_mastery_xp.assign(all_actions().size(), 0);
+  action_mastery_xp.clear();
+  for (SkillActionId id : all_skill_action_ids()) action_mastery_xp[id] = 0;
 }
 
 int GameState::Skills::level(SkillType skill) const {
@@ -42,12 +43,9 @@ uint64_t GameState::Skills::total_xp() const {
   return sum;
 }
 
-int GameState::Skills::mastery_level(int global_action_id) const {
-  if (global_action_id < 0 ||
-      global_action_id >= static_cast<int>(action_mastery_xp.size())) {
-    return 1;
-  }
-  return level_for_xp(action_mastery_xp[global_action_id]);
+int GameState::Skills::mastery_level(SkillActionId action_id) const {
+  auto it = action_mastery_xp.find(action_id);
+  return it != action_mastery_xp.end() ? level_for_xp(it->second) : 1;
 }
 
 void GameState::Equipment::reset() {
@@ -175,7 +173,7 @@ int GameState::Equipment::speed_bonus_pct(EquipSlot slot) const {
 
 void GameState::GameInfo::reset(int initial_target_ms) {
   active_type = ActiveActivityType::Skill;
-  active_action_id = 0;  // Start stripping Copper Wiring by default!
+  active_action_id = SkillActionId::StripCopperWiring;
   active_progress_ms = 0;
   active_target_ms = initial_target_ms;
   status_banner = "Strip Copper Wiring (Salvaging)";
@@ -237,7 +235,7 @@ void GameState::new_game() {
   add_item(ItemId::ScrapCpu, 3, false);
   add_item(ItemId::ScrapRam, 3, false);
 
-  info.reset(action_effective_interval_ms(0));
+  info.reset(action_effective_interval_ms(SkillActionId::StripCopperWiring));
 
   combat.reset(max_hp(), max_integrity());
   stats.reset();
@@ -361,8 +359,8 @@ int GameState::total_skill_level() const { return skills.total_level(); }
 
 uint64_t GameState::total_skill_xp() const { return skills.total_xp(); }
 
-int GameState::mastery_level(int global_action_id) const {
-  return skills.mastery_level(global_action_id);
+int GameState::mastery_level(SkillActionId action_id) const {
+  return skills.mastery_level(action_id);
 }
 
 int GameState::upgrade_tier(EquipSlot slot) const {
@@ -385,12 +383,8 @@ int GameState::reactor_tier() const { return upgrade_tier(EquipSlot::Reactor); }
 
 int GameState::auto_stim_tier() const { return upgrade_tier(EquipSlot::AutoStim); }
 
-int GameState::action_effective_interval_ms(int global_action_id) const {
-  const auto actions = all_actions();
-  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
-    return 2000;
-  }
-  const auto& act = actions[global_action_id];
+int GameState::action_effective_interval_ms(SkillActionId action_id) const {
+  const auto& act = get_skill_action(action_id);
   int bonus_pct = 0;
   switch (act.skill) {
     case SkillType::Salvaging:
@@ -411,19 +405,15 @@ int GameState::action_effective_interval_ms(int global_action_id) const {
       break;
   }
   // Mastery also reduces interval slightly (up to -10% at Mastery 99)
-  int m_lvl = mastery_level(global_action_id);
+  int m_lvl = mastery_level(action_id);
   bonus_pct += (m_lvl / 10);
 
   int eff = (act.base_interval_ms * std::max(35, 100 - bonus_pct)) / 100;
   return std::max(400, eff);
 }
 
-bool GameState::can_perform_action(int global_action_id) const {
-  const auto actions = all_actions();
-  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
-    return false;
-  }
-  const auto& act = actions[global_action_id];
+bool GameState::can_perform_action(SkillActionId action_id) const {
+  const auto& act = get_skill_action(action_id);
   if (skill_level(act.skill) < act.req_level) return false;
   if (is_valid_item(act.input_item_1) && item_qty(act.input_item_1) < act.input_qty_1) {
     return false;
@@ -434,18 +424,14 @@ bool GameState::can_perform_action(int global_action_id) const {
   return true;
 }
 
-bool GameState::start_skill_action(int global_action_id) {
-  const auto actions = all_actions();
-  if (global_action_id < 0 || global_action_id >= static_cast<int>(actions.size())) {
-    return false;
-  }
-  const auto& act = actions[global_action_id];
+bool GameState::start_skill_action(SkillActionId action_id) {
+  const auto& act = get_skill_action(action_id);
   if (skill_level(act.skill) < act.req_level) {
     add_log(std::format("Requires {} Level {} to execute {}.", skill_name(act.skill),
                         act.req_level, act.name));
     return false;
   }
-  if (!can_perform_action(global_action_id)) {
+  if (!can_perform_action(action_id)) {
     std::string req_str;
     if (is_valid_item(act.input_item_1)) {
       req_str =
@@ -460,9 +446,9 @@ bool GameState::start_skill_action(int global_action_id) {
   }
 
   info.active_type = ActiveActivityType::Skill;
-  info.active_action_id = global_action_id;
+  info.active_action_id = action_id;
   info.active_progress_ms = 0;
-  info.active_target_ms = action_effective_interval_ms(global_action_id);
+  info.active_target_ms = action_effective_interval_ms(action_id);
   info.status_banner = std::format("{} ({})", act.name, skill_name(act.skill));
   add_log(std::format("Started {} ({:.2f}s cycle).", act.name,
                       info.active_target_ms / 1000.0));
@@ -531,14 +517,14 @@ void GameState::gain_xp(SkillType skill, uint64_t amount) {
   }
 }
 
-void GameState::complete_skill_action(int global_action_id) {
-  if (!can_perform_action(global_action_id)) {
+void GameState::complete_skill_action(SkillActionId action_id) {
+  if (!can_perform_action(action_id)) {
     add_log("Out of input components! Halting protocol.");
     stop_activity();
     return;
   }
-  const auto& act = all_actions()[global_action_id];
-  int m_lvl = mastery_level(global_action_id);
+  const auto& act = get_skill_action(action_id);
+  int m_lvl = mastery_level(action_id);
 
   // Resource preservation chance for
   // Fabrication/Synthesis/Smithing/Recycling/Farming/Hacking skills (5% + 0.2% per
@@ -565,7 +551,7 @@ void GameState::complete_skill_action(int global_action_id) {
 
   // Gain Skill XP & Mastery XP
   gain_xp(act.skill, act.xp);
-  skills.action_mastery_xp[global_action_id] += std::max(10, act.xp / 2);
+  skills.action_mastery_xp[action_id] += std::max(10, act.xp / 2);
 
   // Double output chance (5% + 0.3% per mastery level)
   int qty = act.product_qty;
@@ -627,7 +613,7 @@ void GameState::complete_skill_action(int global_action_id) {
   }
 
   // Stop if materials ran out after this action
-  if (!can_perform_action(global_action_id)) {
+  if (!can_perform_action(action_id)) {
     add_log(std::format("Completed {}: input components depleted.", act.name));
     stop_activity();
   }
@@ -653,7 +639,7 @@ void GameState::tick(int elapsed_ms) {
     }
   }
 
-  if (info.active_type == ActiveActivityType::Skill && info.active_action_id >= 0) {
+  if (info.active_type == ActiveActivityType::Skill) {
     info.active_target_ms = action_effective_interval_ms(info.active_action_id);
     info.active_progress_ms += elapsed_ms;
     while (info.active_type == ActiveActivityType::Skill &&
@@ -1646,10 +1632,12 @@ bool GameState::save_to_file(const std::string& path) const {
   for (size_t i = 0; i < skills_span.size(); ++i) {
     out << skill_xp(skills_span[i]) << (i + 1 == skills_span.size() ? "\n" : " ");
   }
-  out << skills.action_mastery_xp.size() << "\n";
-  for (size_t i = 0; i < skills.action_mastery_xp.size(); ++i) {
-    out << skills.action_mastery_xp[i]
-        << (i + 1 == skills.action_mastery_xp.size() ? "\n" : " ");
+  const auto actions_span = all_skill_action_ids();
+  out << actions_span.size() << "\n";
+  for (size_t i = 0; i < actions_span.size(); ++i) {
+    auto it = skills.action_mastery_xp.find(actions_span[i]);
+    uint64_t m_xp = (it != skills.action_mastery_xp.end()) ? it->second : 0;
+    out << m_xp << (i + 1 == actions_span.size() ? "\n" : " ");
   }
   out << bank.capacity << " " << bank.size() << "\n";
   for (const auto& s : bank) {
@@ -1662,7 +1650,8 @@ bool GameState::save_to_file(const std::string& path) const {
       << static_cast<int>(equipment.attack_ice_item) << " " << equipment.attack_ice_qty
       << " " << static_cast<int>(equipment.defense_ice_item) << " "
       << equipment.defense_ice_qty << "\n";
-  out << static_cast<int>(info.active_type) << " " << info.active_action_id << " "
+  out << static_cast<int>(info.active_type) << " "
+      << static_cast<int>(info.active_action_id) << " "
       << static_cast<int>(combat.active_monster_id) << " " << combat.player_hp << " "
       << combat.monster_hp << " " << static_cast<int>(combat.style) << " "
       << combat.player_integrity << " " << combat.monster_integrity << " "
@@ -1709,6 +1698,10 @@ bool GameState::load_from_file(const std::string& path) {
     return (raw >= 0 && raw < static_cast<int>(items.size())) ? items[raw]
                                                               : ItemId::None;
   };
+  auto parse_action_id = [](int raw) -> SkillActionId {
+    const auto actions = all_skill_action_ids();
+    return actions[std::clamp(raw, 0, static_cast<int>(actions.size()) - 1)];
+  };
   auto parse_monster_id = [](int raw) -> MonsterId {
     const auto monsters = all_monster_ids();
     return monsters[std::clamp(raw, 0, static_cast<int>(monsters.size()) - 1)];
@@ -1730,11 +1723,13 @@ bool GameState::load_from_file(const std::string& path) {
 
   size_t m_sz = 0;
   if (!(in >> m_sz)) return false;
-  skills.action_mastery_xp.assign(all_actions().size(), 0);
+  skills.action_mastery_xp.clear();
+  const auto actions_span = all_skill_action_ids();
+  for (SkillActionId id : actions_span) skills.action_mastery_xp[id] = 0;
   for (size_t i = 0; i < m_sz; ++i) {
     uint64_t val = 0;
     if (!(in >> val)) return false;
-    if (i < skills.action_mastery_xp.size()) skills.action_mastery_xp[i] = val;
+    if (i < actions_span.size()) skills.action_mastery_xp[actions_span[i]] = val;
   }
 
   int b_cap = 24;
@@ -1819,9 +1814,10 @@ bool GameState::load_from_file(const std::string& path) {
   }
 
   int act_t = 0;
+  int raw_act_id = 0;
   int raw_mon_id = 0;
   int style_t = 0;
-  if (!(in >> act_t >> info.active_action_id >> raw_mon_id >> combat.player_hp >>
+  if (!(in >> act_t >> raw_act_id >> raw_mon_id >> combat.player_hp >>
         combat.monster_hp >> style_t)) {
     return false;
   }
@@ -1832,6 +1828,7 @@ bool GameState::load_from_file(const std::string& path) {
       break;
     }
   }
+  info.active_action_id = parse_action_id(raw_act_id);
   combat.active_monster_id = parse_monster_id(raw_mon_id);
   const auto styles = all_combat_styles();
   combat.style = (style_t >= 0 && style_t < static_cast<int>(styles.size()))
@@ -1872,12 +1869,10 @@ bool GameState::load_from_file(const std::string& path) {
     }
   }
 
-  const auto actions = all_actions();
-  if (info.active_type == ActiveActivityType::Skill && info.active_action_id >= 0 &&
-      info.active_action_id < static_cast<int>(actions.size())) {
+  if (info.active_type == ActiveActivityType::Skill) {
+    const auto& act = get_skill_action(info.active_action_id);
     info.active_target_ms = action_effective_interval_ms(info.active_action_id);
-    info.status_banner = std::format("{} ({})", actions[info.active_action_id].name,
-                                     skill_name(actions[info.active_action_id].skill));
+    info.status_banner = std::format("{} ({})", act.name, skill_name(act.skill));
   } else if (info.active_type == ActiveActivityType::Combat) {
     info.status_banner =
         std::format("Engaging {}", monster_name(combat.active_monster_id));

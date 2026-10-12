@@ -575,11 +575,11 @@ void MainWindow::setSelectedSkill(SkillType skill) {
   }
 }
 
-int MainWindow::selectedActionId() const {
-  if (!_treeview_actions) return -1;
+std::optional<SkillActionId> MainWindow::selectedActionId() const {
+  if (!_treeview_actions) return std::nullopt;
   auto* item = _treeview_actions->currentItem();
-  if (!item) return -1;
-  return item->data(0, Qt::UserRole).toInt();
+  if (!item) return std::nullopt;
+  return item->data(0, Qt::UserRole).value<SkillActionId>();
 }
 
 std::optional<MonsterId> MainWindow::selectedMonsterId() const {
@@ -845,7 +845,6 @@ void MainWindow::_fillTreeviewSkills() {
   QSignalBlocker blocker(_treeview_skills);
 
   const auto skills = all_skills();
-  const auto actions = all_actions();
   const bool reuse =
       (_treeview_skills->topLevelItemCount() == static_cast<int>(skills.size()));
   if (!reuse) {
@@ -862,8 +861,7 @@ void MainWindow::_fillTreeviewSkills() {
                        : new QTreeWidgetItem(_treeview_skills);
     QString name_str = QString::fromStdString(skill_name(sk));
     if (_gameState.info.active_type == ActiveActivityType::Skill &&
-        _gameState.info.active_action_id >= 0 &&
-        actions[_gameState.info.active_action_id].skill == sk) {
+        get_skill_action(_gameState.info.active_action_id).skill == sk) {
       name_str = "▶ " + name_str;
     } else if (_gameState.info.active_type == ActiveActivityType::Combat &&
                is_combat_skill(sk)) {
@@ -887,7 +885,7 @@ void MainWindow::_fillTreeviewSkills() {
 void MainWindow::_fillTreeviewActions() {
   if (!_treeview_actions) return;
   QSignalBlocker blocker(_treeview_actions);
-  int prev_act_id = selectedActionId();
+  auto prev_act_id = selectedActionId();
 
   SkillType sk = _selected_skill;
   if (is_combat_skill(sk)) {
@@ -895,11 +893,12 @@ void MainWindow::_fillTreeviewActions() {
   }
 
   auto act_ids = actions_for_skill(sk);
-  const auto actions = all_actions();
   const bool reuse =
       (_treeview_actions->topLevelItemCount() == static_cast<int>(act_ids.size())) &&
       (act_ids.empty() ||
-       _treeview_actions->topLevelItem(0)->data(0, Qt::UserRole).toInt() == act_ids[0]);
+       _treeview_actions->topLevelItem(0)
+               ->data(0, Qt::UserRole)
+               .value<SkillActionId>() == act_ids[0]);
   if (!reuse) {
     _treeview_actions->clear();
   }
@@ -909,8 +908,8 @@ void MainWindow::_fillTreeviewActions() {
   const QBrush locked_fg(QColor(140, 140, 140));
 
   for (size_t i = 0; i < act_ids.size(); ++i) {
-    int id = act_ids[i];
-    const auto& act = actions[id];
+    SkillActionId id = act_ids[i];
+    const auto& act = get_skill_action(id);
     auto* item = reuse ? _treeview_actions->topLevelItem(static_cast<int>(i))
                        : new QTreeWidgetItem(_treeview_actions);
     int eff_ms = _gameState.action_effective_interval_ms(id);
@@ -928,7 +927,7 @@ void MainWindow::_fillTreeviewActions() {
     item->setText(3, QString::number(act.xp));
     item->setText(4, QString("Lv %1").arg(m_lvl));
     item->setText(5, QString::fromStdString(action_recipe(act)));
-    item->setData(0, Qt::UserRole, id);
+    item->setData(0, Qt::UserRole, QVariant::fromValue(id));
 
     const QBrush& fg =
         (_gameState.skill_level(sk) < act.req_level) ? locked_fg : normal_fg;
@@ -936,7 +935,9 @@ void MainWindow::_fillTreeviewActions() {
       item->setForeground(c, fg);
     }
 
-    if (id == prev_act_id || (!to_select && id == _gameState.info.active_action_id)) {
+    if ((prev_act_id && id == *prev_act_id) ||
+        (!to_select && _gameState.info.active_type == ActiveActivityType::Skill &&
+         id == _gameState.info.active_action_id)) {
       to_select = item;
     }
   }
@@ -1116,9 +1117,8 @@ void MainWindow::onSkillSelectionChanged() {
 }
 
 void MainWindow::onActionDoubleClicked() {
-  int act_id = selectedActionId();
-  if (act_id >= 0) {
-    _gameState.start_skill_action(act_id);
+  if (auto act_id = selectedActionId()) {
+    _gameState.start_skill_action(*act_id);
     updateAllUi();
   }
 }
@@ -1157,9 +1157,8 @@ void MainWindow::slotStart() {
       updateAllUi();
     }
   } else {
-    int act_id = selectedActionId();
-    if (act_id >= 0) {
-      _gameState.start_skill_action(act_id);
+    if (auto act_id = selectedActionId()) {
+      _gameState.start_skill_action(*act_id);
       updateAllUi();
     }
   }

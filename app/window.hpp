@@ -87,7 +87,7 @@ class MainWindow : public QWidget {
   SkillType selectedSkill() const { return _selected_skill; }
   void setSelectedSkill(SkillType skill);
 
-  int selectedActionId() const;
+  std::optional<SkillActionId> selectedActionId() const;
   std::optional<MonsterId> selectedMonsterId() const;
   ItemId selectedBankItemId() const;
 

@@ -26,7 +26,7 @@ class GameState {
   void fast_forward_seconds(int seconds);
 
   // Skill & Combat control
-  bool start_skill_action(int global_action_id);
+  bool start_skill_action(SkillActionId action_id);
   bool start_combat(MonsterId monster_id);
   void stop_activity();
 
@@ -71,7 +71,7 @@ class GameState {
   uint64_t skill_xp(SkillType skill) const;
   int total_skill_level() const;
   uint64_t total_skill_xp() const;
-  int mastery_level(int global_action_id) const;
+  int mastery_level(SkillActionId action_id) const;
 
   int upgrade_tier(EquipSlot slot) const;
   int cutter_tier() const;
@@ -80,8 +80,8 @@ class GameState {
   int reactor_tier() const;
   int auto_stim_tier() const;
 
-  int action_effective_interval_ms(int global_action_id) const;
-  bool can_perform_action(int global_action_id) const;
+  int action_effective_interval_ms(SkillActionId action_id) const;
+  bool can_perform_action(SkillActionId action_id) const;
 
   int combat_level() const;
   int max_hp() const;
@@ -117,14 +117,14 @@ class GameState {
 
   struct Skills {
     std::unordered_map<SkillType, uint64_t> xp;
-    std::vector<uint64_t> action_mastery_xp;
+    std::unordered_map<SkillActionId, uint64_t> action_mastery_xp;
 
     void reset();
     int level(SkillType skill) const;
     uint64_t skill_xp(SkillType skill) const;
     int total_level() const;
     uint64_t total_xp() const;
-    int mastery_level(int global_action_id) const;
+    int mastery_level(SkillActionId action_id) const;
   };
   Skills skills;
 
@@ -206,7 +206,7 @@ class GameState {
   // Active activity & status state
   struct GameInfo {
     ActiveActivityType active_type = ActiveActivityType::None;
-    int active_action_id = -1;
+    SkillActionId active_action_id = SkillActionId::StripCopperWiring;
     int active_progress_ms = 0;
     int active_target_ms = 2000;
     std::string status_banner;
@@ -300,7 +300,7 @@ class GameState {
   History history;
 
  private:
-  void complete_skill_action(int global_action_id);
+  void complete_skill_action(SkillActionId action_id);
   void step_combat_tick(int elapsed_ms);
   void on_monster_defeated(MonsterId monster_id);
   void on_player_defeated();

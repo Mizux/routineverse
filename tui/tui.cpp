@@ -659,7 +659,6 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   const auto skills = all_skills();
-  const auto actions = all_actions();
   int skill_count = static_cast<int>(skills.size());
   for (int i = 0; i < skill_count && row < y + h - 1; ++i) {
     SkillType sk = skills[i];
@@ -677,9 +676,7 @@ void TuiApp::drawSkillsPane(int y, int x, int h, int w) {
     bool is_sel = (i == _skillCursor);
     bool is_training =
         (_gameState.info.active_type == ActiveActivityType::Skill &&
-         _gameState.info.active_action_id >= 0 &&
-         _gameState.info.active_action_id < static_cast<int>(actions.size()) &&
-         actions[_gameState.info.active_action_id].skill == sk) ||
+         get_skill_action(_gameState.info.active_action_id).skill == sk) ||
         (_gameState.info.active_type == ActiveActivityType::Combat &&
          is_combat_skill(sk));
 
@@ -703,7 +700,6 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
   if (!isCombatView()) {
     const auto skills = all_skills();
-    const auto actions = all_actions();
     SkillType sk = skills[_skillCursor];
     if (is_combat_skill(sk)) sk = SkillType::Salvaging;
     std::string title = skill_name(sk) + " Protocols";
@@ -726,9 +722,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     attroff(COLOR_PAIR(CP_YELLOW) | A_BOLD);
 
     const SkillType active_skill =
-        (_gameState.info.active_action_id >= 0 &&
-         _gameState.info.active_action_id < static_cast<int>(actions.size()))
-            ? actions[_gameState.info.active_action_id].skill
+        (_gameState.info.active_type == ActiveActivityType::Skill)
+            ? get_skill_action(_gameState.info.active_action_id).skill
             : sk;
     ColorPair active_cp = CP_GREEN;
     switch (active_skill) {
@@ -776,8 +771,8 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
     for (int i = start_idx; i < static_cast<int>(act_ids.size()) && row < y + h - 1;
          ++i) {
-      int id = act_ids[i];
-      const auto& act = actions[id];
+      SkillActionId id = act_ids[i];
+      const auto& act = get_skill_action(id);
       bool is_sel = (i == _actionCursor);
       bool is_running = (_gameState.info.active_type == ActiveActivityType::Skill &&
                          _gameState.info.active_action_id == id);

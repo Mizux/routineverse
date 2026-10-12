@@ -40,6 +40,9 @@ void test_enum_safety() {
   for (MonsterId id : all_monster_ids()) {
     TEST_CHECK(get_monster_info(id).id == id);
   }
+  for (SkillActionId id : all_skill_action_ids()) {
+    TEST_CHECK(get_skill_action(id).id == id);
+  }
 
   // EquipSlot & upgrade helpers
   TEST_CHECK(!all_equip_slots().empty());
@@ -84,7 +87,9 @@ void test_enum_safety() {
 
   // Skill helpers
   TEST_CHECK(!all_skills().empty());
-  TEST_CHECK(!all_actions().empty());
+  TEST_CHECK(!all_skill_action_ids().empty());
+  TEST_CHECK(skill_action_name(SkillActionId::StripCopperWiring) ==
+             "Strip Copper Wiring");
   TEST_CHECK(skill_name(SkillType::Salvaging) == "Salvaging");
   TEST_CHECK(skill_short_name(SkillType::Salvaging) == "SLV");
   TEST_CHECK(skill_name(SkillType::Hacking) == "Hacking");
@@ -244,13 +249,13 @@ void test_reactor_upgrade_and_xp() {
 
   // Gain XP in SynthCook: should receive 5% bonus
   uint64_t sc_before = gs.skill_xp(SkillType::SynthCook);
-  gs.start_skill_action(0);  // stop whatever was running
+  gs.start_skill_action(SkillActionId::StripCopperWiring);  // stop whatever was running
   gs.stop_activity();
 
   auto syn_actions = actions_for_skill(SkillType::SynthCook);
   TEST_CHECK(!syn_actions.empty());
-  int act_id = syn_actions[0];
-  const auto& act = all_actions()[act_id];
+  SkillActionId act_id = syn_actions[0];
+  const auto& act = get_skill_action(act_id);
   // Add input ingredients if any
   if (is_valid_item(act.input_item_1)) gs.bank.add_item(act.input_item_1, 10);
   if (is_valid_item(act.input_item_2)) gs.bank.add_item(act.input_item_2, 10);
@@ -311,8 +316,8 @@ void test_hacking_and_ice_pools() {
   // Test coding Spike ICE Mk.I via Hacking skill
   auto hack_acts = actions_for_skill(SkillType::Hacking);
   TEST_CHECK(!hack_acts.empty());
-  int spike_act_id = hack_acts[0];
-  const auto& spike_act = all_actions()[spike_act_id];
+  SkillActionId spike_act_id = hack_acts[0];
+  const auto& spike_act = get_skill_action(spike_act_id);
   TEST_CHECK(spike_act.product_item == ItemId::SpikeIceMk1);
 
   gs.stop_activity();
