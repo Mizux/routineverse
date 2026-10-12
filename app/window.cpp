@@ -783,7 +783,7 @@ void MainWindow::updateAllUi() {
             ? QString("%1x %2 (+%3 INT)")
                   .arg(_gameState.equipment.defense_ice_qty)
                   .arg(get_item_info(_gameState.equipment.defense_ice_item).name)
-                  .arg(get_item_info(_gameState.equipment.defense_ice_item).heal_amount)
+                  .arg(get_item_info(_gameState.equipment.defense_ice_item).bonus.recover_amount)
             : "None";
     _label_equipped_ice->setText(QString("Atk: %1 | Def: %2").arg(atk_str).arg(def_str));
   }
@@ -794,7 +794,7 @@ void MainWindow::updateAllUi() {
       _label_equipped_food->setText(QString("%1x %2 (+%3 HP)")
                                         .arg(_gameState.equipment.food_qty)
                                         .arg(fi.name)
-                                        .arg(fi.heal_amount));
+                                        .arg(fi.bonus.recover_amount));
     } else {
       _label_equipped_food->setText("None");
     }
@@ -1045,20 +1045,20 @@ void MainWindow::_fillTreeviewBank() {
 
     QString extra = QString::fromStdString(
         money_string(static_cast<uint64_t>(slot.qty) * info.price));
-    if (info.category == ItemCategory::StimFood && info.heal_amount > 0) {
-      extra += QString(" (+%1 HP)").arg(info.heal_amount);
+    if (info.category == ItemCategory::StimFood && info.bonus.recover_amount > 0) {
+      extra += QString(" (+%1 HP)").arg(info.bonus.recover_amount);
     } else if (info.category == ItemCategory::IntegrityPatch) {
       if (info.bonus.speed_bonus_pct > 0) {
         extra += QString(" (+%1 INT, +%2 XP)")
-                     .arg(info.heal_amount)
+                     .arg(info.bonus.recover_amount)
                      .arg(info.bonus.speed_bonus_pct);
       } else {
-        extra += QString(" (+%1 INT)").arg(info.heal_amount);
+        extra += QString(" (+%1 INT)").arg(info.bonus.recover_amount);
       }
     } else if (info.category == ItemCategory::AttackIce) {
       extra += QString(" (+%1 ICE Str)").arg(info.bonus.strength);
     } else if (info.category == ItemCategory::DefenseIce) {
-      extra += QString(" (+%1 INT)").arg(info.heal_amount);
+      extra += QString(" (+%1 INT)").arg(info.bonus.recover_amount);
     } else if (info.category == ItemCategory::Firewall) {
       extra += QString(" (+%1 INT, %2% DR)")
                    .arg(info.bonus.strength)
@@ -1185,7 +1185,7 @@ void MainWindow::slotEquip() {
   } else {
     const auto& info = get_item_info(item_id);
     bool can_use = (equip_slot(info.category) != EquipSlot::None) ||
-                   (info.category == ItemCategory::StimFood && info.heal_amount > 0) ||
+                   (info.category == ItemCategory::StimFood && info.bonus.recover_amount > 0) ||
                    (info.category == ItemCategory::AttackIce) ||
                    (info.category == ItemCategory::DefenseIce) ||
                    (info.category == ItemCategory::IntegrityPatch);
@@ -1668,7 +1668,7 @@ void WindowEquipment::updateEquipmentUi() {
     _label_food->setText(QString("%1x %2 (Restores +%3 HP)")
                              .arg(_gameState.equipment.food_qty)
                              .arg(fi.name)
-                             .arg(fi.heal_amount));
+                             .arg(fi.bonus.recover_amount));
   } else {
     _label_food->setText("None");
   }

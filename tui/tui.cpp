@@ -983,18 +983,18 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
     if (static_cast<int>(iname.size()) > 16) iname = iname.substr(0, 16);
 
     std::string extra = money_string(static_cast<long long>(slot.qty) * info.price);
-    if (info.category == ItemCategory::StimFood && info.heal_amount > 0) {
-      extra += std::format(" (+{}HP)", info.heal_amount);
+    if (info.category == ItemCategory::StimFood && info.bonus.recover_amount > 0) {
+      extra += std::format(" (+{}HP)", info.bonus.recover_amount);
     } else if (info.category == ItemCategory::IntegrityPatch) {
       if (info.bonus.speed_bonus_pct > 0) {
-        extra += std::format(" (+{}INT/+{}XP)", info.heal_amount, info.bonus.speed_bonus_pct);
+        extra += std::format(" (+{}INT/+{}XP)", info.bonus.recover_amount, info.bonus.speed_bonus_pct);
       } else {
-        extra += std::format(" (+{}INT)", info.heal_amount);
+        extra += std::format(" (+{}INT)", info.bonus.recover_amount);
       }
     } else if (info.category == ItemCategory::AttackIce) {
       extra += std::format(" (+{}ICE)", info.bonus.strength);
     } else if (info.category == ItemCategory::DefenseIce) {
-      extra += std::format(" (+{}INT)", info.heal_amount);
+      extra += std::format(" (+{}INT)", info.bonus.recover_amount);
     } else if (info.category == ItemCategory::Firewall) {
       extra += std::format(" (+{}INT)", info.bonus.strength);
     } else if (equip_slot(info.category) == EquipSlot::Weapon) {
@@ -1042,7 +1042,7 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
        _gameState.equipment.defense_ice_qty > 0)
           ? std::format("{}x {} (+{}INT)", _gameState.equipment.defense_ice_qty,
                         get_item_info(_gameState.equipment.defense_ice_item).name,
-                        get_item_info(_gameState.equipment.defense_ice_item).heal_amount)
+                        get_item_info(_gameState.equipment.defense_ice_item).bonus.recover_amount)
           : "None";
 
   std::string food_str =
@@ -1050,7 +1050,7 @@ void TuiApp::drawStatusPane(int y, int x, int h, int w) {
        _gameState.equipment.food_qty > 0)
           ? std::format("{}x {} (+{}HP)", _gameState.equipment.food_qty,
                         get_item_info(_gameState.equipment.food_item).name,
-                        get_item_info(_gameState.equipment.food_item).heal_amount)
+                        get_item_info(_gameState.equipment.food_item).bonus.recover_amount)
           : "None";
 
   auto print_line = [&](short cp, const std::string& s) {

@@ -574,7 +574,7 @@ void GameState::complete_skill_action(int global_action_id) {
   }
 
   if (act.skill == SkillType::SynthCook && is_valid_item(act.product_item) &&
-      get_item_info(act.product_item).heal_amount > 0) {
+      get_item_info(act.product_item).bonus.recover_amount > 0) {
     // Synthesis success chance (75% base + mastery/level bonus up to 99%)
     int cook_chance = std::min(
         99, 74 + (skill_level(SkillType::SynthCook) - act.req_level) / 2 + m_lvl / 4);
@@ -1052,7 +1052,7 @@ bool GameState::equip_item(ItemId item_id) {
     if (info.category == ItemCategory::IntegrityPatch) {
       return use_integrity_patch(item_id);
     }
-    if (info.heal_amount > 0) {
+    if (info.bonus.recover_amount > 0) {
       return equip_food(item_id);
     }
     return false;
@@ -1161,7 +1161,7 @@ bool GameState::unequip_slot(EquipSlot slot) {
 bool GameState::equip_food(ItemId item_id) {
   if (!is_valid_item(item_id)) return false;
   const auto& info = get_item_info(item_id);
-  if (info.category != ItemCategory::StimFood || info.heal_amount <= 0) return false;
+  if (info.category != ItemCategory::StimFood || info.bonus.recover_amount <= 0) return false;
   int have = item_qty(item_id);
   if (have <= 0) return false;
 
@@ -1190,7 +1190,7 @@ bool GameState::equip_food(ItemId item_id) {
   equipment.food_item = item_id;
   equipment.food_qty = have;
   add_log(
-      std::format("Loaded {}x {} (+{} HP each).", have, info.name, info.heal_amount));
+      std::format("Loaded {}x {} (+{} HP each).", have, info.name, info.bonus.recover_amount));
   check_auto_eat();
   return true;
 }
@@ -1270,7 +1270,7 @@ bool GameState::equip_defense_ice(ItemId item_id) {
   equipment.defense_ice_item = item_id;
   equipment.defense_ice_qty = have;
   add_log(std::format("Deployed {}x {} in Defense ICE Pool (+{}INT repair, {}%IDR).",
-                      have, info.name, info.heal_amount, info.bonus.damage_reduction));
+                      have, info.name, info.bonus.recover_amount, info.bonus.damage_reduction));
   check_auto_repair_integrity();
   return true;
 }
@@ -1327,7 +1327,7 @@ bool GameState::use_integrity_patch(ItemId item_id) {
   }
   int before = combat.player_integrity;
   combat.player_integrity =
-      std::min(max_integrity(), combat.player_integrity + info.heal_amount);
+      std::min(max_integrity(), combat.player_integrity + info.bonus.recover_amount);
   int restored = combat.player_integrity - before;
   if (bonus_xp > 0) {
     add_log(std::format("Installed {}! Upgraded Integrity (+{} XP) and restored +{} INT "
@@ -1346,7 +1346,7 @@ bool GameState::eat_food() {
   if (is_valid_item(equipment.food_item) && equipment.food_qty > 0 &&
       combat.player_hp < max_hp()) {
     const auto& food_info = get_item_info(equipment.food_item);
-    int heal = food_info.heal_amount;
+    int heal = food_info.bonus.recover_amount;
     equipment.food_qty--;
     int before = combat.player_hp;
     combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
@@ -1361,7 +1361,7 @@ bool GameState::eat_food() {
   if (is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0 &&
       combat.player_integrity < max_integrity()) {
     const auto& ice_info = get_item_info(equipment.defense_ice_item);
-    int repair = ice_info.heal_amount;
+    int repair = ice_info.bonus.recover_amount;
     equipment.defense_ice_qty--;
     int before = combat.player_integrity;
     combat.player_integrity = std::min(max_integrity(), combat.player_integrity + repair);
@@ -1391,7 +1391,7 @@ void GameState::check_auto_eat() {
   int threshold = auto_eat_threshold_hp();
   while (combat.player_hp <= threshold && is_valid_item(equipment.food_item) &&
          equipment.food_qty > 0) {
-    int heal = get_item_info(equipment.food_item).heal_amount;
+    int heal = get_item_info(equipment.food_item).bonus.recover_amount;
     equipment.food_qty--;
     combat.player_hp = std::min(max_hp(), combat.player_hp + heal);
     if (equipment.food_qty == 0) {
@@ -1409,7 +1409,7 @@ void GameState::check_auto_repair_integrity() {
   int threshold = (max_int * 60) / 100;
   while (combat.player_integrity <= threshold &&
          is_valid_item(equipment.defense_ice_item) && equipment.defense_ice_qty > 0) {
-    int repair = get_item_info(equipment.defense_ice_item).heal_amount;
+    int repair = get_item_info(equipment.defense_ice_item).bonus.recover_amount;
     if (repair <= 0) break;
     equipment.defense_ice_qty--;
     combat.player_integrity = std::min(max_int, combat.player_integrity + repair);

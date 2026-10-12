@@ -5,10 +5,9 @@
 
 const ItemInfo& get_item_info(ItemId id) {
   static constexpr std::array item_info{std::to_array<ItemInfo>({
-#define RV_BONUS(atk, str, def, dr, spd) \
-  Bonus { atk, str, def, dr, spd }
-#define X(id, name, cat, price, heal, req_lvl, bonus) \
-  {ItemId::id, name, ItemCategory::cat, price, heal, req_lvl, RV_BONUS bonus},
+#define RV_BONUS(...) Bonus{__VA_ARGS__}
+#define X(id, name, cat, req_lvl, price, ...) \
+  {ItemId::id, name, ItemCategory::cat, req_lvl, price __VA_OPT__(, RV_BONUS __VA_ARGS__)},
       RV_ITEM_ID_LIST(X)
 #undef X
 #undef RV_BONUS
@@ -96,14 +95,15 @@ std::string item_equip_summary(ItemId id) {
       return std::format("{} (+{}CAtk, +{}CStr)", info.name, info.bonus.attack,
                          info.bonus.strength);
     case ItemCategory::DefenseIce:
-      return std::format("{} (+{}INT, +{}CDef, {}%IDR)", info.name, info.heal_amount,
-                         info.bonus.defence, info.bonus.damage_reduction);
+      return std::format("{} (+{}INT, +{}CDef, {}%IDR)", info.name,
+                         info.bonus.recover_amount, info.bonus.defence,
+                         info.bonus.damage_reduction);
     case ItemCategory::IntegrityPatch:
       if (info.bonus.speed_bonus_pct > 0) {
-        return std::format("{} (+{}INT, +{}XP)", info.name, info.heal_amount,
+        return std::format("{} (+{}INT, +{}XP)", info.name, info.bonus.recover_amount,
                            info.bonus.speed_bonus_pct);
       }
-      return std::format("{} (+{}INT)", info.name, info.heal_amount);
+      return std::format("{} (+{}INT)", info.name, info.bonus.recover_amount);
     default:
       return std::format("{} (+{}Atk, +{}Str, +{}Def, {}%DR)", info.name,
                          info.bonus.attack, info.bonus.strength, info.bonus.defence,
@@ -115,7 +115,7 @@ std::string item_name(ItemId id) { return get_item_info(id).name; }
 
 std::span<const ItemId> all_item_ids() noexcept {
   static constexpr std::array ids{std::to_array<ItemId>({
-#define X(id, name, cat, price, heal, req_lvl, bonus) ItemId::id,
+#define X(id, name, cat, req_lvl, price, ...) ItemId::id,
       RV_ITEM_ID_LIST(X)
 #undef X
   })};
