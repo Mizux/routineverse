@@ -55,10 +55,10 @@ flowchart LR
   FRM -->|"Hydroponic Crops"| COOK
   BIO -->|"Raw Synth-Biota"| COOK
 
-  SMT_GEAR -->|"Weapons & Exo-Suits"| CMB
-  FAB -->|"Visors & Holo-Shields"| CMB
+  SMT_GEAR -->|"Weapons & Armor"| CMB
+  FAB -->|"Visors & Shields"| CMB
   HCK -->|"ICE Pools, Firewalls & Patches"| CMB
-  COOK -->|"Stims & Cyber-Ramen"| CMB
+  COOK -->|"Stims & Food"| CMB
 
   CMB -->|"Credits & Loot"| SHOP
   SHOP -->|"Speed & XP Upgrades"| Extraction
