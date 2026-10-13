@@ -43,7 +43,7 @@ flowchart LR
 
   SLV -->|"Scrap"| REC
   SLV -->|"Scrap CPU / RAM"| HCK
-  REC -->|"25% Carbon Cell Proc"| SMT_BAR
+  REC -->|"32% Carbon Cell Proc"| SMT_BAR
   MIN -->|"Ores + Carbon Cells"| SMT_BAR
   SMT_BAR -->|"Alloy Ingots"| SMT_GEAR
   SMT_BAR -->|"Alloy Ingots"| FAB
@@ -72,9 +72,9 @@ flowchart LR
 | Skill | Short | Category | Primary Role | Tool / Loadout Upgrade |
 |-------|:-----:|----------|--------------|------------------------|
 | **Salvaging** | `SLV` | Extraction | Strip tech scrap, Scrap CPUs/RAM, optic fibers, plasma conduits, and AI cores | Salvaging Cutter (T1–T7) |
-| **Fishing** | `FSH` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
-| **Farming** | `FRM` | Extraction | Cultivate hydroponic crops, mill Synth-Noodles (+20% bonus Hydro-Wheat proc) | Bio-Harvester (T1–T7) |
-| **Recycling** | `REC` | Processing | Recycle scrap into Raw Materials (+25% Carbon Cell proc & Credits) | Synth-Reactor (T1–T7) |
+| **Fishing** | `FSH` | Extraction | Harvest aquatic synth-biota from Krill to Cyber-Kraken (+4% Data-Cache Cr proc) | Bio-Harvester (T1–T7) |
+| **Farming** | `FRM` | Extraction | Cultivate hydroponic crops, mill Synth-Noodles (+16% bonus Hydro-Wheat proc) | Bio-Harvester (T1–T7) |
+| **Recycling** | `REC` | Processing | Recycle scrap into Raw Materials (+32% Carbon Cell proc & Credits) | Synth-Reactor (T1–T7) |
 | **Synth-Cook** | `SYN` | Culinary | Prep Synth-Noodles, cook Cyber-Ramen bowls, and synthesize Biota Stims | Synth-Reactor (T1–T7) |
 | **Deep-Mining** | `MIN` | Extraction | Mine industrial ores and Carbon Cells (+8% rare Data Crystal proc) | Mining Drill (T1–T7) |
 | **Smithing** | `SMT` | Fabrication | Smelt ores into Alloy Ingots; forge Mono-Blades and Exo-Suits | Mastery Preservation & Speed |

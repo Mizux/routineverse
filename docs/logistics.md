@@ -26,7 +26,7 @@ flowchart TD
 
     S -->|"1x Scrap"| R
     S -->|"Scrap CPU / RAM"| HCK
-    R -.->|"25% Bonus Proc:<br/>1x Carbon Cell"| SM_ING
+    R -.->|"32% Bonus Proc:<br/>1x Carbon Cell"| SM_ING
     M -->|"Ores + Carbon Cells"| SM_ING
     M -.->|"8% Bonus Proc"| CF_CR
     SM_ING -->|"2x–5x Alloy Ingot"| SM_EQ
@@ -41,13 +41,13 @@ flowchart TD
   subgraph Culinary["Bio-Agri & Culinary Branch"]
     BH["Fishing<br/>(9 Raw Synth-Biota)"]
     FM["Farming<br/>(9 Hydroponic Crops)"]
-    HW["Hydro-Wheat<br/>(Lv 1 Crop + 20% Farming Proc)"]
+    HW["Hydro-Wheat<br/>(Lv 1 Crop + 16% Farming Proc)"]
     ND["Synth-Noodles<br/>(1x Hydro-Wheat -> 2x Noodles)"]
     SC_STIM["Synth-Cook: Biota Stims<br/>(9 Healing Rations/Stims)"]
     SC_RAMEN["Synth-Cook: Cyber-Ramen<br/>(9 High-Healing Ramen Bowls)"]
 
     BH -->|"1x Raw Biota"| SC_STIM
-    FM -->|"Cultivate Lv 1<br/>or 20% Bonus Proc"| HW
+    FM -->|"Cultivate Lv 1<br/>or 16% Bonus Proc"| HW
     HW -->|"Farming Lv 3 or<br/>Synth-Cook Lv 1"| ND
     ND -->|"1x Synth-Noodles"| SC_RAMEN
     FM -->|"1x Crop (Soy..Truffle)"| SC_RAMEN
@@ -59,7 +59,7 @@ flowchart TD
 
 ## 2. Salvaging & Recycling Chain
 
-**Salvaging** extracts raw tech scrap (`ItemCategory::Scrap`) as well as low-tier **CPU/RAM hardware** (`Scrap Logic CPU` at Lv 3 and `Scrap DRAM Stick` at Lv 6 for **Hacking**). **Recycling** refines scrap into `ItemCategory::RawMaterial` components used in **Cyber-Fab** and **Hacking**. Every recycling cycle also grants minor Credits and a **25% chance to recover `1x Carbon Cell`**, which feeds directly into **Smithing**.
+**Salvaging** extracts raw tech scrap (`ItemCategory::Scrap`) as well as low-tier **CPU/RAM hardware** (`Scrap Logic CPU` at Lv 3 and `Scrap DRAM Stick` at Lv 6 for **Hacking**). **Recycling** refines scrap into `ItemCategory::RawMaterial` components used in **Cyber-Fab** and **Hacking**. Every recycling cycle also grants minor Credits and a **32% chance to recover `1x Carbon Cell`**, which feeds directly into **Smithing**.
 
 ```mermaid
 flowchart LR
@@ -224,12 +224,12 @@ flowchart LR
 
 The culinary system offers two parallel paths in **Synth-Cook**:
 1. **Single-Input Biota Stims**: Directly synthesize aquatic `RawBiota` from **Fishing** into combat rations (`+30 HP` to `+680 HP`).
-2. **Multi-Ingredient Cyber-Ramen**: Cultivate `Hydro-Wheat` in **Farming** (also obtained via a **20% bonus proc** on any hydroponic crop harvest), mill it into `2x Synth-Noodles`, and combine `1x Synth-Noodles` with hydroponic crops (or `Raw Cyber-Kraken`) to cook high-healing **Cyber-Ramen** bowls (`+65 HP` to `+980 HP`).
+2. **Multi-Ingredient Cyber-Ramen**: Cultivate `Hydro-Wheat` in **Farming** (also obtained via a **16% bonus proc** on any hydroponic crop harvest), mill it into `2x Synth-Noodles`, and combine `1x Synth-Noodles` with hydroponic crops (or `Raw Cyber-Kraken`) to cook high-healing **Cyber-Ramen** bowls (`+65 HP` to `+980 HP`).
 
 ```mermaid
 flowchart LR
   subgraph Hydroponics["Farming (Hydroponic Crops)"]
-    F_WH["Lv 1: Hydro-Wheat<br/>(+20% proc on all crops)"]
+    F_WH["Lv 1: Hydro-Wheat<br/>(+16% proc on all crops)"]
     F_SOY["Lv 10: Synth-Soy Pods"]
     F_SC["Lv 22: Neon Scallion"]
     F_NR["Lv 35: Bioluminescent Nori"]

@@ -39,8 +39,8 @@ flowchart LR
   FW --> SLOT_FW
   PATCH -->|"Instant Repair / XP"| INT_SKILL
 
-  POOL_A -->|"1 Bot / Attack Cycle<br/>(35% Foe ICE Break)"| HYB & GRID
-  POOL_D -->|"Passive Cyber Eva/DR%<br/>+ Auto-Repair <= 65% INT"| INT_SKILL
+  POOL_A -->|"1 Bot / Attack Cycle<br/>(32% Foe ICE Break)"| HYB & GRID
+  POOL_D -->|"Passive Cyber Eva/DR%<br/>+ Auto-Repair <= 64% INT"| INT_SKILL
   SLOT_FW --> INT_SKILL
 ```
 
@@ -70,10 +70,10 @@ Unlike permanent gear slots, **ICE Pools** work as stackable, consumable compani
 - **Attack ICE Pool**:
   - Activates automatically alongside your weapon cycle whenever fighting a target with **Integrity (`max_integrity > 0`)**.
   - Consumes **1 Attack ICE bot** per attack cycle (never consumed against unconnected `0 INT` enemies in the Neon Slums).
-  - Deals cyber damage to the enemy's Integrity (`Hacking` & `Integrity` XP awarded) and has a **35% chance on hit to destroy 1 enemy ICE bot** (`monster_ice_qty`).
+  - Deals cyber damage to the enemy's Integrity (`Hacking` & `Integrity` XP awarded) and has a **32% chance on hit to destroy 1 enemy ICE bot** (`monster_ice_qty`).
 - **Defense / Repair ICE Pool**:
   - While at least 1 Defense ICE bot is loaded in the pool, it passively grants **Cyber Evasion (`+Def`)** and **ICE Damage Reduction (`+DR%`)**.
-  - Whenever your Integrity drops to **$\le 65\%$ of Max Integrity** (or $\le$ your Auto-Stim threshold), 1 Defense ICE bot is automatically consumed to **repair your Integrity**.
+  - Whenever your Integrity drops to **$\le 64\%$ of Max Integrity**, 1 Defense ICE bot is automatically consumed to **repair your Integrity**.
 
 ### Attack ICE Progression (`ItemCategory::AttackIce`)
 
@@ -101,10 +101,10 @@ Unlike permanent gear slots, **ICE Pools** work as stackable, consumable compani
 
 ## 4. Firewalls & Barriers (`EquipSlot::Firewall`)
 
-**Firewalls** (`ItemCategory::Firewall`) are permanent cyberware barriers equipped in the dedicated `Firewall` slot (`EquipSlot::Firewall`). They require **Integrity** skill levels to equip and boost your **Max Integrity**, **Cyber Evasion**, and **ICE Damage Reduction %**.
+**Firewalls** (`ItemCategory::Firewall`) are permanent cyberware barriers equipped in the dedicated `Firewall` slot (`EquipSlot::Firewall`). They require **Hacking** or **Integrity** skill levels to equip and boost your **Max Integrity**, **Cyber Evasion**, and **ICE Damage Reduction %**.
 
-| Tier | Firewall / Barrier | Req Integrity Lv | Max Integrity Bonus (`+INT`) | Cyber Evasion (`+Def`) | ICE Damage Reduction (`+DR%`) | Value |
-|:----:|--------------------|:----------------:|:----------------------------:|:----------------------:|:-----------------------------:|------:|
+| Tier | Firewall / Barrier | Req Hacking / INT Lv | Max Integrity Bonus (`+INT`) | Cyber Evasion (`+Def`) | ICE Damage Reduction (`+DR%`) | Value |
+|:----:|--------------------|:--------------------:|:----------------------------:|:----------------------:|:-----------------------------:|------:|
 | **1** | **Packet Filter Firewall** | Lv 1 | `+25 Max INT` | `+10 Cyber Eva` | `6% ICE DR` | 65 Cr |
 | **2** | **Proxy-Mesh Barrier** | Lv 20 | `+60 Max INT` | `+24 Cyber Eva` | `12% ICE DR` | 260 Cr |
 | **3** | **Neural Blackwall Barrier** | Lv 45 | `+120 Max INT` | `+45 Cyber Eva` | `18% ICE DR` | 850 Cr |
@@ -131,7 +131,7 @@ Using (equipping) an **Integrity Patch** from your Cyber-Vault immediately execu
 
 ## 6. Complete Hacking Protocols Table (`SkillType::Hacking`)
 
-All Hacking protocols benefit from **Mastery resource preservation** (`5% + 0.2%` per mastery level) and **double output procs** (`5% + 0.3%` per mastery level).
+All Hacking protocols benefit from **Mastery resource preservation** (`8% + 1%` per 8 mastery levels) and **double output procs** (`8% + 1%` per 4 mastery levels).
 
 | Lv | Protocol | Base Cycle | XP | Input 1 | Input 2 | Output | Category |
 |---:|----------|:----------:|---:|---------|---------|--------|----------|
@@ -167,11 +167,11 @@ All Hacking protocols benefit from **Mastery resource preservation** (`5% + 0.2%
 - **Max Integrity**:
   $$\text{Max Integrity} = (\text{Integrity Level} \times 10) + \text{Firewall Max INT Bonus}$$
 - **ICE Max Hit**:
-  - With **Attack ICE** loaded:
-    $$\text{ICE Max Hit} = \max\left(2, \left\lfloor 2.0 + \text{Hacking Level} \times 0.35 + \text{ICE Str} \times 0.30 + \frac{\text{Hacking Level} \times \text{ICE Str}}{140.0} \right\rfloor\right)$$
+  - With **Attack ICE** loaded (`ICE Str > 0`):
+    $$\text{ICE Max Hit} = 8 + \text{Hacking Level} \times 4 + \left\lfloor \frac{\text{ICE Str} \times (8 + \text{Hacking Level})}{8} \right\rfloor$$
   - Without Attack ICE (base neural deck pulse against pure Metaverse Grid targets):
-    $$\text{Base Cyber Pulse} = 1 + \lfloor\text{Hacking Level} / 4\rfloor$$
+    $$\text{Base Cyber Pulse} = 8 + \text{Hacking Level} \times 2$$
 - **Cyber Accuracy, Evasion & Damage Reduction**:
-  - $\text{Cyber Accuracy} = (\text{Hacking Level} + 8) \times (\text{Attack ICE Bonus} + 64) / 10$
-  - $\text{Cyber Evasion} = (\text{Integrity Level} + \lfloor\text{Hacking Level}/2\rfloor + 8) \times (\text{Firewall Def} + \text{Defense ICE Def} + 64) / 10$
-  - $\text{Cyber DR\%} = \min(80\%, \text{Firewall DR\%} + \text{Defense ICE DR\%} + \lfloor\text{Physical DR\%} / 4\rfloor)$
+  - $\text{Cyber Accuracy} = 32 + \text{Hacking Level} \times 4 + \text{Attack ICE Bonus} \times 4$
+  - $\text{Cyber Evasion} = 16 + \text{Integrity Level} \times 4 + (\text{Firewall Def} + \text{Defense ICE Def}) \times 4$
+  - $\text{Cyber DR\%} = \min(75\%, \text{Firewall DR\%} + \text{Defense ICE DR\%})$

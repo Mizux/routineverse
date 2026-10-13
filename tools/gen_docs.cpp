@@ -145,7 +145,7 @@ flowchart LR
 
   SLV -->|"Scrap"| REC
   SLV -->|"Scrap CPU / RAM"| HCK
-  REC -->|"25% Carbon Cell Proc"| SMT_BAR
+  REC -->|"32% Carbon Cell Proc"| SMT_BAR
   MIN -->|"Ores + Carbon Cells"| SMT_BAR
   SMT_BAR -->|"Alloy Ingots"| SMT_GEAR
   SMT_BAR -->|"Alloy Ingots"| FAB
@@ -190,20 +190,20 @@ flowchart LR
       case SkillType::Fishing:
         cat = "Extraction";
         role =
-            "Harvest aquatic synth-biota from Krill to Cyber-Kraken (+5% Data-Cache Cr "
+            "Harvest aquatic synth-biota from Krill to Cyber-Kraken (+4% Data-Cache Cr "
             "proc)";
         upgrade = std::format("Bio-Harvester (T1–T{})", harvester_tiers);
         break;
       case SkillType::Farming:
         cat = "Extraction";
         role =
-            "Cultivate hydroponic crops, mill Synth-Noodles (+20% bonus Hydro-Wheat "
+            "Cultivate hydroponic crops, mill Synth-Noodles (+16% bonus Hydro-Wheat "
             "proc)";
         upgrade = std::format("Bio-Harvester (T1–T{})", harvester_tiers);
         break;
       case SkillType::Recycling:
         cat = "Processing";
-        role = "Recycle scrap into Raw Materials (+25% Carbon Cell proc & Credits)";
+        role = "Recycle scrap into Raw Materials (+32% Carbon Cell proc & Credits)";
         upgrade = std::format("Synth-Reactor (T1–T{})", reactor_tiers);
         break;
       case SkillType::SynthCook:
@@ -394,6 +394,9 @@ void generate_combat(const std::filesystem::path& docs_dir) {
     return s;
   };
 
+  GameState default_gs;
+  double plr_atk_sec = default_gs.player_attack_interval_ms() / 1000.0;
+
   std::string out;
   out += "# Combat, Gear Tiers & Hostile Sectors\n\n";
   out += std::format(
@@ -415,11 +418,11 @@ void generate_combat(const std::filesystem::path& docs_dir) {
       "healed by the **Auto-Stim Injector**).\n";
   out +=
       "2. **Cyber / Metaverse Plane (`INT`)**: Loaded **Attack ICE** bots strike enemy "
-      "`Integrity` (`INT`) and have a **35% chance on hit to destroy 1 enemy ICE "
-      "bot**, while enemy ICE bots either self-repair the enemy's Integrity (25% "
-      "chance when damaged) or attack your `Integrity` (mitigated by Firewall/Defense "
-      "ICE `Cyber DR%` and auto-repaired by **Defense ICE** at $\\le 65\\%$ "
-      "Integrity).\n\n";
+      "`Integrity` (`INT`) and have a **32% chance on hit to destroy 1 enemy ICE "
+      "bot**, while enemy ICE bots either self-repair the enemy's Integrity (32% "
+      "chance when below 50% INT) or attack your `Integrity` (mitigated by "
+      "Firewall/Defense ICE `Cyber DR%` and auto-repaired by **Defense ICE** at $\\le "
+      "64\\%$ Integrity).\n\n";
   out +=
       "- **Dual Victory Condition**: Depleting **either** a target's `HP` (if `max_hp "
       "> 0`) **or** its `Integrity` (if `max_integrity > 0`) immediately neutralizes "
@@ -445,33 +448,35 @@ void generate_combat(const std::filesystem::path& docs_dir) {
       "their `Integrity`.\n\n",
       boss_short_name);
 
-  out += R"MD(```mermaid
+  out += std::format(
+      R"MD(```mermaid
 flowchart TD
-  START["Select Hostile Target<br/>(Check Bounty Lv Clearance)"] --> TIMERS["Advance Weapon & Hostile Timers<br/>+ Passive Regen (+1% HP & +1% INT / 5s)"]
+  START["Select Hostile Target<br/>(Check Bounty Lv Clearance)"] --> TIMERS["Advance Weapon & Hostile Timers<br/>+ Passive Regen (+1% HP & +1% INT / 4.096s)"]
 
-  TIMERS --> PLR_ATK{"Player Cycle<br/>(2.4s)?"}
+  TIMERS --> PLR_ATK{{"Player Cycle<br/>({:.3f}s)?"}}
   PLR_ATK -->|"Physical Strike (if Foe HP > 0)"| PHYS_DMG["Hit Roll vs Foe Evasion<br/>Deal HP Damage & Award ATK/STR/DEF + HP XP"]
-  PLR_ATK -->|"Cyber Strike (if Foe INT > 0)"| ICE_DMG["Consume 1 Attack ICE Bot<br/>Deal INT Damage, 35% Foe ICE Break,<br/>Award Hacking + Integrity XP"]
+  PLR_ATK -->|"Cyber Strike (if Foe INT > 0)"| ICE_DMG["Consume 1 Attack ICE Bot<br/>Deal INT Damage, 32% Foe ICE Break,<br/>Award Hacking + Integrity XP"]
 
-  PHYS_DMG & ICE_DMG --> FOE_DEAD{"Foe HP <= 0<br/>OR Foe INT <= 0?"}
+  PHYS_DMG & ICE_DMG --> FOE_DEAD{{"Foe HP <= 0<br/>OR Foe INT <= 0?"}}
 
   FOE_DEAD -->|"Yes"| LOOT["Award Credits, Roll Drop Table,<br/>Advance Bounty Contract (+BT & BNT XP)"]
   LOOT --> RESPAWN["Respawn Hostile (Full HP, INT & ICE)"] --> TIMERS
 
-  FOE_DEAD -->|"No"| MON_ATK{"Hostile Cycle?"}
+  FOE_DEAD -->|"No"| MON_ATK{{"Hostile Cycle?"}}
   PLR_ATK -->|"No"| MON_ATK
 
   MON_ATK -->|"Physical Hit (if MaxHit > 0)"| MON_PHYS["Apply HP Damage Reduced by DR%<br/>Trigger Auto-Stim if HP <= Threshold"]
-  MON_ATK -->|"Enemy ICE (if ICE Pool > 0 or Grid AI)"| MON_ICE["25% Self-Repair (+10% Foe INT)<br/>or Attack Player INT (Reduced by Cyber DR%)<br/>Trigger Defense ICE if INT <= 65%"]
+  MON_ATK -->|"Enemy ICE (if ICE Pool > 0 or Grid AI)"| MON_ICE["32% Self-Repair (+ICE MaxHit INT when < 50% INT)<br/>or Attack Player INT (Reduced by Cyber DR%)<br/>Trigger Defense ICE if INT <= 64%"]
 
-  MON_PHYS & MON_ICE --> PLR_DEAD{"Player HP <= 0<br/>OR Player INT <= 0?"}
+  MON_PHYS & MON_ICE --> PLR_DEAD{{"Player HP <= 0<br/>OR Player INT <= 0?"}}
 
-  PLR_DEAD -->|"Flatline / Neural Crash"| TRAUMA["Trauma Team / NetWatch Reconstruction<br/>(-10% Credits, Stop Activity)"]
+  PLR_DEAD -->|"Flatline / Neural Crash"| TRAUMA["Trauma Team / NetWatch Reconstruction<br/>(-12.5% Credits, Stop Activity)"]
   PLR_DEAD -->|"Alive"| TIMERS
 ```
 
 ---
-)MD";
+)MD",
+      plr_atk_sec);
 
   out += std::format("\n## 2. {}-Tier Weapon & Cyber-Armor Progression\n\n", num_tiers);
   out += std::format(
@@ -643,8 +648,8 @@ flowchart LR
   FW --> SLOT_FW
   PATCH -->|"Instant Repair / XP"| INT_SKILL
 
-  POOL_A -->|"1 Bot / Attack Cycle<br/>(35% Foe ICE Break)"| HYB & GRID
-  POOL_D -->|"Passive Cyber Eva/DR%<br/>+ Auto-Repair <= 65% INT"| INT_SKILL
+  POOL_A -->|"1 Bot / Attack Cycle<br/>(32% Foe ICE Break)"| HYB & GRID
+  POOL_D -->|"Passive Cyber Eva/DR%<br/>+ Auto-Repair <= 64% INT"| INT_SKILL
   SLOT_FW --> INT_SKILL
 ```
 )MD",
@@ -712,10 +717,10 @@ Unlike permanent gear slots, **ICE Pools** work as stackable, consumable compani
 - **Attack ICE Pool**:
   - Activates automatically alongside your weapon cycle whenever fighting a target with **Integrity (`max_integrity > 0`)**.
   - Consumes **1 Attack ICE bot** per attack cycle (never consumed against unconnected `0 INT` enemies in the Neon Slums).
-  - Deals cyber damage to the enemy's Integrity (`Hacking` & `Integrity` XP awarded) and has a **35% chance on hit to destroy 1 enemy ICE bot** (`monster_ice_qty`).
+  - Deals cyber damage to the enemy's Integrity (`Hacking` & `Integrity` XP awarded) and has a **32% chance on hit to destroy 1 enemy ICE bot** (`monster_ice_qty`).
 - **Defense / Repair ICE Pool**:
   - While at least 1 Defense ICE bot is loaded in the pool, it passively grants **Cyber Evasion (`+Def`)** and **ICE Damage Reduction (`+DR%`)**.
-  - Whenever your Integrity drops to **$\le 65\%$ of Max Integrity** (or $\le$ your Auto-Stim threshold), 1 Defense ICE bot is automatically consumed to **repair your Integrity**.
+  - Whenever your Integrity drops to **$\le 64\%$ of Max Integrity**, 1 Defense ICE bot is automatically consumed to **repair your Integrity**.
 
 ### Attack ICE Progression (`ItemCategory::AttackIce`)
 
@@ -752,10 +757,10 @@ Unlike permanent gear slots, **ICE Pools** work as stackable, consumable compani
 
 ## 4. Firewalls & Barriers (`EquipSlot::Firewall`)
 
-**Firewalls** (`ItemCategory::Firewall`) are permanent cyberware barriers equipped in the dedicated `Firewall` slot (`EquipSlot::Firewall`). They require **Integrity** skill levels to equip and boost your **Max Integrity**, **Cyber Evasion**, and **ICE Damage Reduction %**.
+**Firewalls** (`ItemCategory::Firewall`) are permanent cyberware barriers equipped in the dedicated `Firewall` slot (`EquipSlot::Firewall`). They require **Hacking** or **Integrity** skill levels to equip and boost your **Max Integrity**, **Cyber Evasion**, and **ICE Damage Reduction %**.
 
-| Tier | Firewall / Barrier | Req Integrity Lv | Max Integrity Bonus (`+INT`) | Cyber Evasion (`+Def`) | ICE Damage Reduction (`+DR%`) | Value |
-|:----:|--------------------|:----------------:|:----------------------------:|:----------------------:|:-----------------------------:|------:|
+| Tier | Firewall / Barrier | Req Hacking / INT Lv | Max Integrity Bonus (`+INT`) | Cyber Evasion (`+Def`) | ICE Damage Reduction (`+DR%`) | Value |
+|:----:|--------------------|:--------------------:|:----------------------------:|:----------------------:|:-----------------------------:|------:|
 )MD";
 
   for (size_t i = 0; i < firewall_items.size(); ++i) {
@@ -794,7 +799,7 @@ Using (equipping) an **Integrity Patch** from your Cyber-Vault immediately execu
 
 ## 6. Complete Hacking Protocols Table (`SkillType::Hacking`)
 
-All Hacking protocols benefit from **Mastery resource preservation** (`5% + 0.2%` per mastery level) and **double output procs** (`5% + 0.3%` per mastery level).
+All Hacking protocols benefit from **Mastery resource preservation** (`8% + 1%` per 8 mastery levels) and **double output procs** (`8% + 1%` per 4 mastery levels).
 
 | Lv | Protocol | Base Cycle | XP | Input 1 | Input 2 | Output | Category |
 |---:|----------|:----------:|---:|---------|---------|--------|----------|
@@ -838,14 +843,14 @@ All Hacking protocols benefit from **Mastery resource preservation** (`5% + 0.2%
 - **Max Integrity**:
   $$\text{Max Integrity} = (\text{Integrity Level} \times 10) + \text{Firewall Max INT Bonus}$$
 - **ICE Max Hit**:
-  - With **Attack ICE** loaded:
-    $$\text{ICE Max Hit} = \max\left(2, \left\lfloor 2.0 + \text{Hacking Level} \times 0.35 + \text{ICE Str} \times 0.30 + \frac{\text{Hacking Level} \times \text{ICE Str}}{140.0} \right\rfloor\right)$$
+  - With **Attack ICE** loaded (`ICE Str > 0`):
+    $$\text{ICE Max Hit} = 8 + \text{Hacking Level} \times 4 + \left\lfloor \frac{\text{ICE Str} \times (8 + \text{Hacking Level})}{8} \right\rfloor$$
   - Without Attack ICE (base neural deck pulse against pure Metaverse Grid targets):
-    $$\text{Base Cyber Pulse} = 1 + \lfloor\text{Hacking Level} / 4\rfloor$$
+    $$\text{Base Cyber Pulse} = 8 + \text{Hacking Level} \times 2$$
 - **Cyber Accuracy, Evasion & Damage Reduction**:
-  - $\text{Cyber Accuracy} = (\text{Hacking Level} + 8) \times (\text{Attack ICE Bonus} + 64) / 10$
-  - $\text{Cyber Evasion} = (\text{Integrity Level} + \lfloor\text{Hacking Level}/2\rfloor + 8) \times (\text{Firewall Def} + \text{Defense ICE Def} + 64) / 10$
-  - $\text{Cyber DR\%} = \min(80\%, \text{Firewall DR\%} + \text{Defense ICE DR\%} + \lfloor\text{Physical DR\%} / 4\rfloor)$
+  - $\text{Cyber Accuracy} = 32 + \text{Hacking Level} \times 4 + \text{Attack ICE Bonus} \times 4$
+  - $\text{Cyber Evasion} = 16 + \text{Integrity Level} \times 4 + (\text{Firewall Def} + \text{Defense ICE Def}) \times 4$
+  - $\text{Cyber DR\%} = \min(75\%, \text{Firewall DR\%} + \text{Defense ICE DR\%})$
 )MD";
 
   write_file(docs_dir / "hacking.md", out);
@@ -881,7 +886,7 @@ flowchart TD
 
     S -->|"1x Scrap"| R
     S -->|"Scrap CPU / RAM"| HCK
-    R -.->|"25% Bonus Proc:<br/>1x Carbon Cell"| SM_ING
+    R -.->|"32% Bonus Proc:<br/>1x Carbon Cell"| SM_ING
     M -->|"Ores + Carbon Cells"| SM_ING
     M -.->|"8% Bonus Proc"| CF_CR
     SM_ING -->|"2x–5x Alloy Ingot"| SM_EQ
@@ -896,13 +901,13 @@ flowchart TD
   subgraph Culinary["Bio-Agri & Culinary Branch"]
     BH["Fishing<br/>(9 Raw Synth-Biota)"]
     FM["Farming<br/>(9 Hydroponic Crops)"]
-    HW["Hydro-Wheat<br/>(Lv 1 Crop + 20% Farming Proc)"]
+    HW["Hydro-Wheat<br/>(Lv 1 Crop + 16% Farming Proc)"]
     ND["Synth-Noodles<br/>(1x Hydro-Wheat -> 2x Noodles)"]
     SC_STIM["Synth-Cook: Biota Stims<br/>(9 Healing Rations/Stims)"]
     SC_RAMEN["Synth-Cook: Cyber-Ramen<br/>(9 High-Healing Ramen Bowls)"]
 
     BH -->|"1x Raw Biota"| SC_STIM
-    FM -->|"Cultivate Lv 1<br/>or 20% Bonus Proc"| HW
+    FM -->|"Cultivate Lv 1<br/>or 16% Bonus Proc"| HW
     HW -->|"Farming Lv 3 or<br/>Synth-Cook Lv 1"| ND
     ND -->|"1x Synth-Noodles"| SC_RAMEN
     FM -->|"1x Crop (Soy..Truffle)"| SC_RAMEN
@@ -923,7 +928,7 @@ flowchart TD
       "low-tier **CPU/RAM hardware** (`{}` at Lv {} and `{}` at Lv {} for "
       "**Hacking**). **Recycling** refines scrap into `ItemCategory::RawMaterial` "
       "components used in **Cyber-Fab** and **Hacking**. Every recycling cycle also "
-      "grants minor Credits and a **25% chance to recover `1x {}`**, which feeds "
+      "grants minor Credits and a **32% chance to recover `1x {}`**, which feeds "
       "directly into **Smithing**.\n\n",
       item_name(slv_cpu.product_item), slv_cpu.req_level,
       item_name(slv_ram.product_item), slv_ram.req_level,
@@ -1154,12 +1159,12 @@ flowchart LR
 
 The culinary system offers two parallel paths in **Synth-Cook**:
 1. **Single-Input Biota Stims**: Directly synthesize aquatic `RawBiota` from **Fishing** into combat rations (`+{} HP` to `+{} HP`).
-2. **Multi-Ingredient Cyber-Ramen**: Cultivate `{}` in **Farming** (also obtained via a **20% bonus proc** on any hydroponic crop harvest), mill it into `2x {}`, and combine `1x {}` with hydroponic crops (or `{}`) to cook high-healing **Cyber-Ramen** bowls (`+{} HP` to `+{} HP`).
+2. **Multi-Ingredient Cyber-Ramen**: Cultivate `{}` in **Farming** (also obtained via a **16% bonus proc** on any hydroponic crop harvest), mill it into `2x {}`, and combine `1x {}` with hydroponic crops (or `{}`) to cook high-healing **Cyber-Ramen** bowls (`+{} HP` to `+{} HP`).
 
 ```mermaid
 flowchart LR
   subgraph Hydroponics["Farming (Hydroponic Crops)"]
-    F_WH["{}<br/>(+20% proc on all crops)"]
+    F_WH["{}<br/>(+16% proc on all crops)"]
     F_SOY["{}"]
     F_SC["{}"]
     F_NR["{}"]

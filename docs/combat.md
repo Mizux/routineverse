@@ -10,7 +10,7 @@ For **Attack & Defense ICE Pools**, **Firewalls (`EquipSlot::Firewall`)**, and *
 
 Combat in **Routineverse** operates simultaneously on two planes:
 1. **Physical Plane (`HP`)**: Melee weapons strike enemy `HP`, while enemy physical attacks damage your `HP` (mitigated by Armor/Visor/Shield `DR%` and healed by the **Auto-Stim Injector**).
-2. **Cyber / Metaverse Plane (`INT`)**: Loaded **Attack ICE** bots strike enemy `Integrity` (`INT`) and have a **35% chance on hit to destroy 1 enemy ICE bot**, while enemy ICE bots either self-repair the enemy's Integrity (25% chance when damaged) or attack your `Integrity` (mitigated by Firewall/Defense ICE `Cyber DR%` and auto-repaired by **Defense ICE** at $\le 65\%$ Integrity).
+2. **Cyber / Metaverse Plane (`INT`)**: Loaded **Attack ICE** bots strike enemy `Integrity` (`INT`) and have a **32% chance on hit to destroy 1 enemy ICE bot**, while enemy ICE bots either self-repair the enemy's Integrity (32% chance when below 50% INT) or attack your `Integrity` (mitigated by Firewall/Defense ICE `Cyber DR%` and auto-repaired by **Defense ICE** at $\le 64\%$ Integrity).
 
 - **Dual Victory Condition**: Depleting **either** a target's `HP` (if `max_hp > 0`) **or** its `Integrity` (if `max_integrity > 0`) immediately neutralizes the hostile!
 - **Three Hostile Archetypes**:
@@ -20,11 +20,11 @@ Combat in **Routineverse** operates simultaneously on two planes:
 
 ```mermaid
 flowchart TD
-  START["Select Hostile Target<br/>(Check Bounty Lv Clearance)"] --> TIMERS["Advance Weapon & Hostile Timers<br/>+ Passive Regen (+1% HP & +1% INT / 5s)"]
+  START["Select Hostile Target<br/>(Check Bounty Lv Clearance)"] --> TIMERS["Advance Weapon & Hostile Timers<br/>+ Passive Regen (+1% HP & +1% INT / 4.096s)"]
 
-  TIMERS --> PLR_ATK{"Player Cycle<br/>(2.4s)?"}
+  TIMERS --> PLR_ATK{"Player Cycle<br/>(2.048s)?"}
   PLR_ATK -->|"Physical Strike (if Foe HP > 0)"| PHYS_DMG["Hit Roll vs Foe Evasion<br/>Deal HP Damage & Award ATK/STR/DEF + HP XP"]
-  PLR_ATK -->|"Cyber Strike (if Foe INT > 0)"| ICE_DMG["Consume 1 Attack ICE Bot<br/>Deal INT Damage, 35% Foe ICE Break,<br/>Award Hacking + Integrity XP"]
+  PLR_ATK -->|"Cyber Strike (if Foe INT > 0)"| ICE_DMG["Consume 1 Attack ICE Bot<br/>Deal INT Damage, 32% Foe ICE Break,<br/>Award Hacking + Integrity XP"]
 
   PHYS_DMG & ICE_DMG --> FOE_DEAD{"Foe HP <= 0<br/>OR Foe INT <= 0?"}
 
@@ -35,11 +35,11 @@ flowchart TD
   PLR_ATK -->|"No"| MON_ATK
 
   MON_ATK -->|"Physical Hit (if MaxHit > 0)"| MON_PHYS["Apply HP Damage Reduced by DR%<br/>Trigger Auto-Stim if HP <= Threshold"]
-  MON_ATK -->|"Enemy ICE (if ICE Pool > 0 or Grid AI)"| MON_ICE["25% Self-Repair (+10% Foe INT)<br/>or Attack Player INT (Reduced by Cyber DR%)<br/>Trigger Defense ICE if INT <= 65%"]
+  MON_ATK -->|"Enemy ICE (if ICE Pool > 0 or Grid AI)"| MON_ICE["32% Self-Repair (+ICE MaxHit INT when < 50% INT)<br/>or Attack Player INT (Reduced by Cyber DR%)<br/>Trigger Defense ICE if INT <= 64%"]
 
   MON_PHYS & MON_ICE --> PLR_DEAD{"Player HP <= 0<br/>OR Player INT <= 0?"}
 
-  PLR_DEAD -->|"Flatline / Neural Crash"| TRAUMA["Trauma Team / NetWatch Reconstruction<br/>(-10% Credits, Stop Activity)"]
+  PLR_DEAD -->|"Flatline / Neural Crash"| TRAUMA["Trauma Team / NetWatch Reconstruction<br/>(-12.5% Credits, Stop Activity)"]
   PLR_DEAD -->|"Alive"| TIMERS
 ```
 
