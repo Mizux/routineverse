@@ -102,14 +102,14 @@ flowchart LR
 | `RawOre` | Ore | Deep-Mining, Recycling (`CarbonCell` proc), Drops | Input for **Smithing** (ingots) and **Cyber-Fab** (`SiliconOre`) |
 | `Alloy` | Alloy | Smithing | Input for **Smithing** (Blades/Exo-Suits) and **Cyber-Fab** (Visors/Shields/CPUs/Crystals) |
 | `DataCrystal` | Crystal | Cyber-Fab, Deep-Mining (8% proc), Drops | High-value tech cores & inputs for high-tier Firewalls/RAM |
-| `Hardware` | Hardware | Salvaging, Cyber-Fab, Hostile Drops | **CPUs** & **RAM** modules used as inputs for **Hacking** |
+| `Hardware` | CPU/RAM | Salvaging, Cyber-Fab, Hostile Drops | **CPUs** & **RAM** modules used as inputs for **Hacking** |
 | `Weapon` | Weapon | Smithing, Hostile Drops | Equippable in `Weapon` slot (+Attack, +Strength) |
 | `Head` | Head | Cyber-Fab | Equippable in `Head` slot (+Defence, +% DR) |
 | `Armor` | Armor | Smithing, Hostile Drops | Equippable in `Armor` slot (+Defence, +% DR) |
 | `Shield` | Shield | Cyber-Fab | Equippable in `Shield` slot (+Defence, +% DR) |
 | `Firewall` | Firewall | Hacking, Hostile Drops | Equippable in `Firewall` slot (+Max INT, +Cyber Evasion, +ICE DR%) |
-| `AttackIce` | Attack ICE | Hacking, Hostile Drops | Loaded into **Attack ICE Pool** (+Cyber Accuracy, +ICE Max Hit; 1 consumed/attack) |
-| `DefenseIce` | Defense ICE | Hacking | Loaded into **Defense ICE Pool** (+Cyber Evasion, +ICE DR%, auto-repairs INT) |
-| `IntegrityPatch` | INT Patch | Hacking, Hostile Drops | Restores **Integrity** (`+INT`) and/or grants permanent **Integrity XP** |
-| `Cutter` / `Harvester` / `Drill` / `Reactor` / `AutoStim` | Tools | Cyber-Shop, Hostile Drops | Equippable in tool slots to reduce skill cycle time or raise Auto-Stim threshold |
+| `AttackIce` | Atk-ICE | Hacking, Hostile Drops | Loaded into **Attack ICE Pool** (+Cyber Accuracy, +ICE Max Hit; 1 consumed/attack) |
+| `DefenseIce` | Def-ICE | Hacking | Loaded into **Defense ICE Pool** (+Cyber Evasion, +ICE DR%, auto-repairs INT) |
+| `IntegrityPatch` | INT-Patch | Hacking, Hostile Drops | Restores **Integrity** (`+INT`) and/or grants permanent **Integrity XP** |
+| `Cutter` / `Harvester` / `Drill` / `Reactor` / `AutoStim` | Cutter / Harvester / Drill / Reactor / Auto-Stim | Cyber-Shop, Hostile Drops | Equippable in tool slots to reduce skill cycle time or raise Auto-Stim threshold |
 | `CyberLoot` | Salvage | Hostile Drops | Tradeable mechanical salvage for Credits |

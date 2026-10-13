@@ -155,7 +155,7 @@ flowchart LR
   O_CO -->|"1x"| A_CO
   O_CC -->|"4x"| A_CO
 
-  A_SC -->|"Smithing"| G_SC["Scrap Blade (2x)<br/>Scrap Exo-Harness (5x)"]
+  A_SC -->|"Smithing"| G_SC["Scrap Vibro-Knife (2x)<br/>Scrap Exo-Harness (5x)"]
   A_SC -->|"Cyber-Fab + Copper Filament"| F_SC["Scrap Optic Visor<br/>Scrap Riot Buckler"]
 
   A_TI -->|"Smithing"| G_TI["Titanium Mono-Blade (2x)<br/>Titanium Flak-Jacket (5x)"]

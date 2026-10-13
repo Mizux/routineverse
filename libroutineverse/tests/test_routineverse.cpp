@@ -58,6 +58,8 @@ void test_enum_safety() {
   for (ItemId cid : data_crystal_ids()) {
     TEST_CHECK(is_valid_item(cid));
   }
+  TEST_CHECK(items_by_category(ItemCategory::Weapon).size() == 8);
+  TEST_CHECK(items_by_category(static_cast<ItemCategory>(255)).empty());
 
   // CombatStyle helpers
   TEST_CHECK(!all_combat_styles().empty());
@@ -356,7 +358,8 @@ void test_hacking_and_ice_pools() {
   TEST_CHECK(gs.equip_item(ItemId::FirmwareBoostMk1));
   TEST_CHECK(gs.skill_xp(SkillType::Integrity) == int_xp_before + 250);
 
-  // Fighting unconnected monster (StrayServoDrone, max_integrity == 0) should NOT consume Attack ICE
+  // Fighting unconnected monster (StrayServoDrone, max_integrity == 0) should NOT
+  // consume Attack ICE
   uint16_t atk_ice_before_slum = gs.equipment.attack_ice_qty;
   gs.start_combat(MonsterId::StrayServoDrone);
   gs.tick(5000);
@@ -380,7 +383,8 @@ void test_hacking_and_ice_pools() {
   TEST_CHECK(gs.info.active_type == ActiveActivityType::Combat);
   gs.fast_forward_seconds(30);
 
-  // Should have consumed Attack ICE, gained Hacking & Integrity XP, and killed SlumDataTerminal
+  // Should have consumed Attack ICE, gained Hacking & Integrity XP, and killed
+  // SlumDataTerminal
   TEST_CHECK(gs.equipment.attack_ice_qty < atk_ice_start);
   TEST_CHECK(gs.skill_xp(SkillType::Hacking) > hack_xp_start);
   TEST_CHECK(gs.stats.monster_kills[MonsterId::SlumDataTerminal] >= 1);

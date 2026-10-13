@@ -2,12 +2,14 @@
 
 #include <array>
 #include <format>
+#include <vector>
 
 const ItemInfo& get_item_info(ItemId id) {
   static constexpr std::array item_info{std::to_array<ItemInfo>({
 #define RV_BONUS(...) Bonus{__VA_ARGS__}
-#define X(id, name, cat, req_lvl, price, ...) \
-  {ItemId::id, name, ItemCategory::cat, req_lvl, price __VA_OPT__(, RV_BONUS __VA_ARGS__)},
+#define X(id, name, cat, req_lvl, price, ...)    \
+  {ItemId::id, name, ItemCategory::cat, req_lvl, \
+   price __VA_OPT__(, RV_BONUS __VA_ARGS__)},
       RV_ITEM_ID_LIST(X)
 #undef X
 #undef RV_BONUS
@@ -73,6 +75,26 @@ std::string item_category_name(ItemCategory cat) {
   return "Item";
 }
 
+std::span<const ItemId> items_by_category(ItemCategory cat) noexcept {
+  static const auto table = []() {
+    constexpr size_t num_cats = static_cast<size_t>(ItemCategory::IntegrityPatch) + 1;
+    std::array<std::vector<ItemId>, num_cats> map{};
+    for (ItemId id : all_item_ids()) {
+      if (!is_valid_item(id)) continue;
+      size_t idx = static_cast<size_t>(get_item_info(id).category);
+      if (idx < map.size()) {
+        map[idx].push_back(id);
+      }
+    }
+    return map;
+  }();
+  size_t idx = static_cast<size_t>(cat);
+  if (idx >= table.size()) {
+    return {};
+  }
+  return table[idx];
+}
+
 std::string item_equip_summary(ItemId id) {
   if (!is_valid_item(id)) return "Empty";
   const auto& info = get_item_info(id);
@@ -127,12 +149,5 @@ bool is_valid_item(ItemId id) noexcept {
 }
 
 std::span<const ItemId> data_crystal_ids() noexcept {
-  static constexpr std::array ids{std::to_array<ItemId>({
-      ItemId::AmberDatachip,
-      ItemId::RubyLaserCore,
-      ItemId::EmeraldCryptokey,
-      ItemId::SapphireCortex,
-      ItemId::QuantumDiamond,
-  })};
-  return ids;
+  return items_by_category(ItemCategory::DataCrystal);
 }

@@ -56,10 +56,10 @@ Coding ICE bots, Firewalls, and Integrity Patches requires **CPU processors** an
 | **Scrap DRAM Stick** | RAM | T1 | 10 Cr | `Salvaging` Lv 6 (`3.3s`, 24 XP), `Stray Servo-Drone` (45%), `Slum Data-Terminal` (85%) | Lv 10 (`2.4s`, 48 XP): `1x Silicon Ore + 1x Copper Wire Scrap` |
 | **Positronic Multi-Core CPU** | CPU | T2 | 95 Cr | `Riot Enforcer Bot` (35%), `Corp Subroutine AI` (75%) | Lv 32 (`2.8s`, 145 XP): `1x Positronic Wafer + 1x Silver Conductor` |
 | **Optic-NAND Storage Bank** | RAM | T2 | 85 Cr | `Corp Subroutine AI` (75%) | Lv 36 (`2.8s`, 155 XP): `1x Optic Silica Glass + 1x Carbon Fiber Weave` |
-| **Quantum Co-Processor** | CPU | T3 | 340 Cr | `Blackwall Daemon` (70%) | Lv 58 (`3.0s`, 270 XP): `1x Quantum Lattice + 1x Gold Superconductor` |
-| **Cryo-Holographic RAM** | RAM | T3 | 310 Cr | `Blackwall Daemon` (70%) | Lv 60 (`3.0s`, 280 XP): `1x Cryo-Coolant Gel + 1x Positronic Wafer` |
-| **Neural Overmind CPU** | CPU | T4 | 920 Cr | `Archon-Net Overmind` (75%) | Lv 85 (`3.6s`, 680 XP): `1x Neural Matrix + 1x Chrono-Alloy Ingot` |
-| **Quantum Qubit Vault** | RAM | T4 | 860 Cr | `Archon-Net Overmind` (75%) | Lv 87 (`3.6s`, 710 XP): `1x Quantum Lattice + 1x Sapphire Cortex` |
+| **Quantum Co-Processor** | CPU | T3 | 340 Cr | `Blackwall Sentinel AI` (70%) | Lv 58 (`3.0s`, 270 XP): `1x Quantum Lattice + 1x Gold Superconductor` |
+| **Cryo-Holographic RAM** | RAM | T3 | 310 Cr | `Blackwall Sentinel AI` (70%) | Lv 60 (`3.0s`, 280 XP): `1x Cryo-Coolant Gel + 1x Positronic Wafer` |
+| **Neural Overmind CPU** | CPU | T4 | 920 Cr | `ARCHON-0, Metaverse AI` (75%) | Lv 85 (`3.6s`, 680 XP): `1x Neural Matrix + 1x Chrono-Alloy Ingot` |
+| **Quantum Qubit Vault** | RAM | T4 | 860 Cr | `ARCHON-0, Metaverse AI` (75%) | Lv 87 (`3.6s`, 710 XP): `1x Quantum Lattice + 1x Sapphire Cortex` |
 
 ---
 
