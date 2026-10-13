@@ -23,8 +23,11 @@ target_include_directories(libroutineverse PUBLIC
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/routineverse>
 )
 target_compile_features(libroutineverse PUBLIC cxx_std_20)
-target_compile_options(libroutineverse PRIVATE
-  $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -fstack-protector>
+target_compile_options(libroutineverse
+  PUBLIC
+    $<$<CXX_COMPILER_ID:MSVC>:/Zc:preprocessor>
+  PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -fstack-protector>
 )
 set_target_properties(libroutineverse PROPERTIES
   PREFIX ""
