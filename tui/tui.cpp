@@ -486,8 +486,9 @@ int TuiApp::run() {
                                                  BUTTON1_DOUBLE_CLICKED))) {
           int rows, cols;
           getmaxyx(stdscr, rows, cols);
-          int left_w = std::max(26, cols * 24 / 100);
-          int center_w = std::max(38, cols * 44 / 100);
+          int left_w = (cols < 90) ? 26 : 30;
+          int right_w = std::clamp(cols * 34 / 100, 24, 48);
+          int center_w = cols - left_w - right_w;
           int main_h = rows - 8;
 
           if (ev.y >= 1 && ev.y < 1 + main_h) {
@@ -546,7 +547,8 @@ int TuiApp::run() {
                 }
               }
             } else {
-              int bank_h = std::max(7, main_h * 42 / 100);
+              int status_h = std::min(11, std::max(7, main_h * 42 / 100));
+              int bank_h = std::max(7, (main_h - status_h) * 55 / 100);
               if (ev.y < 1 + bank_h) {
                 _focus = FocusPane::Bank;
                 int visible_rows = std::max(1, bank_h - 3);
@@ -758,12 +760,30 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
              static_cast<int>(ratio * 100.0));
     attroff(COLOR_PAIR(CP_CYAN) | A_BOLD);
 
+    auto act_ids = actions_for_skill(sk);
+    int max_proto_len = 8;   // "Protocol"
+    int max_schem_len = 18;  // "Schematic / Output"
+    for (SkillActionId id : act_ids) {
+      const auto& act = get_skill_action(id);
+      bool is_running = (_gameState.info.active_type == ActiveActivityType::Skill &&
+                         _gameState.info.active_action_id == id);
+      int plen =
+          static_cast<int>(std::string_view(act.name).size()) + (is_running ? 2 : 0);
+      max_proto_len = std::max(max_proto_len, plen);
+      int slen = static_cast<int>(action_recipe(act).size());
+      max_schem_len = std::max(max_schem_len, slen);
+    }
+
+    // Fixed columns: Lv(4) + sep(1) + Cycle(6) + XP(5) + Mst(5) = 21
+    int avail_w = std::max(24, inner_w - 21);
+    int min_schem_w = std::min(max_schem_len, std::max(18, avail_w * 42 / 100));
+    int proto_w = std::clamp(avail_w - min_schem_w, 12, max_proto_len);
+
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-24s %-5s %-4s %-4s %s", "Lv", "Protocol", "Cycle",
-             "XP", "Mst", "Schematic / Output");
+    mvprintw(row++, x + 2, "%-3s %-*s %-5s %-4s %-4s %s", "Lv", proto_w, "Protocol",
+             "Cycle", "XP", "Mst", "Schematic / Output");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
-    auto act_ids = actions_for_skill(sk);
     int visible_rows = std::max(1, (y + h - 1) - row);
     int start_idx = 0;
     if (_actionCursor >= visible_rows) {
@@ -787,11 +807,11 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
       double eff_s = _gameState.action_effective_interval_ms(id) / 1000.0;
       int m_lvl = _gameState.mastery_level(id);
       std::string aname = (is_running ? "* " : "") + std::string(act.name);
-      if (static_cast<int>(aname.size()) > 24) aname = aname.substr(0, 24);
+      if (static_cast<int>(aname.size()) > proto_w) aname = aname.substr(0, proto_w);
 
       std::string line =
-          std::format("{:>2}  {:<24} {:>4.1f}s {:>4} {:>3}  {}", act.req_level, aname,
-                      eff_s, act.xp, m_lvl, action_recipe(act));
+          std::format("{:>2}  {:<{}} {:>4.1f}s {:>4} {:>3}  {}", act.req_level, aname,
+                      proto_w, eff_s, act.xp, m_lvl, action_recipe(act));
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -888,9 +908,30 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
     mvaddstr(row++, x + 2, style_task.c_str());
     attroff(COLOR_PAIR(CP_YELLOW));
 
+    int max_hostile_len = 7;  // "Hostile"
+    int max_sector_len = 6;   // "Sector"
+    for (MonsterId m_id : monsters) {
+      const auto& mon = get_monster_info(m_id);
+      bool is_fighting = (_gameState.info.active_type == ActiveActivityType::Combat &&
+                          _gameState.combat.active_monster_id == m_id);
+      bool is_task = (m_id == _gameState.combat.bounty_target_id);
+      int hlen = static_cast<int>(monster_name(mon.id).size()) +
+                 ((is_fighting || is_task) ? 2 : 0);
+      max_hostile_len = std::max(max_hostile_len, hlen);
+      int zlen = static_cast<int>(zone_name(mon.zone).size());
+      max_sector_len = std::max(max_sector_len, zlen);
+    }
+
+    // Fixed columns: Lv(4) + sep(1) + sep(1) + HP(5) + INT(5) + Max(4) + ICE(4) + Kills(5) = 29
+    int avail_combat_w = std::max(20, inner_w - 29);
+    int min_sector_w =
+        std::min(max_sector_len, std::max(12, avail_combat_w * 42 / 100));
+    int hostile_w = std::clamp(avail_combat_w - min_sector_w, 12, max_hostile_len);
+    int sector_w = std::clamp(avail_combat_w - hostile_w, 8, max_sector_len);
+
     attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-    mvprintw(row++, x + 2, "%-3s %-17s %-12s %-4s %-4s %-3s %-3s %-5s", "Lv", "Hostile",
-             "Sector", "HP", "INT", "Max", "ICE", "Kills");
+    mvprintw(row++, x + 2, "%-3s %-*s %-*s %-4s %-4s %-3s %-3s %-5s", "Lv", hostile_w,
+             "Hostile", sector_w, "Sector", "HP", "INT", "Max", "ICE", "Kills");
     attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
     int visible_rows = std::max(1, (y + h - 1) - row);
@@ -915,9 +956,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
       std::string mname =
           (is_fighting ? "* " : (is_task ? "! " : "")) + monster_name(mon.id);
-      if (static_cast<int>(mname.size()) > 17) mname = mname.substr(0, 17);
+      if (static_cast<int>(mname.size()) > hostile_w) mname = mname.substr(0, hostile_w);
       std::string zname = zone_name(mon.zone);
-      if (static_cast<int>(zname.size()) > 12) zname = zname.substr(0, 12);
+      if (static_cast<int>(zname.size()) > sector_w) zname = zname.substr(0, sector_w);
 
       uint16_t kills = 0;
       if (auto it = _gameState.stats.monster_kills.find(m_id);
@@ -927,8 +968,9 @@ void TuiApp::drawActionsOrCombatPane(int y, int x, int h, int w) {
 
       int disp_max = std::max(mon.max_hit, mon.ice_max_hit);
       std::string line = std::format(
-          "{:>3} {:<17} {:<12} {:>4} {:>4} {:>3} {:>3} {:>5}", mon.combat_level,
-          mname, zname, mon.max_hp, mon.max_integrity, disp_max, mon.ice_pool, kills);
+          "{:>3} {:<{}} {:<{}} {:>4} {:>4} {:>3} {:>3} {:>5}", mon.combat_level,
+          mname, hostile_w, zname, sector_w, mon.max_hp, mon.max_integrity, disp_max,
+          mon.ice_pool, kills);
       if (static_cast<int>(line.size()) > inner_w) {
         line = line.substr(0, inner_w);
       }
@@ -948,8 +990,51 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
   int inner_w = w - 4;
   int row = y + 1;
 
+  auto format_bank_extra = [](const auto& slot, const ItemInfo& info) {
+    std::string extra = money_string(static_cast<long long>(slot.qty) * info.price);
+    if (info.category == ItemCategory::StimFood && info.bonus.recover_amount > 0) {
+      extra += std::format(" (+{}HP)", info.bonus.recover_amount);
+    } else if (info.category == ItemCategory::IntegrityPatch) {
+      if (info.bonus.speed_bonus_pct > 0) {
+        extra += std::format(" (+{}INT/+{}XP)", info.bonus.recover_amount,
+                             info.bonus.speed_bonus_pct);
+      } else {
+        extra += std::format(" (+{}INT)", info.bonus.recover_amount);
+      }
+    } else if (info.category == ItemCategory::AttackIce) {
+      extra += std::format(" (+{}ICE)", info.bonus.strength);
+    } else if (info.category == ItemCategory::DefenseIce) {
+      extra += std::format(" (+{}INT)", info.bonus.recover_amount);
+    } else if (info.category == ItemCategory::Firewall) {
+      extra += std::format(" (+{}INT)", info.bonus.strength);
+    } else if (equip_slot(info.category) == EquipSlot::Weapon) {
+      extra += std::format(" (+{}Str)", info.bonus.strength);
+    } else if (info.bonus.speed_bonus_pct > 0) {
+      extra += std::format(" (-{}%Spd)", info.bonus.speed_bonus_pct);
+    } else if (info.bonus.damage_reduction > 0) {
+      extra += std::format(" ({}%DR)", info.bonus.damage_reduction);
+    }
+    return extra;
+  };
+
+  int max_item_len = 16;
+  int max_extra_len = 13;  // "Value / Specs"
+  for (int i = 0; i < static_cast<int>(_gameState.bank.size()); ++i) {
+    const auto& slot = _gameState.bank[i];
+    const auto& info = get_item_info(slot.item_id);
+    max_item_len =
+        std::max(max_item_len, static_cast<int>(std::string_view(info.name).size()));
+    max_extra_len =
+        std::max(max_extra_len, static_cast<int>(format_bank_extra(slot, info).size()));
+  }
+
+  // Fixed columns: sep(1) + Qty(5) + sep(1) = 7
+  int avail_bank_w = std::max(16, inner_w - 7);
+  int min_extra_w = std::min(max_extra_len, std::max(13, avail_bank_w * 40 / 100));
+  int item_w = std::clamp(avail_bank_w - min_extra_w, 12, max_item_len);
+
   attron(COLOR_PAIR(CP_DIM) | A_BOLD);
-  mvprintw(row++, x + 2, "%-16s %5s %s", "Item", "Qty", "Value / Specs");
+  mvprintw(row++, x + 2, "%-*s %5s %s", item_w, "Item", "Qty", "Value / Specs");
   attroff(COLOR_PAIR(CP_DIM) | A_BOLD);
 
   if (_gameState.bank.empty()) {
@@ -976,32 +1061,11 @@ void TuiApp::drawBankPane(int y, int x, int h, int w) {
     for (int c = 0; c < inner_w; ++c) mvaddch(row, x + 2 + c, ' ');
 
     std::string iname = info.name;
-    if (static_cast<int>(iname.size()) > 16) iname = iname.substr(0, 16);
+    if (static_cast<int>(iname.size()) > item_w) iname = iname.substr(0, item_w);
 
-    std::string extra = money_string(static_cast<long long>(slot.qty) * info.price);
-    if (info.category == ItemCategory::StimFood && info.bonus.recover_amount > 0) {
-      extra += std::format(" (+{}HP)", info.bonus.recover_amount);
-    } else if (info.category == ItemCategory::IntegrityPatch) {
-      if (info.bonus.speed_bonus_pct > 0) {
-        extra += std::format(" (+{}INT/+{}XP)", info.bonus.recover_amount, info.bonus.speed_bonus_pct);
-      } else {
-        extra += std::format(" (+{}INT)", info.bonus.recover_amount);
-      }
-    } else if (info.category == ItemCategory::AttackIce) {
-      extra += std::format(" (+{}ICE)", info.bonus.strength);
-    } else if (info.category == ItemCategory::DefenseIce) {
-      extra += std::format(" (+{}INT)", info.bonus.recover_amount);
-    } else if (info.category == ItemCategory::Firewall) {
-      extra += std::format(" (+{}INT)", info.bonus.strength);
-    } else if (equip_slot(info.category) == EquipSlot::Weapon) {
-      extra += std::format(" (+{}Str)", info.bonus.strength);
-    } else if (info.bonus.speed_bonus_pct > 0) {
-      extra += std::format(" (-{}%Spd)", info.bonus.speed_bonus_pct);
-    } else if (info.bonus.damage_reduction > 0) {
-      extra += std::format(" ({}%DR)", info.bonus.damage_reduction);
-    }
+    std::string extra = format_bank_extra(slot, info);
 
-    std::string line = std::format("{:<16} {:>5} {}", iname, slot.qty, extra);
+    std::string line = std::format("{:<{}} {:>5} {}", iname, item_w, slot.qty, extra);
     if (static_cast<int>(line.size()) > inner_w) {
       line = line.substr(0, inner_w);
     }
